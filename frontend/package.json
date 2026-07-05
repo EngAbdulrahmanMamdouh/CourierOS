@@ -1,0 +1,43 @@
+{
+  "name": "courieros-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.0.0",
+    "@tanstack/react-query": "^5.0.0",
+    "axios": "^1.5.0",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^0.268.0",
+    "next": "15.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.0.0",
+    "recharts": "^2.7.2",
+    "sonner": "^0.7.0",
+    "swr": "^2.4.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@jridgewell/remapping": "^2.3.5",
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "26.1.0",
+    "@types/react": "19.2.17",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "autoprefixer": "^10.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.20",
+    "eslint-plugin-react": "^7.37.5",
+    "postcss": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^5.5.0"
+  }
+}

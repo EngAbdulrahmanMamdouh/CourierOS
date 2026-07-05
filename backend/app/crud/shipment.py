@@ -1,0 +1,330 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.models.shipment import Shipment
+from app.models.shipment_history import ShipmentHistory
+
+
+def _apply_visibility_filter(query, current_user=None, include_deleted=False):
+    if not include_deleted:
+        query = query.filter(Shipment.is_deleted == False)
+
+    if current_user is None:
+        return query
+
+    # Admin users see all shipments (unrestricted)
+    if current_user.role == "admin":
+        return query
+
+    # If current_user has no company context, preserve legacy access by skipping company filter
+    if current_user.company_id is not None:
+        query = query.filter(Shipment.company_id == current_user.company_id)
+
+        # company_admin and user roles see all shipments in their company
+        if current_user.role in ("company_admin", "user"):
+            return query
+
+    # employee role: only see shipments they own or are assigned to
+    if current_user.role == "employee":
+        return query.filter(
+            (Shipment.owner_id == current_user.id) | (Shipment.assigned_to == current_user.id)
+        )
+
+    return query
+
+
+def get_all_shipments(
+    db: Session,
+    page: int = 1,
+    size: int = 10,
+    current_user=None,
+    include_deleted: bool = False,
+):
+    offset = (page - 1) * size
+
+    query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    return query.offset(offset).limit(size).all()
+
+
+def get_shipment_by_id(db: Session, shipment_id: int, current_user=None, include_deleted: bool = False):
+    query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
+
+    return query.first()
+
+
+def assign_shipment(db: Session, shipment_id: int, employee_id: int, current_user=None):
+    if current_user is None or current_user.role != "admin":
+        raise PermissionError("Only admins can assign shipments")
+
+    shipment = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user).first()
+    if shipment is None:
+        return None
+
+    shipment.assigned_to = employee_id
+    db.commit()
+    db.refresh(shipment)
+    return shipment
+
+
+def _validate_related_entities(db: Session, shipment_data, company_id: int):
+    """Validate that related entities belong to the same company"""
+    if hasattr(shipment_data, 'customer_id') and shipment_data.customer_id:
+        from app.models.customer import Customer
+        customer = db.query(Customer).filter(
+            Customer.id == shipment_data.customer_id,
+            Customer.company_id == company_id
+        ).first()
+        if customer is None:
+            raise ValueError(f"Customer {shipment_data.customer_id} does not belong to this company")
+
+
+def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: int = None):
+    if owner_id is None:
+        owner_id = 1
+    if company_id is None:
+        company_id = 1
+
+    return Shipment(
+        sender_name=shipment_data.sender_name,
+        receiver_name=shipment_data.receiver_name,
+        receiver_phone=shipment_data.receiver_phone,
+        address=shipment_data.address,
+        city=shipment_data.city,
+        status="Pending",
+        owner_id=owner_id,
+        company_id=company_id,
+    )
+
+
+def create_shipment(db: Session, shipment_data, owner_id: int = None, company_id: int = None, current_user=None):
+    if owner_id is None:
+        owner_id = 1
+    if company_id is None:
+        company_id = current_user.company_id if current_user else 1
+
+    _validate_related_entities(db, shipment_data, company_id)
+    shipment = _build_shipment_from_data(shipment_data, owner_id, company_id)
+
+    db.add(shipment)
+    db.commit()
+    db.refresh(shipment)
+
+    # assign a globally unique tracking number and create initial history
+    shipment.tracking_number = f"TRK{shipment.id:010d}"
+    db.add(shipment)
+    history = ShipmentHistory(
+        shipment_id=shipment.id,
+        old_status="",
+        new_status=shipment.status,
+        changed_by=owner_id
+    )
+    db.add(history)
+    db.commit()
+    db.refresh(shipment)
+
+    return shipment
+
+
+def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = None, company_id: int = None):
+    if owner_id is None:
+        owner_id = 1
+    if company_id is None:
+        company_id = 1
+
+    shipments = [_build_shipment_from_data(data, owner_id, company_id) for data in shipment_datas]
+    db.add_all(shipments)
+    db.commit()
+    return shipments
+
+
+def update_shipment(db: Session, shipment_id: int, shipment_data, current_user=None, include_deleted: bool = False):
+    query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
+
+    shipment = query.first()
+
+    if shipment is None:
+        return None
+
+    shipment.sender_name = shipment_data.sender_name
+    shipment.receiver_name = shipment_data.receiver_name
+    shipment.receiver_phone = shipment_data.receiver_phone
+    shipment.address = shipment_data.address
+    shipment.city = shipment_data.city
+    shipment.status = shipment_data.status
+
+    db.commit()
+    db.refresh(shipment)
+
+    return shipment
+
+
+def delete_shipment(db: Session, shipment_id: int, current_user=None, include_deleted: bool = False):
+    query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
+
+    shipment = query.first()
+
+    if shipment is None:
+        return None
+
+    shipment.is_deleted = True
+    shipment.deleted_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(shipment)
+
+    return shipment
+
+
+def get_shipment_history(db: Session, shipment_id: int, current_user=None):
+    shipment = get_shipment_by_id(db, shipment_id, current_user=current_user)
+    if shipment is None:
+        return []
+    
+    return db.query(ShipmentHistory).filter(
+        ShipmentHistory.shipment_id == shipment_id
+    ).all()
+
+
+def search_shipments(
+    db: Session,
+    city: str = None,
+    status: str = None,
+    receiver_name: str = None,
+    current_user=None,
+    include_deleted: bool = False,
+):
+    query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    if city:
+        query = query.filter(
+            Shipment.city.ilike(f"%{city}%")
+        )
+
+    if status:
+        query = query.filter(
+            Shipment.status == status
+        )
+
+    if receiver_name:
+        query = query.filter(
+            Shipment.receiver_name.ilike(f"%{receiver_name}%")
+        )
+
+    return query.all()
+
+
+
+def get_accessible_shipments(db: Session, current_user=None, include_deleted: bool = False):
+    query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    return query.all()
+
+
+def get_dashboard_statistics(db: Session, current_user=None, include_deleted: bool = False):
+    query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    total_shipments = query.count()
+
+    pending = query.filter(
+        Shipment.status == "Pending"
+    ).count()
+
+    in_transit = query.filter(
+        Shipment.status == "In Transit"
+    ).count()
+
+    delivered = query.filter(
+        Shipment.status == "Delivered"
+    ).count()
+
+    cancelled = query.filter(
+        Shipment.status == "Cancelled"
+    ).count()
+
+    return {
+        "total_shipments": total_shipments,
+        "pending": pending,
+        "in_transit": in_transit,
+        "delivered": delivered,
+        "cancelled": cancelled
+    }
+
+
+def get_dashboard_summary(db: Session, current_user=None, include_deleted: bool = False):
+    from app.models.customer import Customer
+    from app.models.user import User
+
+    shipment_query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    recent_shipments = (
+        shipment_query.order_by(Shipment.id.desc())
+        .limit(5)
+        .all()
+    )
+
+    total_users = db.query(User).count()
+    total_customers = db.query(Customer).count()
+
+    return {
+        "total_shipments": shipment_query.count(),
+        "pending_shipments": shipment_query.filter(Shipment.status == "Pending").count(),
+        "in_transit_shipments": shipment_query.filter(Shipment.status == "In Transit").count(),
+        "delivered_shipments": shipment_query.filter(Shipment.status == "Delivered").count(),
+        "cancelled_shipments": shipment_query.filter(Shipment.status == "Cancelled").count(),
+        "total_users": total_users,
+        "total_customers": total_customers,
+        "recent_shipments": [
+            {
+                "id": shipment.id,
+                "receiver_name": shipment.receiver_name,
+                "status": shipment.status,
+                "city": shipment.city,
+            }
+            for shipment in recent_shipments
+        ],
+    }
+
+
+def get_reports_shipments(
+    db: Session,
+    current_user=None,
+    date_from=None,
+    date_to=None,
+    status=None,
+    city=None,
+    user_id=None,
+    include_deleted: bool = False,
+):
+    query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
+
+    if user_id is not None and current_user is not None and current_user.role == "admin":
+        query = query.filter(Shipment.owner_id == user_id)
+
+    if status:
+        query = query.filter(Shipment.status == status)
+
+    if city:
+        query = query.filter(Shipment.city.ilike(f"%{city}%"))
+
+    filtered_shipments = query.all()
+
+    grouped_counts = {}
+    for shipment in filtered_shipments:
+        grouped_counts[shipment.status] = grouped_counts.get(shipment.status, 0) + 1
+
+    return {
+        "total_shipments": len(filtered_shipments),
+        "grouped_counts": grouped_counts,
+        "shipments": [
+            {
+                "id": shipment.id,
+                "receiver_name": shipment.receiver_name,
+                "status": shipment.status,
+                "city": shipment.city,
+                "owner_id": shipment.owner_id,
+            }
+            for shipment in filtered_shipments
+        ],
+    }

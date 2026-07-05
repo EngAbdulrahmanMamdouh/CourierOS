@@ -1,0 +1,45 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node.js
+node_modules/
+.next/
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Ignore old frontend
+frontend_new/
+# SQLite database
+*.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# TypeScript build
+*.tsbuildinfo
+
+# Claude
+.claude/
+
+# SQLite
+*.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Claude
+.claude/
