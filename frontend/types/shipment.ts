@@ -13,6 +13,7 @@ export type ShipmentListItem = {
   notes: string | null
   cod_amount: number | null
   created_at: string
+  updated_at: string
 }
 
 export type ShipmentCreatePayload = {

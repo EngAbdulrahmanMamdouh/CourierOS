@@ -1,8 +1,12 @@
 import { API_BASE } from '@/config'
+import { getAccessToken } from '@/services/auth'
 
 export type DashboardStatistics = {
   totalShipments: number
   pendingShipments: number
+  inTransitShipments: number
+  deliveredShipments: number
+  cancelledShipments: number
   deliveredToday: number
   activeCustomers: number
   todayShipments: number
@@ -59,6 +63,9 @@ function buildMockDashboardAnalytics(): DashboardAnalytics {
     statistics: {
       totalShipments: 1284,
       pendingShipments: 214,
+      inTransitShipments: 312,
+      deliveredShipments: 672,
+      cancelledShipments: 86,
       deliveredToday: 72,
       activeCustomers: 86,
       todayShipments: 138,
@@ -181,6 +188,7 @@ function mapBackendAnalytics(source: any): DashboardAnalytics {
     shipments: item.count ?? 0,
   }))
   const recentShipments = (source?.recent_shipments ?? []).map((item: any) => ({
+    id: item.id,
     trackingNumber: item.tracking_number ?? 'N/A',
     receiver: item.receiver_name ?? 'Unknown',
     city: item.city ?? 'Unknown',
@@ -199,6 +207,9 @@ function mapBackendAnalytics(source: any): DashboardAnalytics {
     statistics: {
       totalShipments: statistics.total_shipments ?? 0,
       pendingShipments: statistics.pending ?? 0,
+      inTransitShipments: statistics.in_transit ?? 0,
+      deliveredShipments: statistics.delivered ?? 0,
+      cancelledShipments: statistics.cancelled ?? 0,
       deliveredToday: statistics.delivered ?? 0,
       activeCustomers,
       todayShipments: statistics.today_shipments ?? 0,
@@ -272,21 +283,31 @@ function mapBackendAnalytics(source: any): DashboardAnalytics {
   }
 }
 
+export async function fetchDashboardAnalytics(): Promise<DashboardAnalytics> {
+  const token = getAccessToken()
+  if (!token) {
+    throw new Error('Authentication required to load dashboard analytics.')
+  }
+
+  const response = await fetch(`${API_BASE}/dashboard/analytics`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('Backend dashboard API unavailable')
+  }
+
+  const payload = await response.json()
+  return mapBackendAnalytics(payload)
+}
+
 export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
   try {
-    const response = await fetch(`${API_BASE}/dashboard/analytics`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error('Backend dashboard API unavailable')
-    }
-
-    const payload = await response.json()
-    return mapBackendAnalytics(payload)
+    return await fetchDashboardAnalytics()
   } catch {
     return buildMockDashboardAnalytics()
   }

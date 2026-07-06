@@ -24,10 +24,15 @@ def verify_password(
     plain_password: str,
     hashed_password: str
 ):
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
+    try:
+        return pwd_context.verify(
+            plain_password,
+            hashed_password
+        )
+    except Exception:
+        # Do not expose internal hashing errors (e.g., bcrypt length errors) to callers.
+        # Treat any verification error as authentication failure.
+        return False
 
 
 def create_access_token(data: dict):

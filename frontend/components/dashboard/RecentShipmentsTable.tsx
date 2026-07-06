@@ -1,6 +1,14 @@
+"use client"
+
+import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { SHIPMENT_STATUS_OPTIONS } from '@/constants/shipment'
+import { updateShipmentStatus } from '@/services/shipment'
+import { toast } from 'sonner'
+import { useState } from 'react'
 
 type RecentShipmentRow = {
+  id?: number
   trackingNumber: string
   receiver: string
   city: string
@@ -29,6 +37,20 @@ function statusBadgeStyle(status: string) {
 }
 
 export default function RecentShipmentsTable({ shipments }: RecentShipmentsTableProps) {
+  const [updatingId, setUpdatingId] = useState<number | null>(null)
+
+  const handleStatusChange = async (shipmentId: number | undefined, nextStatus: string) => {
+    if (!shipmentId || !nextStatus) return
+    setUpdatingId(shipmentId)
+    try {
+      await updateShipmentStatus(shipmentId, nextStatus as any)
+      toast.success('Shipment status updated')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Unable to update shipment status')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
   return (
     <section className="glass-card rounded-[24px] border-white/10 p-5">
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -52,6 +74,7 @@ export default function RecentShipmentsTable({ shipments }: RecentShipmentsTable
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Status</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Assigned Driver</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Created Date</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/6">
@@ -67,6 +90,23 @@ export default function RecentShipmentsTable({ shipments }: RecentShipmentsTable
                 </td>
                 <td className="py-5 pr-6">{shipment.assignedDriver}</td>
                 <td className="py-5 pr-6">{shipment.createdAt}</td>
+                <td className="py-5 pr-6">
+                  <div className="flex items-center gap-3">
+                    <Link href={`/dashboard/shipments/${shipment.id ?? shipment.trackingNumber}`} className="inline-flex items-center gap-2 rounded-[12px] border border-white/6 bg-slate-900/80 px-3 py-1 text-sm font-semibold text-slate-100 transition hover:border-sky-400/40">
+                      View Details
+                    </Link>
+                    <select
+                      value={shipment.status}
+                      disabled={updatingId === shipment.id}
+                      onChange={(e) => handleStatusChange(shipment.id, e.target.value)}
+                      className="rounded-[12px] border border-white/10 bg-slate-800 px-2 py-1 text-sm text-slate-100 outline-none transition focus:border-sky-400"
+                    >
+                      {SHIPMENT_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

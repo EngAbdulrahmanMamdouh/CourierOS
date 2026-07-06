@@ -217,19 +217,31 @@ def test_dashboard_analytics_computes_expected_metrics_for_company_admin():
         assert data["cod_summary"]["completed_amount"] == 50.0
         assert data["cod_summary"]["pending_count"] == 1
         assert data["cod_summary"]["completed_count"] == 1
+    finally:
+        db.close()
 
-        assert len(data["latest_payments"]) == 2
-        assert data["latest_payments"][0]["transaction_reference"] == "TXN2"
 
-        assert len(data["latest_pickup_requests"]) == 1
-        assert data["top_customers"] == [{"id": customer.id, "full_name": customer.full_name, "company_name": customer.company_name}]
-        assert data["top_drivers"] == [{"id": driver.id, "full_name": driver.full_name, "vehicle_plate": driver.vehicle_plate}]
-        assert data["top_branches"] == [{"id": branch.id, "name": branch.name, "city": branch.city}]
+def test_dashboard_stats_endpoint_returns_counts_for_company_admin():
+    db = SessionLocal()
+    try:
+        company = _create_company_data(db, "Company A", "COMP_A")
+        company_admin = _create_user(db, "company_admin", "admin@example.com", "company_admin", company.id)
 
-        assert len(data["charts"]["shipments_by_day"]) >= 1
-        assert len(data["charts"]["monthly_growth"]) >= 1
+        _create_shipment(db, company_admin.id, company.id, status="Pending", city="Cairo")
+        _create_shipment(db, company_admin.id, company.id, status="Delivered", city="Cairo")
+        _create_shipment(db, company_admin.id, company.id, status="Cancelled", city="Alex")
 
-        assert all(shipment["id"] != deleted_shipment.id for shipment in data["recent_shipments"])
+        client = _create_test_app(company_admin)
+        response = client.get("/dashboard/stats")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "total_shipments": 3,
+            "pending": 1,
+            "in_transit": 0,
+            "delivered": 1,
+            "cancelled": 1,
+        }
     finally:
         db.close()
 

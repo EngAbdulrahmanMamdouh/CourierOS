@@ -62,7 +62,7 @@ export default function ShipmentPageClient() {
 
       {isError ? <p className="rounded-[18px] border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">Unable to load shipments right now.</p> : null}
 
-      {isLoading ? <p className="text-sm text-slate-400">Loading shipments…</p> : <ShipmentTable shipments={shipments} onCreateClick={() => setIsCreateOpen(true)} />}
+      {isLoading ? <p className="text-sm text-slate-400">Loading shipments…</p> : <ShipmentTable shipments={shipments} onCreateClick={() => setIsCreateOpen(true)} onStatusUpdated={() => queryClient.invalidateQueries({ queryKey: ['shipments'] })} />}
 
       <CreateShipmentDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSubmit={handleCreateShipment} isSubmitting={isSubmitting} submitError={submitError} />
     </>

@@ -1,6 +1,7 @@
 import { API_BASE } from '@/config'
 import { getAccessToken } from '@/services/auth'
 import type { ShipmentCreatePayload, ShipmentListItem, ShipmentResponse } from '@/types/shipment'
+import type { ShipmentStatus } from '@/constants/shipment'
 
 async function handleResponse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null)
@@ -48,4 +49,24 @@ export async function createShipment(payload: ShipmentCreatePayload): Promise<Sh
 
   const result = await handleResponse<{ data: ShipmentResponse }>(response)
   return result.data
+}
+
+export async function fetchShipmentById(shipmentId: number): Promise<ShipmentResponse> {
+  const response = await fetch(`${API_BASE}/shipments/${shipmentId}`, {
+    method: 'GET',
+    headers: buildHeaders(),
+    cache: 'no-store',
+  })
+
+  return handleResponse<ShipmentResponse>(response)
+}
+
+export async function updateShipmentStatus(shipmentId: number, status: ShipmentStatus): Promise<{ message: string; shipment_id: number; old_status: string; new_status: string }> {
+  const response = await fetch(`${API_BASE}/shipments/${shipmentId}/status`, {
+    method: 'PATCH',
+    headers: buildHeaders(),
+    body: JSON.stringify({ new_status: status }),
+  })
+
+  return handleResponse(response)
 }

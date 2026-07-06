@@ -1,14 +1,40 @@
+"use client"
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { ArrowRight, Package } from 'lucide-react'
 import StatusBadge from '@/components/shipments/StatusBadge'
+import { SHIPMENT_STATUS_OPTIONS } from '@/constants/shipment'
+import { updateShipmentStatus } from '@/services/shipment'
 import type { ShipmentListItem } from '@/types/shipment'
+import { toast } from 'sonner'
 
 type ShipmentTableProps = {
   shipments: ShipmentListItem[]
   onCreateClick: () => void
+  onStatusUpdated?: () => void
 }
 
-export default function ShipmentTable({ shipments, onCreateClick }: ShipmentTableProps) {
+export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdated }: ShipmentTableProps) {
+  const [updatingId, setUpdatingId] = useState<number | null>(null)
+
+  const handleStatusChange = async (shipmentId: number, nextStatus: string) => {
+    if (!nextStatus) {
+      return
+    }
+
+    setUpdatingId(shipmentId)
+
+    try {
+      await updateShipmentStatus(shipmentId, nextStatus as ShipmentListItem['status'])
+      toast.success('Shipment status updated')
+      onStatusUpdated?.()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Unable to update shipment status')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
   return (
     <section className="rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40">
       <div className="mb-6 flex items-center justify-between gap-4">
@@ -37,12 +63,13 @@ export default function ShipmentTable({ shipments, onCreateClick }: ShipmentTabl
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Status</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">COD</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">ETA</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
             {shipments.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400">
+                <td colSpan={7} className="py-8 text-center text-slate-400">
                   No shipments available yet.
                 </td>
               </tr>
@@ -57,6 +84,9 @@ export default function ShipmentTable({ shipments, onCreateClick }: ShipmentTabl
                       <div>
                         <div>{shipment.tracking_number ?? `TRK-${shipment.id}`}</div>
                         <div className="text-xs text-slate-500">{shipment.sender_name}</div>
+                        <Link href={`/dashboard/shipments/${shipment.id}`} className="mt-1 inline-flex text-xs font-semibold text-sky-400 transition hover:text-sky-300">
+                          View details
+                        </Link>
                       </div>
                     </div>
                   </td>
@@ -66,10 +96,31 @@ export default function ShipmentTable({ shipments, onCreateClick }: ShipmentTabl
                   </td>
                   <td className="py-5 pr-6">{shipment.city}</td>
                   <td className="py-5 pr-6">
-                    <StatusBadge status={shipment.status} />
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={shipment.status} />
+                    </div>
                   </td>
                   <td className="py-5 pr-6">{shipment.cod_amount != null ? `EGP ${shipment.cod_amount}` : '—'}</td>
                   <td className="py-5 pr-6">{shipment.estimated_delivery_days} days</td>
+                  <td className="py-5 pr-6">
+                    <div className="flex items-center gap-3">
+                      <Link href={`/dashboard/shipments/${shipment.id}`} className="inline-flex items-center gap-2 rounded-[12px] border border-white/10 bg-slate-900/80 px-3 py-1 text-sm font-semibold text-slate-100 transition hover:border-sky-400/40">
+                        View Details
+                      </Link>
+                      <select
+                        value={shipment.status}
+                        disabled={updatingId === shipment.id}
+                        onChange={(event) => handleStatusChange(shipment.id, event.target.value)}
+                        className="rounded-[12px] border border-white/10 bg-slate-800 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-400"
+                      >
+                        {SHIPMENT_STATUS_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}

@@ -69,6 +69,22 @@ def _apply_visibility_filter_entity(query, entity, current_user=None):
     return query
 
 
+def _build_dashboard_statistics(shipment_query):
+    return {
+        "total_shipments": shipment_query.count(),
+        "pending": shipment_query.filter(Shipment.status == "Pending").count(),
+        "in_transit": shipment_query.filter(Shipment.status == "In Transit").count(),
+        "delivered": shipment_query.filter(Shipment.status == "Delivered").count(),
+        "cancelled": shipment_query.filter(Shipment.status == "Cancelled").count(),
+    }
+
+
+@router.get("/stats")
+def dashboard_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    shipment_query = _apply_visibility_filter(db.query(Shipment), current_user)
+    return _build_dashboard_statistics(shipment_query)
+
+
 @router.get("/analytics")
 def analytics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     today = datetime.now(timezone.utc).date()
