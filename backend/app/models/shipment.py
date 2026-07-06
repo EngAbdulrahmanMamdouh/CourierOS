@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -24,6 +24,8 @@ class Shipment(Base):
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     tracking_number = Column(String, unique=True, nullable=True, index=True)
     estimated_delivery_days = Column(Integer, nullable=False, default=1)
+    notes = Column(String, nullable=True, default="")
+    cod_amount = Column(Float, nullable=True, default=0.0)
     delivered_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

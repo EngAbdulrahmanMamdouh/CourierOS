@@ -32,6 +32,9 @@ def get_shipments(
     page: int = 1,
     size: int = 10,
     include_deleted: bool = False,
+    search: str | None = None,
+    status: str | None = None,
+    city: str | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -41,6 +44,9 @@ def get_shipments(
         size=size,
         current_user=current_user,
         include_deleted=include_deleted,
+        search=search,
+        status=status,
+        city=city,
     )
 
 @router.get("/dashboard")

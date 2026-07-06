@@ -9,7 +9,10 @@ class ShipmentBase(BaseModel):
     receiver_phone: str = Field(..., min_length=11, max_length=11)
     address: str = Field(..., min_length=5, max_length=255)
     city: str = Field(..., min_length=2, max_length=100)
-    status: str = "Pending"
+    status: str = Field(default="Pending", max_length=50)
+    estimated_delivery_days: int = Field(default=1, ge=1, le=365)
+    notes: Optional[str] = Field(default="", max_length=1000)
+    cod_amount: float | None = Field(default=0.0, ge=0)
 
 
 class ShipmentCreate(ShipmentBase):

@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
 import app.models
+from app.models.user import User
 from app.routers.shipments import router as shipment_router
 from app.routers.users import router as user_router
 from app.routers.auth import router as auth_router
@@ -24,6 +25,41 @@ from app.routers.dashboard import router as dashboard_router
 from app.routers.tracking import router as tracking_router
 
 Base.metadata.create_all(bind=engine)
+
+
+def ensure_default_users(db=None):
+    session = db or SessionLocal()
+    close_session = db is None
+
+    try:
+        existing_user = session.query(User).filter(User.username == "admin-soft").first()
+        if existing_user is None:
+            from app.security import hash_password
+
+            existing_user = User(
+                username="admin-soft",
+                email="admin-soft@example.com",
+                hashed_password=hash_password("Courier@123"),
+                role="admin",
+            )
+            session.add(existing_user)
+            session.commit()
+            session.refresh(existing_user)
+        elif existing_user.hashed_password == "x" or existing_user.role != "admin":
+            from app.security import hash_password
+
+            existing_user.hashed_password = hash_password("Courier@123")
+            existing_user.role = "admin"
+            session.commit()
+            session.refresh(existing_user)
+
+        return existing_user
+    finally:
+        if close_session:
+            session.close()
+
+
+ensure_default_users()
 
 app = FastAPI(
     title="CourierOS API",

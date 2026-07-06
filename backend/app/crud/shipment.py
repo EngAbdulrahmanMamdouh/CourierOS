@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.models.shipment import Shipment
@@ -41,12 +41,32 @@ def get_all_shipments(
     size: int = 10,
     current_user=None,
     include_deleted: bool = False,
+    search: str = None,
+    status: str = None,
+    city: str = None,
 ):
     offset = (page - 1) * size
 
     query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
 
-    return query.offset(offset).limit(size).all()
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            or_(
+                Shipment.receiver_name.ilike(search_term),
+                Shipment.sender_name.ilike(search_term),
+                Shipment.city.ilike(search_term),
+                Shipment.tracking_number.ilike(search_term),
+            )
+        )
+
+    if status:
+        query = query.filter(Shipment.status == status)
+
+    if city:
+        query = query.filter(Shipment.city.ilike(f"%{city}%"))
+
+    return query.order_by(Shipment.created_at.desc()).offset(offset).limit(size).all()
 
 
 def get_shipment_by_id(db: Session, shipment_id: int, current_user=None, include_deleted: bool = False):
@@ -87,15 +107,23 @@ def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: i
     if company_id is None:
         company_id = 1
 
+    status = getattr(shipment_data, "status", None) or "Pending"
+    estimated_delivery_days = getattr(shipment_data, "estimated_delivery_days", None) or 1
+    notes = getattr(shipment_data, "notes", None) or ""
+    cod_amount = getattr(shipment_data, "cod_amount", None) or 0.0
+
     return Shipment(
         sender_name=shipment_data.sender_name,
         receiver_name=shipment_data.receiver_name,
         receiver_phone=shipment_data.receiver_phone,
         address=shipment_data.address,
         city=shipment_data.city,
-        status="Pending",
+        status=status,
         owner_id=owner_id,
         company_id=company_id,
+        estimated_delivery_days=estimated_delivery_days,
+        notes=notes,
+        cod_amount=cod_amount,
     )
 
 
@@ -153,7 +181,10 @@ def update_shipment(db: Session, shipment_id: int, shipment_data, current_user=N
     shipment.receiver_phone = shipment_data.receiver_phone
     shipment.address = shipment_data.address
     shipment.city = shipment_data.city
-    shipment.status = shipment_data.status
+    shipment.status = getattr(shipment_data, "status", shipment.status) or shipment.status
+    shipment.estimated_delivery_days = getattr(shipment_data, "estimated_delivery_days", shipment.estimated_delivery_days) or shipment.estimated_delivery_days
+    shipment.notes = getattr(shipment_data, "notes", None) or ""
+    shipment.cod_amount = getattr(shipment_data, "cod_amount", shipment.cod_amount)
 
     db.commit()
     db.refresh(shipment)

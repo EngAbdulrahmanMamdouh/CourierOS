@@ -17,7 +17,12 @@ function saveAccessToken(accessToken: string): void {
     return
   }
 
-  sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken)
+  try {
+    sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken)
+    localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken)
+  } catch {
+    // Ignore storage errors and keep the app functional.
+  }
 }
 
 export function getAccessToken(): string | null {
@@ -25,7 +30,11 @@ export function getAccessToken(): string | null {
     return null
   }
 
-  return sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
+  try {
+    return sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
+  } catch {
+    return null
+  }
 }
 
 export function isAuthenticated(): boolean {
@@ -37,7 +46,12 @@ export function clearSession(): void {
     return
   }
 
-  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+  try {
+    sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+  } catch {
+    // Ignore storage errors and keep the app functional.
+  }
 }
 
 export function logout(): void {

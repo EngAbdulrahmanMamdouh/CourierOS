@@ -42,6 +42,16 @@ def ensure_schema():
             connection.execute(text("ALTER TABLE shipments ADD COLUMN estimated_delivery_days INTEGER DEFAULT 1 NOT NULL"))
             connection.execute(text("UPDATE shipments SET estimated_delivery_days = 1 WHERE estimated_delivery_days IS NULL"))
 
+    if "notes" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE shipments ADD COLUMN notes VARCHAR"))
+            connection.execute(text("UPDATE shipments SET notes = '' WHERE notes IS NULL"))
+
+    if "cod_amount" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE shipments ADD COLUMN cod_amount REAL DEFAULT 0"))
+            connection.execute(text("UPDATE shipments SET cod_amount = 0 WHERE cod_amount IS NULL"))
+
     if "delivered_at" not in columns:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE shipments ADD COLUMN delivered_at DATETIME"))
