@@ -11,7 +11,7 @@ ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 pwd_context = CryptContext(
-    schemes=["bcrypt"],
+    schemes=["sha256_crypt", "bcrypt"],
     deprecated="auto"
 )
 

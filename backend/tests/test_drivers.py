@@ -4,11 +4,26 @@ import pytest
 
 from app.crud import driver as driver_crud
 from app.database import Base, SessionLocal, engine
+from app.schemas.driver import DriverUpdate
 
 
 def setup_function():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+
+
+def test_driver_update_schema_allows_blank_license_expiry():
+    payload = DriverUpdate(
+        full_name="Updated Driver",
+        national_id="12345678901234",
+        phone="01011111111",
+        vehicle_type="Bike",
+        vehicle_plate="ABC-1234",
+        license_number="LIC-001",
+        license_expiry="",
+    )
+
+    assert payload.license_expiry is None
 
 
 def test_driver_crud_search_pagination_and_permissions():

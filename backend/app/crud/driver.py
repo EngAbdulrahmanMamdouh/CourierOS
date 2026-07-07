@@ -37,16 +37,22 @@ def create_driver(db: Session, driver_data: DriverCreate, current_user=None):
     _ensure_access(current_user, "create")
     if current_user.role != "admin" and current_user.company_id is None:
         raise PermissionError("Company context required")
+    status = getattr(driver_data, "status", "Active")
     driver = Driver(
-        full_name=driver_data.full_name,
-        phone=driver_data.phone,
-        national_id=driver_data.national_id,
-        license_number=driver_data.license_number,
-        vehicle_type=driver_data.vehicle_type,
-        vehicle_plate=driver_data.vehicle_plate,
-        branch_id=driver_data.branch_id,
+        full_name=getattr(driver_data, "full_name", ""),
+        employee_code=getattr(driver_data, "employee_code", None),
+        national_id=getattr(driver_data, "national_id", ""),
+        phone=getattr(driver_data, "phone", ""),
+        email=getattr(driver_data, "email", None),
+        license_number=getattr(driver_data, "license_number", ""),
+        vehicle_type=getattr(driver_data, "vehicle_type", ""),
+        vehicle_plate=getattr(driver_data, "vehicle_plate", ""),
+        license_expiry=getattr(driver_data, "license_expiry", None),
+        status=status,
+        availability=getattr(driver_data, "availability", "Available"),
+        branch_id=getattr(driver_data, "branch_id", None),
         company_id=current_user.company_id or 1,
-        is_active=driver_data.is_active,
+        is_active=getattr(driver_data, "is_active", status == "Active"),
     )
     db.add(driver)
     db.commit()
@@ -62,14 +68,20 @@ def update_driver(db: Session, driver_id: int, driver_data: DriverUpdate, curren
     driver = query.first()
     if driver is None:
         return None
-    driver.full_name = driver_data.full_name
-    driver.phone = driver_data.phone
-    driver.national_id = driver_data.national_id
-    driver.license_number = driver_data.license_number
-    driver.vehicle_type = driver_data.vehicle_type
-    driver.vehicle_plate = driver_data.vehicle_plate
-    driver.branch_id = driver_data.branch_id
-    driver.is_active = driver_data.is_active
+    status = getattr(driver_data, "status", driver.status)
+    driver.full_name = getattr(driver_data, "full_name", driver.full_name)
+    driver.employee_code = getattr(driver_data, "employee_code", driver.employee_code)
+    driver.phone = getattr(driver_data, "phone", driver.phone)
+    driver.email = getattr(driver_data, "email", driver.email)
+    driver.national_id = getattr(driver_data, "national_id", driver.national_id)
+    driver.license_number = getattr(driver_data, "license_number", driver.license_number)
+    driver.vehicle_type = getattr(driver_data, "vehicle_type", driver.vehicle_type)
+    driver.vehicle_plate = getattr(driver_data, "vehicle_plate", driver.vehicle_plate)
+    driver.license_expiry = getattr(driver_data, "license_expiry", driver.license_expiry)
+    driver.status = status
+    driver.availability = getattr(driver_data, "availability", driver.availability)
+    driver.branch_id = getattr(driver_data, "branch_id", driver.branch_id)
+    driver.is_active = getattr(driver_data, "is_active", status == "Active")
     db.commit()
     db.refresh(driver)
     return driver

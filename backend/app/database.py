@@ -52,6 +52,29 @@ def ensure_schema():
             connection.execute(text("ALTER TABLE shipments ADD COLUMN cod_amount REAL DEFAULT 0"))
             connection.execute(text("UPDATE shipments SET cod_amount = 0 WHERE cod_amount IS NULL"))
 
+    if "drivers" in inspector.get_table_names():
+        driver_columns = {column["name"] for column in inspector.get_columns("drivers")}
+
+        if "employee_code" not in driver_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE drivers ADD COLUMN employee_code VARCHAR"))
+
+        if "email" not in driver_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE drivers ADD COLUMN email VARCHAR"))
+
+        if "license_expiry" not in driver_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE drivers ADD COLUMN license_expiry DATETIME"))
+
+        if "status" not in driver_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE drivers ADD COLUMN status VARCHAR DEFAULT 'Active' NOT NULL"))
+
+        if "availability" not in driver_columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE drivers ADD COLUMN availability VARCHAR DEFAULT 'Available' NOT NULL"))
+
     if "delivered_at" not in columns:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE shipments ADD COLUMN delivered_at DATETIME"))
