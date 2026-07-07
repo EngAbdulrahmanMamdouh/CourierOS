@@ -49,14 +49,23 @@ def create_access_token(data: dict):
         {"exp": expire}
     )
 
-    return jwt.encode(
+    token = jwt.encode(
         to_encode,
         SECRET_KEY,
         algorithm=ALGORITHM
     )
 
+    print('create_access_token: SECRET_KEY=', SECRET_KEY)
+    print('create_access_token: ALGORITHM=', ALGORITHM)
+    print('create_access_token: generated_token=', token)
+
+    return token
+
 def decode_access_token(token: str):
     try:
+        print('decode_access_token: received_token=', token)
+        print('decode_access_token: SECRET_KEY=', SECRET_KEY)
+        print('decode_access_token: ALGORITHM=', ALGORITHM)
         payload = jwt.decode(
             token,
             SECRET_KEY,
@@ -64,7 +73,11 @@ def decode_access_token(token: str):
         )
         return payload
 
-    except JWTError:
+    except JWTError as exc:
+        print('JWT decode exception:', type(exc).__name__)
+        print('JWT decode message:', str(exc))
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
