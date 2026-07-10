@@ -7,10 +7,12 @@ import { createShipment, fetchShipments } from '@/services/shipment'
 import type { ShipmentCreatePayload } from '@/types/shipment'
 import ShipmentTable from '@/components/shipments/ShipmentTable'
 import CreateShipmentDialog from '@/components/shipments/CreateShipmentDialog'
+import ImportExcelDialog from '@/components/shipments/ImportExcelDialog'
 
 export default function ShipmentPageClient() {
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -42,6 +44,12 @@ export default function ShipmentPageClient() {
     }
   }
 
+  const handleImportSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['shipments'] })
+    toast.success('Shipments imported successfully')
+    setIsImportOpen(false)
+  }
+
   return (
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
@@ -54,6 +62,9 @@ export default function ShipmentPageClient() {
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">
             {summary.total} shipments • {summary.pending} pending
           </div>
+          <button type="button" onClick={() => setIsImportOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">
+            Import Excel
+          </button>
           <button type="button" onClick={() => setIsCreateOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
             New shipment
           </button>
@@ -65,6 +76,7 @@ export default function ShipmentPageClient() {
       {isLoading ? <p className="text-sm text-slate-400">Loading shipments…</p> : <ShipmentTable shipments={shipments} onCreateClick={() => setIsCreateOpen(true)} onStatusUpdated={() => queryClient.invalidateQueries({ queryKey: ['shipments'] })} />}
 
       <CreateShipmentDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSubmit={handleCreateShipment} isSubmitting={isSubmitting} submitError={submitError} />
+      <ImportExcelDialog open={isImportOpen} onClose={() => setIsImportOpen(false)} onSuccess={handleImportSuccess} />
     </>
   )
 }

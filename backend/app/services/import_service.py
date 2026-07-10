@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from app.crud import import_job as import_job_crud
 from app.crud.shipment import bulk_create_shipments
 from app.schemas.shipment import ShipmentCreate
+from app.services.audit_service import create_audit_log
 
 
 def create_import_job_record(db, file_name: str, current_user, total_rows: int = 0, report: str | None = None):
@@ -314,6 +315,17 @@ def execute_import_workbook(db, file_name: str, file_bytes: bytes, current_user)
         }),
     )
 
+    # Audit log for completed import
+    create_audit_log(
+        db=db,
+        actor_id=current_user.id,
+        company_id=getattr(current_user, "company_id", None),
+        action="execute",
+        entity="import_job",
+        entity_id=import_job.id,
+        description=f"Executed import of {successful_rows}/{total_rows} shipments from {file_name}",
+    )
+
     return {
         "total_rows": total_rows,
         "successful_rows": successful_rows,
@@ -345,7 +357,7 @@ def store_uploaded_workbook(db, file_name: str, file_bytes: bytes, current_user)
         "row_count": row_count,
     }
 
-    return import_job_crud.create_import_job(
+    import_job = import_job_crud.create_import_job(
         db=db,
         file_name=file_name,
         uploaded_by=current_user.id,
@@ -355,6 +367,19 @@ def store_uploaded_workbook(db, file_name: str, file_bytes: bytes, current_user)
         failed_rows=0,
         report=json.dumps(workbook_info),
     )
+
+    # Audit log for file upload
+    create_audit_log(
+        db=db,
+        actor_id=current_user.id,
+        company_id=getattr(current_user, "company_id", None),
+        action="upload",
+        entity="import_job",
+        entity_id=import_job.id,
+        description=f"Uploaded import file {file_name} with {row_count} rows",
+    )
+
+    return import_job
 
 
 def update_import_job_results(
