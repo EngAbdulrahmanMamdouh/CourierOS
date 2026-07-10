@@ -1,15 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as SecureStore from 'expo-secure-store'
 
 const TOKEN_KEY = 'courieros.token'
 
 export async function saveToken(token: string) {
-  await AsyncStorage.setItem(TOKEN_KEY, token)
+  await SecureStore.setItemAsync(TOKEN_KEY, token)
 }
 
 export async function getToken() {
-  return AsyncStorage.getItem(TOKEN_KEY)
+  return SecureStore.getItemAsync(TOKEN_KEY)
 }
 
 export async function clearToken() {
-  await AsyncStorage.removeItem(TOKEN_KEY)
+  await SecureStore.deleteItemAsync(TOKEN_KEY)
 }

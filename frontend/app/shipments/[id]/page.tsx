@@ -2,18 +2,28 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { fetchShipmentById } from '@/services/shipment'
-import type { ShipmentResponse } from '@/types/shipment'
+import { deleteShipment, fetchShipmentById, updateShipment } from '@/services/shipment'
+import type { ShipmentCreatePayload, ShipmentResponse } from '@/types/shipment'
 import StatusBadge from '@/components/shipments/StatusBadge'
+import EditShipmentDialog from '@/components/shipments/EditShipmentDialog'
+import DeleteConfirmationDialog from '@/components/shipments/DeleteConfirmationDialog'
+import { toast } from 'sonner'
 
 export default function ShipmentDetailsPage() {
   const params = useParams<{ id: string }>()
+  const router = useRouter()
   const shipmentId = Number(params?.id)
   const [shipment, setShipment] = useState<ShipmentResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!shipmentId) {
@@ -47,6 +57,42 @@ export default function ShipmentDetailsPage() {
     }
   }, [shipmentId])
 
+  const handleEditShipment = async (values: ShipmentCreatePayload) => {
+    setIsEditSubmitting(true)
+    setEditError(null)
+
+    try {
+      const updated = await updateShipment(shipmentId, values)
+      setShipment(updated)
+      setIsEditOpen(false)
+      toast.success('Shipment updated successfully')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to update shipment.'
+      setEditError(message)
+      toast.error(message)
+    } finally {
+      setIsEditSubmitting(false)
+    }
+  }
+
+  const handleDeleteShipment = async () => {
+    setIsDeleteSubmitting(true)
+    setDeleteError(null)
+
+    try {
+      await deleteShipment(shipmentId)
+      toast.success('Shipment deleted successfully')
+      router.push('/dashboard/shipments')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to delete shipment.'
+      setDeleteError(message)
+      toast.error(message)
+    } finally {
+      setIsDeleteSubmitting(false)
+      setIsDeleteOpen(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100 sm:px-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
@@ -67,8 +113,30 @@ export default function ShipmentDetailsPage() {
                 <h1 className="mt-2 text-3xl font-semibold text-white">{shipment.receiver_name}</h1>
                 <p className="mt-2 text-sm text-slate-400">Tracking: {shipment.tracking_number ?? `TRK-${shipment.id}`}</p>
               </div>
-              <StatusBadge status={shipment.status} />
+              <div className="flex items-center gap-3">
+                <StatusBadge status={shipment.status} />
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-[16px] bg-rose-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-rose-400"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
+
+            {deleteError ? (
+              <div className="mt-6 rounded-[16px] border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-300">
+                {deleteError}
+              </div>
+            ) : null}
 
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <div className="rounded-[22px] border border-white/10 bg-slate-800/60 p-5">
@@ -96,6 +164,24 @@ export default function ShipmentDetailsPage() {
           </section>
         ) : null}
       </div>
+
+      <EditShipmentDialog 
+        open={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSubmit={handleEditShipment}
+        isSubmitting={isEditSubmitting}
+        submitError={editError}
+        shipment={shipment}
+      />
+
+      <DeleteConfirmationDialog
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteShipment}
+        isSubmitting={isDeleteSubmitting}
+        title="Delete shipment"
+        description={`This will permanently remove shipment ${shipment?.tracking_number ?? `#${shipmentId}`}. This action cannot be undone.`}
+      />
     </main>
   )
 }

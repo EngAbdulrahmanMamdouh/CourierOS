@@ -36,6 +36,9 @@ export default function DashboardHeader({ greeting, dateLabel }: DashboardHeader
           <Link href="/dashboard/customers" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
             Customers
           </Link>
+          <Link href="/dashboard/tracking" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
+            Tracking
+          </Link>
           <button
             type="button"
             className="inline-flex h-12 items-center justify-center rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900"

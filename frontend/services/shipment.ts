@@ -61,6 +61,35 @@ export async function fetchShipmentById(shipmentId: number): Promise<ShipmentRes
   return handleResponse<ShipmentResponse>(response)
 }
 
+export async function updateShipment(shipmentId: number, payload: ShipmentCreatePayload): Promise<ShipmentResponse> {
+  const response = await fetch(`${API_BASE}/shipments/${shipmentId}`, {
+    method: 'PUT',
+    headers: buildHeaders(),
+    body: JSON.stringify(payload),
+  })
+
+  return handleResponse<ShipmentResponse>(response)
+}
+
+export async function deleteShipment(shipmentId: number): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE}/shipments/${shipmentId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(),
+  })
+
+  return handleResponse<{ message: string }>(response)
+}
+
+export async function updateShipment(shipmentId: number, payload: ShipmentCreatePayload): Promise<ShipmentResponse> {
+  const response = await fetch(`${API_BASE}/shipments/${shipmentId}`, {
+    method: 'PUT',
+    headers: buildHeaders(),
+    body: JSON.stringify(payload),
+  })
+
+  return handleResponse<ShipmentResponse>(response)
+}
+
 export async function updateShipmentStatus(shipmentId: number, status: ShipmentStatus): Promise<{ message: string; shipment_id: number; old_status: string; new_status: string }> {
   const response = await fetch(`${API_BASE}/shipments/${shipmentId}/status`, {
     method: 'PATCH',

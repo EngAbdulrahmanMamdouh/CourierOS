@@ -2,36 +2,24 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, Pressable, KeyboardAvoidingView, Platform, Alert } from 'react-native'
 import { useAppTheme } from '../hooks/useTheme'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useAuthStore } from '../store/auth'
-import { saveToken } from '../utils/storage'
-import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 export function LoginScreen() {
   const { colors } = useAppTheme()
-  const setAuth = useAuthStore((state) => state.setAuth)
+  const { signIn } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function onSubmit() {
     if (!username || !password) {
-      Alert.alert('Required', 'Enter your username and password.');
+      Alert.alert('Required', 'Enter your username and password.')
       return
     }
 
     setLoading(true)
     try {
-      const form = new URLSearchParams()
-      form.append('username', username)
-      form.append('password', password)
-
-      const response = await api.post('/auth/login', form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      })
-
-      const token = response.data.access_token
-      await saveToken(token)
-      setAuth({ id: 1, username, role: 'driver' }, token)
+      await signIn(username, password)
     } catch (error) {
       Alert.alert('Login failed', error instanceof Error ? error.message : 'Please try again.')
     } finally {

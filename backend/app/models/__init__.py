@@ -6,6 +6,7 @@ from app.models.city import City
 from app.models.cod import COD
 from app.models.company import Company
 from app.models.company_settings import CompanySettings
+from app.models.courier_location import CourierLocation
 from app.models.customer import Customer
 from app.models.delivery_zone import DeliveryZone
 from app.models.driver import Driver

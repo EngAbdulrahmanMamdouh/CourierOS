@@ -14,7 +14,7 @@ import { DeliveryHistoryScreen } from '../screens/DeliveryHistoryScreen'
 import { MapScreen } from '../screens/MapScreen'
 import { SettingsScreen } from '../screens/SettingsScreen'
 import { ScannerScreen } from '../screens/ScannerScreen'
-import { useAuthStore } from '../store/auth'
+import { useAuth } from '../context/AuthContext'
 import { LoadingState } from '../components/LoadingState'
 import { View } from 'react-native'
 
@@ -25,17 +25,14 @@ function HomeTabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false, tabBarStyle: { backgroundColor: '#081120', borderTopColor: 'rgba(255,255,255,0.08)' }, tabBarActiveTintColor: '#38bdf8', tabBarInactiveTintColor: '#94a3b8' }}>
       <Tab.Screen name="Home" component={HomeDashboardScreen} options={{ tabBarIcon: ({ color }) => <Home size={20} color={color} /> }} />
-      <Tab.Screen name="Today's Shipments" component={TodayShipmentsScreen} options={{ tabBarIcon: ({ color }) => <PackageCheck size={20} color={color} /> }} />
-      <Tab.Screen name="Scanner" component={ScannerScreen} options={{ tabBarIcon: ({ color }) => <ScanLine size={20} color={color} /> }} />
-      <Tab.Screen name="Map" component={MapScreen} options={{ tabBarIcon: ({ color }) => <MapPinned size={20} color={color} /> }} />
+      <Tab.Screen name="Shipments" component={TodayShipmentsScreen} options={{ tabBarIcon: ({ color }) => <PackageCheck size={20} color={color} /> }} />
       <Tab.Screen name="Profile" component={SettingsScreen} options={{ tabBarIcon: ({ color }) => <UserCircle2 size={20} color={color} /> }} />
     </Tab.Navigator>
   )
 }
 
 export function AppNavigator() {
-  const token = useAuthStore((state) => state.token)
-  const loading = useAuthStore((state) => state.loading)
+  const { token, loading } = useAuth()
   const [showSplash, setShowSplash] = React.useState(true)
 
   if (showSplash) {

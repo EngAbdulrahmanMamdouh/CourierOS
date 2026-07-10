@@ -8,6 +8,7 @@ type DeleteConfirmationDialogProps = {
   onConfirm: () => void
   title?: string
   description?: string
+  isSubmitting?: boolean
 }
 
 export default function DeleteConfirmationDialog({
@@ -16,6 +17,7 @@ export default function DeleteConfirmationDialog({
   onConfirm,
   title = 'Delete shipment',
   description = 'This action cannot be undone.',
+  isSubmitting = false,
 }: DeleteConfirmationDialogProps) {
   if (!open) {
     return null
@@ -37,11 +39,11 @@ export default function DeleteConfirmationDialog({
         <p className="text-sm leading-7 text-slate-400">{description}</p>
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">
+          <button type="button" onClick={onClose} disabled={isSubmitting} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60">
             Cancel
           </button>
-          <button type="button" onClick={onConfirm} className="rounded-[16px] bg-rose-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-rose-400">
-            Delete
+          <button type="button" onClick={onConfirm} disabled={isSubmitting} className="rounded-[16px] bg-rose-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
+            {isSubmitting ? 'Deleting…' : 'Delete'}
           </button>
         </div>
       </div>

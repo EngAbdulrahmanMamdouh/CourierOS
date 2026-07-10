@@ -1,100 +1,63 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { ScrollView, View, Text, Pressable, Linking, Alert, TextInput, Vibration } from 'react-native'
+import React, { useMemo, useState } from 'react'
+import { Alert, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { ArrowLeft, Barcode, Camera, CircleDollarSign, Copy, FileText, MapPinned, MessageSquare, PhoneCall, ScanLine, Send, Signature, Smartphone, Truck, UserRound, WifiOff, Wifi } from 'lucide-react-native'
+import { ArrowLeft, Camera, CircleDollarSign, FileText, MapPinned, MessageSquare, PhoneCall, ScanLine, Signature, Truck, UserRound } from 'lucide-react-native'
 import { useAppTheme } from '../hooks/useTheme'
 import { PremiumCard } from '../components/PremiumCard'
 import { SectionHeader } from '../components/SectionHeader'
-import { queueOfflineOperation, getQueuedOperationCount, syncQueuedOperations } from '../services/offlineQueue'
-import { notificationHandlers } from '../services/notifications'
+import { StatusBadge } from '../components/StatusBadge'
+import { SkeletonLoader } from '../components/SkeletonLoader'
+import { EmptyState } from '../components/EmptyState'
+import { ErrorState } from '../components/ErrorState'
+import { useShipmentDetailsQuery, useShipmentHistoryQuery, useUpdateShipmentStatusMutation } from '../hooks/useShipmentQueries'
+import { ShipmentDetail } from '../types'
 
-const shipment = {
-  id: 'SHP-1001',
-  status: 'Assigned',
-  priority: 'Urgent',
-  sender: 'NorthStar Supply',
-  receiver: 'Al Noor Pharmacy',
-  phone: '+971558112345',
-  address: '88 Marina Blvd, Dubai',
-  cod: '$180',
-  notes: 'Fragile - handle with care. Customer prefers delivery after 4 PM.',
-  timeline: [
-    { title: 'Pickup confirmed', time: '08:20', detail: 'Driver assigned at NorthStar hub' },
-    { title: 'On route', time: '09:10', detail: 'Vehicle checked and departed' },
-    { title: 'Arrived at destination', time: '09:48', detail: 'Waiting for recipient confirmation' },
-  ],
-}
+const actionStates = [
+  { key: 'In Transit', label: 'Start Delivery' },
+  { key: 'Delivered', label: 'Delivered' },
+  { key: 'Cancelled', label: 'Cancelled' },
+]
 
 export function ShipmentDetailsScreen({ navigation, route }: { navigation: any; route: any }) {
   const { colors } = useAppTheme()
-  const item = route?.params?.shipment ?? shipment
-  const [status, setStatus] = useState(item.status || shipment.status)
-  const [notes, setNotes] = useState(shipment.notes)
-  const [proofPhotos, setProofPhotos] = useState<string[]>([])
-  const [codCollected, setCodCollected] = useState(120)
-  const [offlineCount, setOfflineCount] = useState(0)
-  const [syncing, setSyncing] = useState(false)
+  const routeShipment = route?.params?.shipment as ShipmentDetail | undefined
+  const shipmentId = route?.params?.shipmentId ?? routeShipment?.id
+  const [notes, setNotes] = useState(routeShipment?.notes ?? '')
 
-  useEffect(() => {
-    getQueuedOperationCount().then(setOfflineCount)
-  }, [])
+  const detailsQuery = useShipmentDetailsQuery(Number(shipmentId), routeShipment)
+  const historyQuery = useShipmentHistoryQuery(Number(shipmentId))
+  const statusMutation = useUpdateShipmentStatusMutation()
 
-  const openMaps = () => {
-    const url = 'https://www.google.com/maps/search/?api=1&query=88+Marina+Blvd+Dubai'
-    Linking.openURL(url)
-  }
+  const shipment = detailsQuery.data
+  const history = historyQuery.data ?? []
+  const loading = detailsQuery.isLoading
+  const error = detailsQuery.error
+  const isUpdating = statusMutation.isLoading
 
-  const copyAddress = () => {
-    Alert.alert('Address', shipment.address)
-  }
+  const handleStatusChange = (newStatus: string) => {
+    if (!shipment) {
+      return
+    }
 
-  const progressStates = ['Assigned', 'Accepted', 'Picked Up', 'In Transit', 'Arrived', 'Delivered']
-  const currentIndex = progressStates.indexOf(status)
-
-  const actions = [
-    { label: 'Navigate', icon: MapPinned, onPress: openMaps },
-    { label: 'Call', icon: PhoneCall, onPress: () => Linking.openURL(`tel:${shipment.phone}`) },
-    { label: 'SMS', icon: MessageSquare, onPress: () => Linking.openURL(`sms:${shipment.phone}`) },
-    { label: 'Scan', icon: ScanLine, onPress: () => navigation.navigate('BarcodeScanner') },
-    { label: 'Copy', icon: Copy, onPress: copyAddress },
-    { label: 'COD', icon: CircleDollarSign, onPress: () => navigation.navigate('CODCollection', { shipment: item }) },
-    { label: 'Sign', icon: Signature, onPress: () => navigation.navigate('ProofOfDelivery', { shipment: item }) },
-    { label: 'Photo', icon: Camera, onPress: () => navigation.navigate('ProofOfDelivery', { shipment: item }) },
-  ]
-
-  const updateStatus = async (nextStatus: string, reason: string) => {
-    Alert.alert('Confirm change', `${reason}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Confirm', onPress: async () => {
-        Vibration.vibrate(70)
-        setStatus(nextStatus)
-        await queueOfflineOperation({ type: 'status_update', payload: { shipmentId: item.id || shipment.id, status: nextStatus } })
-        setOfflineCount((value) => value + 1)
-      } },
+    const title = newStatus === 'Delivered' ? 'Confirm delivery' : newStatus === 'Cancelled' ? 'Cancel shipment' : 'Start delivery'
+    Alert.alert(title, `Mark shipment as ${newStatus}?`, [
+      { text: 'No', style: 'cancel' },
+      {
+        text: 'Yes',
+        onPress: () => statusMutation.mutate({ shipmentId: shipment.id, status: newStatus }),
+      },
     ])
   }
 
-  const collectCod = async () => {
-    Alert.alert('COD collection', `Collect ${shipment.cod} from the customer?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Confirm', onPress: async () => {
-        Vibration.vibrate(70)
-        setCodCollected(180)
-        await queueOfflineOperation({ type: 'cod_collection', payload: { shipmentId: item.id || shipment.id, amount: 180 } })
-        setOfflineCount((value) => value + 1)
-      } },
-    ])
-  }
-
-  const syncNow = async () => {
-    setSyncing(true)
-    const count = await syncQueuedOperations()
-    setOfflineCount(0)
-    setSyncing(false)
-    Alert.alert('Synchronization complete', `${count} queued operations synced.`)
-  }
-
-  const remainingCod = useMemo(() => 180 - codCollected, [codCollected])
+  const timelineItems = useMemo(
+    () => history.map((item) => ({
+      id: item.id,
+      title: item.new_status,
+      detail: `Updated by ${item.changed_by ?? 'system'}`,
+      time: new Date(item.changed_at).toLocaleString(),
+    })),
+    [history],
+  )
 
   return (
     <LinearGradient colors={['#07111f', '#0f172a', '#0f766e']} style={{ flex: 1 }}>
@@ -104,135 +67,126 @@ export function ShipmentDetailsScreen({ navigation, route }: { navigation: any; 
           <Text style={{ color: '#fff', marginLeft: 8, fontWeight: '700' }}>Back</Text>
         </Pressable>
 
-        <PremiumCard title={item.title || shipment.receiver} subtitle={`Tracking • ${item.id || shipment.id}`}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-            <View>
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>{item.id || shipment.id}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>{status}</Text>
-            </View>
-            <View style={{ backgroundColor: 'rgba(56,189,248,0.16)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 }}>
-              <Text style={{ color: '#38bdf8', fontWeight: '700' }}>{item.priority || shipment.priority}</Text>
-            </View>
+        {error ? (
+          <ErrorState message={String(error instanceof Error ? error.message : 'Unable to load shipment details.')} onRetry={() => detailsQuery.refetch()} />
+        ) : loading ? (
+          <View style={{ gap: 16 }}>
+            <SkeletonLoader height={24} width="70%" />
+            <SkeletonLoader height={140} width="100%" />
+            <SkeletonLoader height={18} width="100%" />
           </View>
-        </PremiumCard>
-
-        <SectionHeader title="Shipment overview" subtitle="Complete package and customer details" />
-        <PremiumCard title="Customer details" subtitle="Primary contact and destination">
-          <View style={{ marginTop: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <UserRound size={16} color="#38bdf8" />
-              <Text style={{ color: '#fff', marginLeft: 8 }}>Sender: {shipment.sender}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <UserRound size={16} color="#38bdf8" />
-              <Text style={{ color: '#fff', marginLeft: 8 }}>Receiver: {shipment.receiver}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <PhoneCall size={16} color="#38bdf8" />
-              <Text style={{ color: '#fff', marginLeft: 8 }}>{shipment.phone}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MapPinned size={16} color="#38bdf8" />
-              <Text style={{ color: '#fff', marginLeft: 8 }}>{shipment.address}</Text>
-            </View>
-          </View>
-        </PremiumCard>
-
-        <PremiumCard title="COD & delivery" subtitle="Cash handling and proof collection" style={{ marginTop: 12 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-            <View>
-              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>Amount due</Text>
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>{shipment.cod}</Text>
-            </View>
-            <View style={{ backgroundColor: 'rgba(52,211,153,0.16)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8 }}>
-              <Text style={{ color: '#34d399', fontWeight: '700' }}>Ready to collect</Text>
-            </View>
-          </View>
-          <View style={{ marginTop: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 12 }}>
-            <Text style={{ color: 'rgba(255,255,255,0.72)' }}>Collected: ${codCollected}</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>Remaining: ${remainingCod}</Text>
-            <Pressable onPress={collectCod} style={{ marginTop: 10, backgroundColor: '#38bdf8', borderRadius: 14, paddingVertical: 10, alignItems: 'center' }}>
-              <Text style={{ color: '#fff', fontWeight: '700' }}>Confirm collection</Text>
-            </Pressable>
-          </View>
-        </PremiumCard>
-
-        <PremiumCard title="Operational workflow" subtitle="Move the delivery through the complete courier lifecycle" style={{ marginTop: 12 }}>
-          <View style={{ marginTop: 10 }}>
-            {progressStates.map((step, index) => {
-              const active = index <= currentIndex
-              return (
-                <Pressable key={step} onPress={() => updateStatus(step, `Advance to ${step}`)} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                  <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: active ? '#38bdf8' : 'rgba(255,255,255,0.3)' }} />
-                  <Text style={{ color: active ? '#fff' : 'rgba(255,255,255,0.65)', marginLeft: 10, fontWeight: '700' }}>{step}</Text>
-                </Pressable>
-              )
-            })}
-          </View>
-        </PremiumCard>
-
-        <PremiumCard title="Actions" subtitle="Operational controls" style={{ marginTop: 12 }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
-            {actions.map((action, index) => {
-              const Icon = action.icon
-              return (
-                <Pressable key={index} onPress={action.onPress} style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }}>
-                  <Icon size={18} color="#38bdf8" />
-                  <Text style={{ color: '#fff', fontWeight: '700', marginTop: 8 }}>{action.label}</Text>
-                </Pressable>
-              )
-            })}
-          </View>
-        </PremiumCard>
-
-        <PremiumCard title="Timeline" subtitle="Progress and checkpoints" style={{ marginTop: 12 }}>
-          {shipment.timeline.map((step, index) => (
-            <View key={index} style={{ marginTop: 12, flexDirection: 'row', alignItems: 'flex-start' }}>
-              <View style={{ marginTop: 2, width: 10, height: 10, borderRadius: 999, backgroundColor: '#38bdf8' }} />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={{ color: '#fff', fontWeight: '700' }}>{step.title}</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.6)', marginTop: 3 }}>{step.time}</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.72)', marginTop: 2 }}>{step.detail}</Text>
+        ) : !shipment ? (
+          <EmptyState title="Shipment not found" description="This shipment cannot be displayed right now." />
+        ) : (
+          <>
+            <PremiumCard title={shipment.receiver_name} subtitle={`Tracking • ${shipment.tracking_number ?? shipment.id}`}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                <View>
+                  <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>{shipment.tracking_number ?? `#${shipment.id}`}</Text>
+                  <StatusBadge status={shipment.status} />
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>City</Text>
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>{shipment.city}</Text>
+                </View>
               </View>
-            </View>
-          ))}
-        </PremiumCard>
+            </PremiumCard>
 
-        <PremiumCard title="Proof & documents" subtitle="Barcode, QR, notes, and signatures" style={{ marginTop: 12 }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
-            <View style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 12 }}>
-              <Barcode size={18} color="#38bdf8" />
-              <Text style={{ color: '#fff', fontWeight: '700', marginTop: 8 }}>Barcode</Text>
-            </View>
-            <View style={{ width: '48%', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 12 }}>
-              <ScanLine size={18} color="#38bdf8" />
-              <Text style={{ color: '#fff', fontWeight: '700', marginTop: 8 }}>QR Code</Text>
-            </View>
-          </View>
-          <View style={{ marginTop: 10, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FileText size={16} color="#38bdf8" />
-              <Text style={{ color: '#fff', marginLeft: 8, fontWeight: '700' }}>Notes</Text>
-            </View>
-            <TextInput multiline numberOfLines={3} value={notes} onChangeText={setNotes} placeholder="Add delivery notes" placeholderTextColor="rgba(255,255,255,0.4)" style={{ color: '#fff', marginTop: 8, minHeight: 72, textAlignVertical: 'top' }} />
-          </View>
-          <Pressable onPress={() => navigation.navigate('ProofOfDelivery', { shipment: item })} style={{ marginTop: 10, backgroundColor: '#34d399', borderRadius: 14, paddingVertical: 10, alignItems: 'center' }}>
-            <Text style={{ color: '#fff', fontWeight: '700' }}>Confirm delivery</Text>
-          </Pressable>
-        </PremiumCard>
+            <PremiumCard title="Shipment details" subtitle="Full package and customer information" style={{ marginTop: 12 }}>
+              <View style={{ gap: 12 }}>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>Receiver</Text>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>{shipment.receiver_name}</Text>
+                </View>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>Phone</Text>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>{shipment.receiver_phone}</Text>
+                </View>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>Address</Text>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>{shipment.address}</Text>
+                </View>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>COD amount</Text>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>${shipment.cod_amount?.toFixed(2) ?? '0.00'}</Text>
+                </View>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>Estimated delivery</Text>
+                  <Text style={{ color: colors.text, fontWeight: '700' }}>{shipment.estimated_delivery_days ?? 0} day(s)</Text>
+                </View>
+                <View>
+                  <Text style={{ color: colors.textMuted, fontSize: 12 }}>Notes</Text>
+                  <TextInput
+                    value={notes}
+                    onChangeText={setNotes}
+                    placeholder="Delivery notes"
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                    style={{ color: '#fff', marginTop: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 12, minHeight: 84, textAlignVertical: 'top' }}
+                    multiline
+                  />
+                </View>
+              </View>
+            </PremiumCard>
 
-        <PremiumCard title="Offline sync" subtitle="Local queue and connection recovery" style={{ marginTop: 12 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-            {offlineCount > 0 ? <WifiOff size={16} color="#fb923c" /> : <Wifi size={16} color="#34d399" />}
-            <Text style={{ color: '#fff', marginLeft: 8 }}>{offlineCount > 0 ? `${offlineCount} queued updates` : 'All changes synchronized'}</Text>
-          </View>
-          <Pressable onPress={syncNow} disabled={syncing} style={{ marginTop: 10, backgroundColor: syncing ? 'rgba(56,189,248,0.5)' : '#38bdf8', borderRadius: 14, paddingVertical: 10, alignItems: 'center' }}>
-            <Text style={{ color: '#fff', fontWeight: '700' }}>{syncing ? 'Synchronizing…' : 'Sync now'}</Text>
-          </Pressable>
-          <Pressable onPress={() => notificationHandlers.newAssignment()} style={{ marginTop: 8, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 14, paddingVertical: 10, alignItems: 'center' }}>
-            <Text style={{ color: '#fff', fontWeight: '700' }}>Prepare notification preview</Text>
-          </Pressable>
-        </PremiumCard>
+            <PremiumCard title="Actions" subtitle="Update shipment status" style={{ marginTop: 12 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+                {actionStates.map((action) => (
+                  <Pressable
+                    key={action.key}
+                    disabled={isUpdating}
+                    onPress={() => handleStatusChange(action.key)}
+                    style={{ flex: 1, backgroundColor: action.key === 'Delivered' ? '#34d399' : action.key === 'Cancelled' ? '#fb7185' : '#38bdf8', borderRadius: 18, paddingVertical: 14, alignItems: 'center' }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>{action.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </PremiumCard>
+
+            <PremiumCard title="Delivery timeline" subtitle="Shipment status history" style={{ marginTop: 12 }}>
+              {timelineItems.length === 0 ? (
+                <Text style={{ color: colors.textMuted }}>No history records yet.</Text>
+              ) : (
+                <View style={{ gap: 14 }}>
+                  {timelineItems.map((item) => (
+                    <View key={item.id} style={{ flexDirection: 'row', gap: 12 }}>
+                      <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: '#38bdf8', marginTop: 6 }} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: colors.text, fontWeight: '700' }}>{item.title}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 2 }}>{item.detail}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 2, fontSize: 12 }}>{item.time}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </PremiumCard>
+
+            <PremiumCard title="Proof of delivery" subtitle="Placeholder UI for signature, photo, and notes" style={{ marginTop: 12 }}>
+              <View style={{ gap: 12 }}>
+                <Pressable onPress={() => navigation.navigate('ProofOfDelivery', { shipment })} style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Camera size={18} color="#38bdf8" />
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Capture Photo</Text>
+                  </View>
+                </Pressable>
+                <Pressable onPress={() => navigation.navigate('ProofOfDelivery', { shipment })} style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Signature size={18} color="#38bdf8" />
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Customer Signature</Text>
+                  </View>
+                </Pressable>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 18, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <FileText size={18} color="#38bdf8" />
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Delivery Notes</Text>
+                  </View>
+                  <Text style={{ color: colors.textMuted, marginTop: 8 }}>Add any notes when you confirm proof of delivery.</Text>
+                </View>
+              </View>
+            </PremiumCard>
+          </>
+        )}
       </ScrollView>
     </LinearGradient>
   )

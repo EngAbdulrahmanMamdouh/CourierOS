@@ -4,38 +4,39 @@ import { NavigationContainer } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppNavigator } from './src/navigation/AppNavigator'
-import { useAuthStore } from './src/store/auth'
-import { getToken } from './src/utils/storage'
+import { AuthProvider } from './src/context/AuthContext'
 import { registerNotificationHandlers } from './src/services/notifications'
+import { useOfflineSync } from './src/hooks/useOfflineSync'
+import { useLocationTracking } from './src/hooks/useLocationTracking'
 
 const queryClient = new QueryClient()
 
+function OfflineSyncController() {
+  useOfflineSync()
+  return null
+}
+
+function LocationTrackingController() {
+  useLocationTracking()
+  return null
+}
+
 export default function App() {
-  const setAuth = useAuthStore((state) => state.setAuth)
-  const setLoading = useAuthStore((state) => state.setLoading)
-
   useEffect(() => {
-    async function bootstrap() {
-      try {
-        const token = await getToken()
-        if (token) {
-          setAuth({ id: 1, username: 'driver', role: 'driver' }, token)
-        }
-        await registerNotificationHandlers()
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    bootstrap()
-  }, [setAuth, setLoading])
+    registerNotificationHandlers()
+  }, [])
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <AppNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <OfflineSyncController />
+        <LocationTrackingController />
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>
     </QueryClientProvider>
   )
 }
+
