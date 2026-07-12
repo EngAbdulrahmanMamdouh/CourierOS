@@ -6,6 +6,7 @@ import { PremiumCard } from '../components/PremiumCard'
 import { SectionHeader } from '../components/SectionHeader'
 import { useAppTheme } from '../hooks/useTheme'
 import { queueOfflineOperation } from '../services/offlineQueue'
+import { submitCodCollectionViaFinance } from '../services/shipment'
 
 const sampleShipment = {
   id: 'SHP-1001',
@@ -31,19 +32,31 @@ export function CodCollectionScreen({ navigation, route }: { navigation: any; ro
     }
 
     Vibration.vibrate(60)
-    await queueOfflineOperation({
-      type: 'cod_collection',
-      payload: {
-        shipmentId: shipment.id,
+    try {
+      await submitCodCollectionViaFinance(Number(shipment.id), {
         amountDue,
         cashTendered: tenderedValue,
         changeDue,
-      },
-    })
-
-    setCollected(amountDue)
-    Alert.alert('COD collected', `Collected ${shipment.cod} and queued receipt generation.`)
-    navigation.goBack()
+        transactionReference: `MOB-${shipment.id}`,
+        notes: 'Collected via mobile app',
+      })
+      setCollected(amountDue)
+      Alert.alert('COD collected', `Collected ${shipment.cod} and recorded successfully.`)
+      navigation.goBack()
+    } catch {
+      await queueOfflineOperation({
+        type: 'cod_collection',
+        payload: {
+          shipmentId: shipment.id,
+          amountDue,
+          cashTendered: tenderedValue,
+          changeDue,
+        },
+      })
+      setCollected(amountDue)
+      Alert.alert('COD collected', `Collected ${shipment.cod} and queued receipt generation.`)
+      navigation.goBack()
+    }
   }
 
   return (

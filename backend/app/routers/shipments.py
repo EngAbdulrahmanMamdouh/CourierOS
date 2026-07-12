@@ -21,6 +21,9 @@ from app.services.label_service import (
     create_shipment_qrcode_png_bytes,
 )
 from app.services.shipment_service import update_shipment_status as update_status_service
+from app.crud import finance as finance_crud
+from app.schemas.finance import CodCollectionResponse
+
 router = APIRouter(
     prefix="/shipments",
     tags=["Shipments"]
@@ -359,4 +362,19 @@ def delete_shipment(
     return {
         "message": "Shipment deleted successfully"
     }
+
+
+@router.post("/{shipment_id}/cod-collection", response_model=CodCollectionResponse)
+def collect_shipment_cod(
+    shipment_id: int,
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        return finance_crud.collect_cod(db, shipment_id, payload, current_user=current_user)
+    except PermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 

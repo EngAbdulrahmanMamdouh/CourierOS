@@ -21,9 +21,15 @@ export default function CourierDetails({ courier, isLoading = false }: CourierDe
     }
 
     async function loadHistory() {
+      const currentCourier = courier
+      if (!currentCourier) {
+        setHistory([])
+        return
+      }
+
       setHistoryLoading(true)
       try {
-        const data = await fetchCourierHistory(courier.courier_id, 24)
+        const data = await fetchCourierHistory(currentCourier.courier_id, 24)
         setHistory(data)
       } catch (error) {
         console.error('Failed to load courier history:', error)
@@ -32,7 +38,7 @@ export default function CourierDetails({ courier, isLoading = false }: CourierDe
       }
     }
 
-    loadHistory()
+    void loadHistory()
   }, [courier?.courier_id])
 
   if (!courier) {

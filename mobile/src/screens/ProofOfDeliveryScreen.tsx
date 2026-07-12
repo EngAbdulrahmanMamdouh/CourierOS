@@ -104,7 +104,7 @@ export function ProofOfDeliveryScreen({ navigation, route }: { navigation: any; 
       if (isConnected) {
         await proofMutation.mutateAsync({ shipmentId: Number(shipment.id), payload })
         Alert.alert('Delivered', 'Proof of delivery has been submitted successfully.')
-        navigation.goBack()
+        navigation.navigate('CODCollection', { shipment })
       } else {
         await performOfflineQueue()
       }

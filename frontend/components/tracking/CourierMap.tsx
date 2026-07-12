@@ -6,8 +6,8 @@ import type { ActiveCourier } from '@/types/tracking'
 
 type CourierMapProps = {
   couriers: ActiveCourier[]
-  selectedCourierId?: number
-  onSelectCourier?: (courierId: number) => void
+  selectedCourierId?: number | null
+  onSelectCourier?: (courierId: number | null) => void
 }
 
 export default function CourierMap({

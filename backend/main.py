@@ -16,6 +16,7 @@ from app.routers.cities import router as city_router
 from app.routers.delivery_zones import router as delivery_zone_router
 from app.routers.pricing_rules import router as pricing_rule_router
 from app.routers.cods import router as cod_router
+from app.routers.finance import router as finance_router
 from app.routers.payments import router as payment_router
 from app.routers.pickup_requests import router as pickup_request_router
 from app.routers.shipment_imports import router as shipment_import_router
@@ -111,6 +112,7 @@ app.include_router(city_router)
 app.include_router(delivery_zone_router)
 app.include_router(pricing_rule_router)
 app.include_router(cod_router)
+app.include_router(finance_router)
 app.include_router(payment_router)
 app.include_router(pickup_request_router)
 app.include_router(shipment_import_router)

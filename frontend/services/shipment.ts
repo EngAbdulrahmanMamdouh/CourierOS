@@ -118,9 +118,16 @@ export async function previewShipmentImport(file: File): Promise<{
   const formData = new FormData()
   formData.append('file', file)
 
+  const token = getAccessToken()
+  if (!token) {
+    throw new Error('Authentication required. Please sign in again.')
+  }
+
   const response = await fetch(`${API_BASE}/imports/shipments/preview`, {
     method: 'POST',
-    headers: { Authorization: buildHeaders().Authorization as string },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: formData,
   })
 
@@ -144,9 +151,16 @@ export async function executeShipmentImport(file: File): Promise<{
   const formData = new FormData()
   formData.append('file', file)
 
+  const token = getAccessToken()
+  if (!token) {
+    throw new Error('Authentication required. Please sign in again.')
+  }
+
   const response = await fetch(`${API_BASE}/imports/shipments/execute`, {
     method: 'POST',
-    headers: { Authorization: buildHeaders().Authorization as string },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: formData,
   })
 

@@ -77,6 +77,26 @@ export async function submitCodCollection(
   return response.data
 }
 
+export async function submitCodCollectionViaFinance(
+  shipmentId: number | string,
+  payload: {
+    amountDue: number
+    cashTendered: number
+    changeDue: number
+    transactionReference?: string
+    notes?: string
+  },
+): Promise<{ success: boolean }> {
+  const response = await api.post<{ success: boolean }>(`/finance/shipments/${shipmentId}/collect`, {
+    amount_due: payload.amountDue,
+    cash_tendered: payload.cashTendered,
+    change_due: payload.changeDue,
+    transaction_reference: payload.transactionReference,
+    notes: payload.notes,
+  })
+  return response.data
+}
+
 export default {
   getAssignedShipments,
   getDashboardStats,
