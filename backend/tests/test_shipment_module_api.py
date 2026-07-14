@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.crud import shipment as shipment_crud
 from app.database import Base
+from app.models.customer import Customer
 from app.models.user import User
 
 
@@ -95,5 +96,62 @@ def test_get_all_shipments_supports_search_and_status_filters():
 
         assert len(results) == 1
         assert results[0].receiver_name == "Dina"
+    finally:
+        db.close()
+
+
+def test_create_shipment_assigns_and_reuses_customer_record():
+    engine = create_engine("sqlite:///:memory:")
+    TestingSessionLocal = sessionmaker(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
+    try:
+        owner = User(username="owner-customer", email="owner-customer@example.com", hashed_password="x", role="employee")
+        db.add(owner)
+        db.commit()
+        db.refresh(owner)
+
+        first = shipment_crud.create_shipment(
+            db,
+            SimpleNamespace(
+                sender_name="Alice",
+                receiver_name="Bob",
+                receiver_phone="12345678901",
+                address="123 Main St",
+                city="Cairo",
+                status="Pending",
+                estimated_delivery_days=2,
+                notes="",
+                cod_amount=0,
+            ),
+            owner_id=owner.id,
+            company_id=1,
+        )
+
+        customer = db.query(Customer).filter(Customer.phone == "12345678901").first()
+
+        assert first.customer_id is not None
+        assert customer is not None
+        assert first.customer_id == customer.id
+
+        second = shipment_crud.create_shipment(
+            db,
+            SimpleNamespace(
+                sender_name="Carol",
+                receiver_name="Bob",
+                receiver_phone="12345678901",
+                address="456 Main St",
+                city="Alexandria",
+                status="Delivered",
+                estimated_delivery_days=4,
+                notes="",
+                cod_amount=10,
+            ),
+            owner_id=owner.id,
+            company_id=1,
+        )
+
+        assert second.customer_id == first.customer_id
     finally:
         db.close()

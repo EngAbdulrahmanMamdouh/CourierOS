@@ -1,9 +1,7 @@
-import FinanceQueryProvider from '@/components/finance/FinanceQueryProvider'
-
 export const metadata = {
-  title: 'Finance Dashboard',
+  title: 'Finance dashboard',
 }
 
-export default function FinanceLayout({ children }: { children: React.ReactNode }) {
-  return <FinanceQueryProvider>{children}</FinanceQueryProvider>
+export default function FinanceDashboardLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
 }

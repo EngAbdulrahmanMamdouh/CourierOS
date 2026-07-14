@@ -161,7 +161,14 @@ def test_finance_summary_and_history_endpoints_are_available():
         assert summary_response.status_code == 200
         assert history_response.status_code == 200
         assert reports_response.status_code == 200
-        assert summary_response.json()["total_cod_due"] >= 0
+
+        summary_payload = summary_response.json()
+        assert summary_payload["total_cod_due"] == 120.0
+        assert summary_payload["total_cod_collected"] == 0.0
+        assert summary_payload["total_cod_pending"] == 120.0
+        assert summary_payload["outstanding_balance"] == 120.0
+        assert summary_payload["total_payments_received"] == 0.0
+
         assert "items" in history_response.json()
         assert "summary" in reports_response.json()
     finally:

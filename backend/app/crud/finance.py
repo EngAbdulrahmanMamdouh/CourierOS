@@ -133,16 +133,18 @@ def get_finance_summary(db: Session, current_user=None):
 
     payment_query = db.query(Payment).filter(Payment.is_deleted == False)
     cod_query = db.query(COD).filter(COD.is_deleted == False)
+    shipment_query = db.query(Shipment).filter(Shipment.is_deleted == False, Shipment.cod_amount != None, Shipment.cod_amount > 0)
 
     if current_user.role != "admin":
         company_id = getattr(current_user, "company_id", None)
         if company_id is not None:
             payment_query = payment_query.filter(Payment.company_id == company_id)
             cod_query = cod_query.filter(COD.company_id == company_id)
+            shipment_query = shipment_query.filter(Shipment.company_id == company_id)
 
-    total_cod_due = float(cod_query.with_entities(func.sum(COD.amount)).scalar() or 0)
+    total_cod_due = float(shipment_query.with_entities(func.sum(Shipment.cod_amount)).scalar() or 0)
     total_cod_collected = float(cod_query.filter(COD.collected == True).with_entities(func.sum(COD.amount)).scalar() or 0)
-    total_cod_pending = float(cod_query.filter(COD.collected == False).with_entities(func.sum(COD.amount)).scalar() or 0)
+    total_cod_pending = max(0.0, total_cod_due - total_cod_collected)
     total_payments_received = float(payment_query.with_entities(func.sum(Payment.amount)).scalar() or 0)
     outstanding_balance = max(0.0, total_cod_due - total_cod_collected)
 

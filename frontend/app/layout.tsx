@@ -1,5 +1,6 @@
 import './globals.css'
 import { ReactNode } from 'react'
+import AppQueryProvider from '@/components/AppQueryProvider'
 
 export const metadata = {
   title: 'CourierOS Enterprise',
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppQueryProvider>{children}</AppQueryProvider>
+      </body>
     </html>
   )
 }

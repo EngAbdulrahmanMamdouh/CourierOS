@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRight, Package } from 'lucide-react'
 import StatusBadge from '@/components/shipments/StatusBadge'
 import { SHIPMENT_STATUS_OPTIONS } from '@/constants/shipment'
+import { collectCod } from '@/services/finance'
 import { updateShipmentStatus } from '@/services/shipment'
 import type { ShipmentListItem } from '@/types/shipment'
 import { toast } from 'sonner'
@@ -16,7 +18,10 @@ type ShipmentTableProps = {
 }
 
 export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdated }: ShipmentTableProps) {
+  const queryClient = useQueryClient()
   const [updatingId, setUpdatingId] = useState<number | null>(null)
+  const [collectingId, setCollectingId] = useState<number | null>(null)
+  const [collectedShipmentIds, setCollectedShipmentIds] = useState<number[]>([])
 
   const handleStatusChange = async (shipmentId: number, nextStatus: string) => {
     if (!nextStatus) {
@@ -103,7 +108,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                   <td className="py-5 pr-6">{shipment.cod_amount != null ? `EGP ${shipment.cod_amount}` : '—'}</td>
                   <td className="py-5 pr-6">{shipment.estimated_delivery_days} days</td>
                   <td className="py-5 pr-6">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <Link href={`/dashboard/shipments/${shipment.id}`} className="inline-flex items-center gap-2 rounded-[12px] border border-white/10 bg-slate-900/80 px-3 py-1 text-sm font-semibold text-slate-100 transition hover:border-sky-400/40">
                         View Details
                       </Link>
@@ -119,6 +124,49 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                           </option>
                         ))}
                       </select>
+                      {shipment.status === 'Delivered' && shipment.cod_amount && shipment.cod_amount > 0 ? (
+                        collectedShipmentIds.includes(shipment.id) ? (
+                          <span className="inline-flex items-center rounded-[12px] bg-slate-700 px-3 py-2 text-sm font-semibold text-slate-300">
+                            COD collected
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={collectingId === shipment.id}
+                            onClick={async () => {
+                              if (!window.confirm(`Confirm collection of EGP ${shipment.cod_amount} COD for ${shipment.tracking_number ?? `shipment ${shipment.id}`}?`)) {
+                                return
+                              }
+
+                              setCollectingId(shipment.id)
+
+                              try {
+                                await collectCod(shipment.id, {
+                                  amount_due: shipment.cod_amount,
+                                  cash_tendered: shipment.cod_amount,
+                                  change_due: 0,
+                                  transaction_reference: `COD-${shipment.id}-${Date.now()}`,
+                                  notes: 'Collected after delivery',
+                                })
+
+                                toast.success('COD collected successfully')
+                                setCollectedShipmentIds((prev) => [...prev, shipment.id])
+                                await queryClient.invalidateQueries({ queryKey: ['shipments'] })
+                                await queryClient.invalidateQueries({ queryKey: ['finance', 'summary'] })
+                                onStatusUpdated?.()
+                              } catch (error) {
+                                const message = error instanceof Error ? error.message : 'Unable to collect COD.'
+                                toast.error(message)
+                              } finally {
+                                setCollectingId(null)
+                              }
+                            }}
+                            className="inline-flex items-center gap-2 rounded-[12px] bg-emerald-500 px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {collectingId === shipment.id ? 'Collecting…' : 'Collect COD'}
+                          </button>
+                        )
+                      ) : null}
                     </div>
                   </td>
                 </tr>

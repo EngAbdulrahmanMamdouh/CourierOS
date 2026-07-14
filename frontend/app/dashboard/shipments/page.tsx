@@ -1,5 +1,5 @@
-import ShipmentQueryProvider from '@/components/shipments/ShipmentQueryProvider'
+import ShipmentPageClient from '@/components/shipments/ShipmentPageClient'
 
 export default function ShipmentsPage() {
-  return <ShipmentQueryProvider />
+  return <ShipmentPageClient />
 }

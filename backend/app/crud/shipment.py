@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+from app.models.customer import Customer
 from app.models.shipment import Shipment
 from app.models.shipment_history import ShipmentHistory
 
@@ -92,13 +93,57 @@ def assign_shipment(db: Session, shipment_id: int, employee_id: int, current_use
 def _validate_related_entities(db: Session, shipment_data, company_id: int):
     """Validate that related entities belong to the same company"""
     if hasattr(shipment_data, 'customer_id') and shipment_data.customer_id:
-        from app.models.customer import Customer
         customer = db.query(Customer).filter(
             Customer.id == shipment_data.customer_id,
             Customer.company_id == company_id
         ).first()
         if customer is None:
             raise ValueError(f"Customer {shipment_data.customer_id} does not belong to this company")
+
+
+def _ensure_customer_for_shipment(db: Session, shipment_data, company_id: int):
+    if company_id is None:
+        company_id = 1
+
+    receiver_phone = getattr(shipment_data, "receiver_phone", None)
+    receiver_name = getattr(shipment_data, "receiver_name", None)
+
+    if hasattr(shipment_data, "customer_id") and getattr(shipment_data, "customer_id", None):
+        customer = db.query(Customer).filter(Customer.id == shipment_data.customer_id, Customer.company_id == company_id).first()
+        if customer is None:
+            raise ValueError(f"Customer {shipment_data.customer_id} does not belong to this company")
+        return customer.id
+
+    if receiver_phone:
+        customer = db.query(Customer).filter(
+            Customer.phone == str(receiver_phone),
+            Customer.company_id == company_id,
+        ).first()
+        if customer is not None:
+            return customer.id
+
+    if receiver_name:
+        customer = db.query(Customer).filter(
+            Customer.full_name.ilike(str(receiver_name)),
+            Customer.company_id == company_id,
+        ).first()
+        if customer is not None:
+            return customer.id
+
+    customer = Customer(
+        full_name=str(receiver_name or "Unknown Customer"),
+        phone=str(receiver_phone or "00000000000"),
+        email=None,
+        company_name=None,
+        address=getattr(shipment_data, "address", "") or "",
+        city=getattr(shipment_data, "city", "") or "",
+        notes=getattr(shipment_data, "notes", None),
+        company_id=company_id,
+        is_active=True,
+    )
+    db.add(customer)
+    db.flush()
+    return customer.id
 
 
 def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: int = None):
@@ -134,7 +179,9 @@ def create_shipment(db: Session, shipment_data, owner_id: int = None, company_id
         company_id = current_user.company_id if current_user else 1
 
     _validate_related_entities(db, shipment_data, company_id)
+    customer_id = _ensure_customer_for_shipment(db, shipment_data, company_id)
     shipment = _build_shipment_from_data(shipment_data, owner_id, company_id)
+    shipment.customer_id = customer_id
 
     db.add(shipment)
     db.commit()
@@ -162,7 +209,13 @@ def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = Non
     if company_id is None:
         company_id = 1
 
-    shipments = [_build_shipment_from_data(data, owner_id, company_id) for data in shipment_datas]
+    shipments = []
+    for shipment_data in shipment_datas:
+        customer_id = _ensure_customer_for_shipment(db, shipment_data, company_id)
+        shipment = _build_shipment_from_data(shipment_data, owner_id, company_id)
+        shipment.customer_id = customer_id
+        shipments.append(shipment)
+
     db.add_all(shipments)
     db.commit()
     return shipments

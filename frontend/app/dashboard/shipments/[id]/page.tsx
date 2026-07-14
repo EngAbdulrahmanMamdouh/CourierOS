@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { collectCod } from '@/services/finance'
 import { fetchShipmentById } from '@/services/shipment'
 import type { ShipmentResponse } from '@/types/shipment'
 import StatusBadge from '@/components/shipments/StatusBadge'
@@ -14,6 +17,10 @@ export default function DashboardShipmentDetailsPage() {
   const [shipment, setShipment] = useState<ShipmentResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isCollecting, setIsCollecting] = useState(false)
+  const [collectError, setCollectError] = useState<string | null>(null)
+  const [codCollected, setCodCollected] = useState(false)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!shipmentId) {
@@ -92,6 +99,52 @@ export default function DashboardShipmentDetailsPage() {
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">Updated at</dt><dd>{shipment.updated_at ? new Date(shipment.updated_at).toLocaleString() : '—'}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">COD</dt><dd>{shipment.cod_amount != null ? `EGP ${shipment.cod_amount}` : '—'}</dd></div>
                 </dl>
+                {shipment.status === 'Delivered' && shipment.cod_amount && shipment.cod_amount > 0 && !codCollected ? (
+                  <div className="mt-6">
+                    <button
+                      type="button"
+                      disabled={isCollecting}
+                      onClick={async () => {
+                        if (!window.confirm(`Confirm collection of EGP ${shipment.cod_amount} COD for ${shipment.tracking_number ?? `shipment ${shipment.id}`}?`)) {
+                          return
+                        }
+
+                        setCollectError(null)
+                        setIsCollecting(true)
+                        try {
+                          await collectCod(shipment.id, {
+                            amount_due: shipment.cod_amount,
+                            cash_tendered: shipment.cod_amount,
+                            change_due: 0,
+                            transaction_reference: `COD-${shipment.id}-${Date.now()}`,
+                            notes: 'Collected after delivery',
+                          })
+                          toast.success('COD collected successfully')
+                          setCodCollected(true)
+                          await queryClient.invalidateQueries({ queryKey: ['shipments'] })
+                          await queryClient.invalidateQueries({ queryKey: ['finance', 'summary'] })
+                          const refreshed = await fetchShipmentById(shipment.id)
+                          setShipment(refreshed)
+                        } catch (error) {
+                          const message = error instanceof Error ? error.message : 'Unable to collect COD.'
+                          setCollectError(message)
+                          toast.error(message)
+                        } finally {
+                          setIsCollecting(false)
+                        }
+                      }}
+                      className="rounded-[16px] bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isCollecting ? 'Collecting…' : 'Collect COD'}
+                    </button>
+                    {collectError ? <p className="mt-3 text-sm text-rose-400">{collectError}</p> : null}
+                  </div>
+                ) : null}
+                {codCollected ? (
+                  <div className="mt-6 rounded-[16px] bg-slate-800 px-4 py-3 text-sm font-semibold text-emerald-300">
+                    COD has been collected successfully.
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>

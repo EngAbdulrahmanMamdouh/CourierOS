@@ -1,6 +1,6 @@
 import { API_BASE } from '@/config'
 import { getAccessToken } from '@/services/auth'
-import type { FinanceCourierSettlement, FinanceCustomerLedger, FinanceHistoryResponse, FinanceReportResponse, FinanceSummary } from '@/types/finance'
+import type { CodCollectionResponse, FinanceCourierSettlement, FinanceCustomerLedger, FinanceHistoryResponse, FinanceReportResponse, FinanceSummary } from '@/types/finance'
 
 async function handleResponse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null)
@@ -68,11 +68,11 @@ export async function fetchFinanceReports(): Promise<FinanceReportResponse> {
   return handleResponse<FinanceReportResponse>(response)
 }
 
-export async function collectCod(shipmentId: number, payload: { amount_due: number; cash_tendered: number; change_due: number; transaction_reference?: string; notes?: string }) {
+export async function collectCod(shipmentId: number, payload: { amount_due: number; cash_tendered: number; change_due: number; transaction_reference?: string; notes?: string }): Promise<CodCollectionResponse> {
   const response = await fetch(`${API_BASE}/finance/shipments/${shipmentId}/collect`, {
     method: 'POST',
     headers: buildHeaders(),
     body: JSON.stringify(payload),
   })
-  return handleResponse(response)
+  return handleResponse<CodCollectionResponse>(response)
 }

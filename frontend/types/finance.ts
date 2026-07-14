@@ -73,3 +73,10 @@ export type FinanceReportResponse = {
   history: FinanceHistoryResponse
   generated_at: string
 }
+
+export type CodCollectionResponse = {
+  success: boolean
+  cod_id: number
+  payment_id: number
+  collected_at: string | null
+}
