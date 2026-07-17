@@ -8,11 +8,15 @@ class TimelineItem(BaseModel):
 
 
 class TrackingResponse(BaseModel):
-    tracking_number: str
+    tracking_number: Optional[str]
     status: str
     timeline: List[TimelineItem]
     created_date: Optional[str]
     last_updated: Optional[str]
+    created_at: Optional[str]
+    delivered_at: Optional[str]
+    receiver_name: Optional[str]
+    cod_amount: Optional[float]
     destination_city: Optional[str]
     estimated_delivery_date: Optional[str]
     company_name: Optional[str]

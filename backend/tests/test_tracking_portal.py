@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from app.dependencies.auth import get_current_user
 from app.database import Base, SessionLocal, engine
 from app.models.company import Company
+from app.models.shipment import Shipment
 from app.models.user import User
 from app.routers.tracking import router as tracking_router
 from app.routers.shipments import router as shipment_router
@@ -69,6 +70,45 @@ def test_pending_shipment_tracking():
         assert body["tracking_number"] == tracking
         assert body["status"] == "Pending"
         assert isinstance(body["timeline"], list)
+
+    finally:
+        db.close()
+
+
+def test_legacy_display_tracking_format_matches_existing_shipment():
+    db = SessionLocal()
+    try:
+        company = Company(name="CoLegacy", code="CL", is_active=True)
+        db.add(company)
+        db.commit()
+        db.refresh(company)
+
+        user = User(username="ulegacy", email="uleg@example.com", hashed_password="x", role="company_admin", company_id=company.id)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        shipment = Shipment(
+            sender_name="Sender",
+            receiver_name="Receiver",
+            receiver_phone="01000000000",
+            address="Address",
+            city="City",
+            status="Pending",
+            owner_id=user.id,
+            company_id=company.id,
+            tracking_number=None,
+        )
+        db.add(shipment)
+        db.commit()
+        db.refresh(shipment)
+
+        client = _create_test_app(user)
+        track_resp = client.get(f"/track/TRK-{shipment.id}")
+        assert track_resp.status_code == 200
+        body = track_resp.json()
+        assert body["status"] == shipment.status
+        assert body["receiver_name"] == shipment.receiver_name
 
     finally:
         db.close()
