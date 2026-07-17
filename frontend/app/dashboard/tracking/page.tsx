@@ -1,6 +1,6 @@
-import TrackingQueryProvider from '@/components/tracking/TrackingQueryProvider'
+import { redirect } from 'next/navigation'
 
 export default function TrackingPage() {
-  return <TrackingQueryProvider />
+  redirect('/dashboard/live-tracking')
 }
 

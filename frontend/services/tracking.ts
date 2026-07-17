@@ -92,3 +92,37 @@ export async function getCourierLocation(courierId: number) {
 
   return handleResponse(response)
 }
+
+// Public tracking - customer-facing (no auth required)
+export type TimelineItem = {
+  status: string
+  changed_at?: string | null
+}
+
+export type PublicTrackingResponse = {
+  tracking_number: string
+  status: string
+  timeline: TimelineItem[]
+  created_date?: string | null
+  last_updated?: string | null
+  created_at?: string | null
+  delivered_at?: string | null
+  receiver_name?: string | null
+  cod_amount?: number | null
+  destination_city?: string | null
+  estimated_delivery_date?: string | null
+  company_name?: string | null
+}
+
+export async function fetchPublicTracking(trackingNumber: string): Promise<PublicTrackingResponse> {
+  const response = await fetch(`${API_BASE}/tracking/track/${encodeURIComponent(trackingNumber)}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+    cache: 'no-store',
+  })
+
+  const payload = await handleResponse<PublicTrackingResponse>(response)
+  return payload
+}
