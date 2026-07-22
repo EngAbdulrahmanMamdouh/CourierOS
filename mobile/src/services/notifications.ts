@@ -1,6 +1,20 @@
 import * as Notifications from 'expo-notifications'
+import api from './api'
+
+export interface CustomerNotification {
+  id: number
+  user_id: number
+  message: string
+  is_read: boolean
+  created_at: string
+}
 
 export type DriverNotificationType = 'new_assignment' | 'pickup_request' | 'schedule_change' | 'route_update'
+
+export async function getCustomerNotifications(): Promise<CustomerNotification[]> {
+  const response = await api.get<CustomerNotification[]>('/notifications/')
+  return response.data
+}
 
 export async function registerNotificationHandlers() {
   await Notifications.setNotificationHandler({

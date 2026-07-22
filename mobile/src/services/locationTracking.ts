@@ -221,7 +221,7 @@ class LocationTrackingService {
 }
 
 // Register background task
-TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
+TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }: { data?: any; error?: any }) => {
   if (error) {
     console.error('Background location task error:', error)
     return

@@ -31,9 +31,9 @@ export function useOfflineSync(pollingInterval = 15000) {
     ])
 
     if (syncedOperations + syncedLocations > 0) {
-      queryClient.invalidateQueries(['assignedShipments'])
-      queryClient.invalidateQueries(['dashboardStats'])
-      queryClient.invalidateQueries(['shipmentDetail'])
+      queryClient.invalidateQueries({ queryKey: ['assignedShipments'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats'] })
+      queryClient.invalidateQueries({ queryKey: ['shipmentDetail'] })
       setLastSyncedAt(new Date().toISOString())
     }
 

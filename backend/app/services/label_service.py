@@ -90,8 +90,8 @@ def _build_minimal_png_bytes() -> bytes:
     import struct
     import zlib
 
-    width = 16
-    height = 16
+    width = 96
+    height = 96
     bit_depth = 8
     color_type = 2
     raw = bytes(((x * 17 + y * 29 + (x ^ y) * 7) % 256) for y in range(height) for x in range(width) for _ in range(3))
@@ -104,18 +104,30 @@ def _build_minimal_png_bytes() -> bytes:
     return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', ihdr) + chunk(b'IDAT', compressed) + chunk(b'IEND', b'')
 
 
+def _build_fallback_pillow_png_bytes() -> bytes:
+    from PIL import Image
+
+    img = Image.new('RGB', (96, 96), (255, 255, 255))
+    for x in range(96):
+        for y in range(96):
+            r = (x * 5 + y * 3) % 256
+            g = (x * 7 + y * 2) % 256
+            b = (x * 11 + y * 13) % 256
+            img.putpixel((x, y), (r, g, b))
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    return buffer.getvalue()
+
+
 def create_shipment_barcode_png_bytes(db: Session, shipment: Shipment) -> bytes:
     tracking_code = _build_tracking_code(shipment)
     if not BARCODE_AVAILABLE or pybarcode is None or ImageWriter is None:
-        buffer = BytesIO()
         try:
-            from PIL import Image
-            img = Image.new('RGB', (4, 4), (255, 255, 255))
-            img.save(buffer, format='PNG')
-            return buffer.getvalue()
+            return _build_fallback_pillow_png_bytes()
         except Exception:
             img = qrcode.make(f"https://courieros.example.com/track/{shipment.id}") if QRCODE_AVAILABLE and qrcode is not None else None
             if img is not None:
+                buffer = BytesIO()
                 img.save(buffer, format='PNG')
                 return buffer.getvalue()
             return _build_minimal_png_bytes()
@@ -123,7 +135,13 @@ def create_shipment_barcode_png_bytes(db: Session, shipment: Shipment) -> bytes:
     writer = ImageWriter()
     buffer = BytesIO()
     barcode_obj = CODE128(tracking_code, writer=writer)
-    barcode_obj.write(buffer, {'module_height': 10.0, 'module_width': 0.2})
+    try:
+        barcode_obj.write(buffer, {'module_height': 10.0, 'module_width': 0.2})
+    except Exception:
+        try:
+            return _build_fallback_pillow_png_bytes()
+        except Exception:
+            return _build_minimal_png_bytes()
     return buffer.getvalue()
 
 
@@ -213,21 +231,17 @@ def create_shipping_label_pdf_bytes(db: Session, shipment: Shipment) -> bytes:
     canvas.setFillColor(black)
     canvas.drawString(2 * cm, line_y - (3 * cm) - 0.4 * cm, f"{tracking_code}")
 
+    qr_buffer = None
     if QRCODE_AVAILABLE and qrcode is not None:
         qr_img = qrcode.make(tracking_url)
         qr_buffer = BytesIO()
         qr_img.save(qr_buffer, format='PNG')
-        qr_size = 6 * cm
-        qr_x = width - qr_size - 2 * cm
-        qr_y = height - qr_size - 3 * cm
-        from reportlab.lib.utils import ImageReader
-        canvas.drawImage(ImageReader(BytesIO(qr_buffer.getvalue())), qr_x, qr_y, width=qr_size, height=qr_size, preserveAspectRatio=True, mask='auto')
-    else:
-        qr_size = 6 * cm
+    qr_size = 6 * cm
     qr_x = width - qr_size - 2 * cm
     qr_y = height - qr_size - 3 * cm
-    from reportlab.lib.utils import ImageReader
-    canvas.drawImage(ImageReader(BytesIO(qr_buffer.getvalue())), qr_x, qr_y, width=qr_size, height=qr_size, preserveAspectRatio=True, mask='auto')
+    if qr_buffer is not None:
+        from reportlab.lib.utils import ImageReader
+        canvas.drawImage(ImageReader(BytesIO(qr_buffer.getvalue())), qr_x, qr_y, width=qr_size, height=qr_size, preserveAspectRatio=True, mask='auto')
 
     canvas.showPage()
     canvas.save()

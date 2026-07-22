@@ -1,6 +1,17 @@
 import api from './api'
 import { ShipmentDetail, ShipmentDashboardStats, ShipmentHistoryItem } from '../types'
 
+export type ShipmentTrackingResponse = {
+  shipment_id: number
+  current_status: string
+  sender: string
+  receiver: string
+  receiver_phone: string
+  address: string
+  city: string
+  history: ShipmentHistoryItem[]
+}
+
 export async function getAssignedShipments(
   page: number = 1,
   size: number = 20,
@@ -26,6 +37,11 @@ export async function getDashboardStats(): Promise<ShipmentDashboardStats> {
 
 export async function getShipmentDetails(shipmentId: number | string): Promise<ShipmentDetail> {
   const response = await api.get<ShipmentDetail>(`/shipments/${shipmentId}`)
+  return response.data
+}
+
+export async function getShipmentTracking(shipmentId: number | string): Promise<ShipmentTrackingResponse> {
+  const response = await api.get<ShipmentTrackingResponse>(`/shipments/track/${shipmentId}`)
   return response.data
 }
 

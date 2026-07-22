@@ -32,7 +32,7 @@ export function ShipmentDetailsScreen({ navigation, route }: { navigation: any; 
   const history = historyQuery.data ?? []
   const loading = detailsQuery.isLoading
   const error = detailsQuery.error
-  const isUpdating = statusMutation.isLoading
+  const isUpdating = statusMutation.isPending
 
   const handleStatusChange = (newStatus: string) => {
     if (!shipment) {

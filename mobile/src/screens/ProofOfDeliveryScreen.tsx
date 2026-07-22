@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Image, KeyboardAvoidingView, LayoutAnimation, Platform, Pressable, ScrollView, Text, TextInput, View, Vibration } from 'react-native'
-import { Camera, CameraType, type CameraPictureOptions, useCameraPermissions } from 'expo-camera'
+import { CameraView, type CameraPictureOptions, useCameraPermissions } from 'expo-camera'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ArrowLeft, Camera as CameraIcon, CheckCircle2, FileText, Signature as SignatureIcon, Trash2, UserCheck } from 'lucide-react-native'
 import { PremiumCard } from '../components/PremiumCard'
@@ -30,7 +30,7 @@ export function ProofOfDeliveryScreen({ navigation, route }: { navigation: any; 
   const [submitting, setSubmitting] = useState(false)
   const [online, setOnline] = useState<boolean | null>(null)
   const [permission, requestPermission] = useCameraPermissions()
-  const cameraRef = useRef<Camera | null>(null)
+  const cameraRef = useRef<CameraView | null>(null)
   const [cameraReady, setCameraReady] = useState(false)
   const [capturing, setCapturing] = useState(false)
 
@@ -165,10 +165,10 @@ export function ProofOfDeliveryScreen({ navigation, route }: { navigation: any; 
 
           <PremiumCard title="Live photo capture" subtitle="Capture evidence directly from the delivery location">
             <View style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: '#0b1522' }}>
-              <Camera
+              <CameraView
                 ref={cameraRef}
                 style={{ width: '100%', height: 220, minHeight: 220 }}
-                type={CameraType.back}
+                facing="back"
                 onCameraReady={() => setCameraReady(true)}
               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 12, backgroundColor: 'rgba(0,0,0,0.24)' }}>

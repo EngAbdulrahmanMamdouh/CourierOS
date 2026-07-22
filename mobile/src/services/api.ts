@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios'
-import { getToken } from '../utils/storage'
+import { clearToken, getToken, isJwtExpired } from '../utils/storage'
+import { emitAuthEvent } from '../utils/authEvents'
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://127.0.0.1:8000',
@@ -8,15 +9,24 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(async (config) => {
   const token = await getToken()
-  if (token) {
+  if (token && !isJwtExpired(token)) {
     config.headers.Authorization = `Bearer ${token}`
+  } else if (token) {
+    await clearToken()
+    emitAuthEvent()
   }
   return config
 })
 
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
+    const status = error.response?.status
+    if (status === 401 || status === 403) {
+      await clearToken()
+      emitAuthEvent()
+    }
+
     const message = error.response?.data && typeof error.response.data === 'object' && 'detail' in error.response.data
       ? String((error.response.data as { detail?: unknown }).detail)
       : error.message

@@ -3,15 +3,16 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View
 import { LinearGradient } from 'expo-linear-gradient'
 import { useAppTheme } from '../../hooks/useTheme'
 import { useAuthStore } from '../../store/auth'
-import { saveToken } from '../../utils/storage'
 import api from '../../services/api'
 
 export function LoginCustomerScreen() {
   const { colors } = useAppTheme()
   const setAuth = useAuthStore((state) => state.setAuth)
+  const setLoading = useAuthStore((state) => state.setLoading)
+  const persistAuth = useAuthStore((state) => state.persistAuth)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLocalLoading] = useState(false)
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -19,6 +20,7 @@ export function LoginCustomerScreen() {
       return
     }
 
+    setLocalLoading(true)
     setLoading(true)
     try {
       const form = new URLSearchParams()
@@ -30,11 +32,13 @@ export function LoginCustomerScreen() {
       })
 
       const token = response.data.access_token
-      await saveToken(token)
-      setAuth({ id: 1, username, role: 'customer' }, token)
+      const user = { id: 1, username, role: 'customer' }
+      await persistAuth(token, user)
+      setAuth(user, token)
     } catch (error) {
       Alert.alert('Login failed', error instanceof Error ? error.message : 'Unable to sign in.')
     } finally {
+      setLocalLoading(false)
       setLoading(false)
     }
   }

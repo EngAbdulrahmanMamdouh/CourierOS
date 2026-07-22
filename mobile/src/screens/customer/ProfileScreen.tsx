@@ -1,17 +1,84 @@
-import React, { useState } from 'react'
-import { Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native'
+import React, { useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useAppTheme } from '../../hooks/useTheme'
 import { useAuthStore } from '../../store/auth'
 import { clearToken } from '../../utils/storage'
 import { PremiumCard } from '../../components/PremiumCard'
 import { SectionHeader } from '../../components/SectionHeader'
+import { getProfile } from '../../services/auth'
+
+interface ProfileSummary {
+  name: string
+  email: string
+  phone: string
+  company: string
+  address: string
+  accountStatus: string
+}
 
 export function ProfileScreen() {
-  const { colors, isDark } = useAppTheme()
+  const { isDark } = useAppTheme()
   const clearAuth = useAuthStore((state) => state.clearAuth)
+  const storedUser = useAuthStore((state) => state.user)
   const [language, setLanguage] = useState('English')
   const [darkMode, setDarkMode] = useState(isDark)
+  const [profile, setProfile] = useState<ProfileSummary>({
+    name: storedUser?.username ?? 'Unavailable',
+    email: storedUser?.email ?? 'Unavailable',
+    phone: 'Not available from current backend',
+    company: storedUser?.company_id ? `Company ID ${storedUser.company_id}` : 'Not available from current backend',
+    address: 'Not available from current backend',
+    accountStatus: storedUser?.role ? storedUser.role : 'Active',
+  })
+  const [loading, setLoading] = useState(!storedUser)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    async function loadProfile() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const data = await getProfile()
+        if (active) {
+          setProfile({
+            name: data.username ?? 'Unavailable',
+            email: data.email ?? 'Unavailable',
+            phone: 'Not available from current backend',
+            company: data.company_id ? `Company ID ${data.company_id}` : 'Not available from current backend',
+            address: 'Not available from current backend',
+            accountStatus: data.role ? data.role : 'Active',
+          })
+        }
+      } catch (err) {
+        if (active) {
+          setError(err instanceof Error ? err.message : 'Unable to load profile.')
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadProfile()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const profileFields = useMemo(() => [
+    { label: 'Name', value: profile.name },
+    { label: 'Email', value: profile.email },
+    { label: 'Phone', value: profile.phone },
+    { label: 'Company', value: profile.company },
+    { label: 'Address', value: profile.address },
+    { label: 'Account status', value: profile.accountStatus },
+  ], [profile])
 
   const handleLogout = async () => {
     await clearToken()
@@ -24,10 +91,26 @@ export function ProfileScreen() {
         <SectionHeader title="Profile" subtitle="Account preferences" />
 
         <PremiumCard title="Customer" subtitle="Account details">
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>Omar Al Farsi</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.65)', marginTop: 6 }}>omar@example.com</Text>
-          </View>
+          {loading ? (
+            <View style={{ marginTop: 10, alignItems: 'center', paddingVertical: 12 }}>
+              <ActivityIndicator color="#38bdf8" />
+              <Text style={{ color: 'rgba(255,255,255,0.7)', marginTop: 10 }}>Loading profile…</Text>
+            </View>
+          ) : error ? (
+            <View style={{ marginTop: 10 }}>
+              <Text style={{ color: '#fff', fontWeight: '700' }}>{error}</Text>
+            </View>
+          ) : (
+            <View style={{ marginTop: 10 }}>
+              {profileFields.map((field) => (
+                <View key={field.label} style={{ marginBottom: 10 }}>
+                  <Text style={{ color: 'rgba(255,255,255,0.7)' }}>{field.label}</Text>
+                  <Text style={{ color: '#fff', marginTop: 4, fontWeight: '700' }}>{field.value}</Text>
+                </View>
+              ))}
+              <Text style={{ color: 'rgba(255,255,255,0.55)', marginTop: 8 }}>Profile editing is currently read-only because the available backend profile endpoint is read-only.</Text>
+            </View>
+          )}
         </PremiumCard>
 
         <PremiumCard title="Settings" subtitle="Customize your experience" style={{ marginTop: 12 }}>

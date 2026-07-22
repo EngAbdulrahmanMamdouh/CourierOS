@@ -17,10 +17,11 @@ from app.schemas.courier_location import (
 from app.models.user import User
 from app.crud import courier_location as location_crud
 
-router = APIRouter(prefix="/tracking", tags=["Tracking"])
+router = APIRouter(tags=["Tracking"])
 
 
 # Public tracking endpoints (customer-facing)
+@router.get("/tracking/track/{tracking_number}", response_model=TrackingResponse)
 @router.get("/track/{tracking_number}", response_model=TrackingResponse)
 def public_track(tracking_number: str, db: Session = Depends(get_db)):
     """Get public tracking info for a shipment"""
@@ -31,6 +32,7 @@ def public_track(tracking_number: str, db: Session = Depends(get_db)):
 
 
 # Courier location endpoints (authenticated)
+@router.post("/tracking/location", response_model=CourierLocationResponse)
 @router.post("/location", response_model=CourierLocationResponse)
 def save_location(
     location_data: CourierLocationCreate,
@@ -71,6 +73,7 @@ def save_location(
         raise HTTPException(status_code=400, detail=f"Failed to save location: {str(e)}")
 
 
+@router.get("/tracking/courier/{courier_id}", response_model=CourierLocationResponse)
 @router.get("/courier/{courier_id}", response_model=CourierLocationResponse)
 def get_courier_location(
     courier_id: int,
@@ -109,6 +112,7 @@ def get_courier_location(
     return location
 
 
+@router.get("/tracking/live", response_model=List[ActiveCourierResponse])
 @router.get("/live", response_model=List[ActiveCourierResponse])
 def get_live_couriers(
     db: Session = Depends(get_db),
@@ -144,6 +148,7 @@ def get_live_couriers(
     return couriers
 
 
+@router.get("/tracking/history/{courier_id}", response_model=List[CourierLocationHistoryResponse])
 @router.get("/history/{courier_id}", response_model=List[CourierLocationHistoryResponse])
 def get_courier_history(
     courier_id: int,
@@ -188,6 +193,7 @@ def get_courier_history(
     return locations
 
 
+@router.delete("/tracking/history/{courier_id}")
 @router.delete("/history/{courier_id}")
 def clear_location_history(
     courier_id: int,

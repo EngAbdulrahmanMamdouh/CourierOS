@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Alert, Animated, Pressable, Text, TextInput, View, Vibration, StatusBar } from 'react-native'
 import { CameraView, useCameraPermissions, type CameraType } from 'expo-camera'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Flashlight, Search, Sparkles, XCircle, CheckCircle2, ScanLine } from 'lucide-react-native'
+import { Flashlight, Search, XCircle, CheckCircle2, ScanLine } from 'lucide-react-native'
+import { getShipmentDetails, getShipmentTracking } from '../services/shipment'
 
 export function ScannerScreen({ navigation }: { navigation: any }) {
   const [permission, requestPermission] = useCameraPermissions()
@@ -27,29 +28,40 @@ export function ScannerScreen({ navigation }: { navigation: any }) {
     }
   }, [failureX, status, successScale])
 
-  const handleLookup = (value: string) => {
-    const normalized = value.trim().toUpperCase()
+  const handleLookup = async (value: string) => {
+    const normalized = value.trim()
     if (!normalized) {
       Alert.alert('Enter tracking number', 'Add a barcode, QR, or shipment reference first.')
       return
     }
 
     setLoading(true)
-    setTimeout(() => {
-      const isMatch = normalized.includes('SHP') || normalized.includes('TRK') || normalized.length >= 4
-      if (isMatch) {
+    setStatus('idle')
+    try {
+      const shipmentId = Number(normalized)
+      const shipment = Number.isNaN(shipmentId)
+        ? null
+        : await getShipmentDetails(shipmentId)
+
+      if (shipment) {
+        await getShipmentTracking(shipment.id)
         Vibration.vibrate([50, 80, 50])
         setStatus('success')
         setScanned(true)
         setTimeout(() => {
-          navigation.navigate('ShipmentDetails', { shipment: { id: normalized, title: 'Matched shipment', status: 'Accepted' } })
+          navigation.navigate('ShipmentDetails', { shipmentId: shipment.id, shipment })
         }, 800)
       } else {
         Vibration.vibrate(120)
         setStatus('failure')
       }
+    } catch (error) {
+      Vibration.vibrate(120)
+      setStatus('failure')
+      Alert.alert('Lookup failed', error instanceof Error ? error.message : 'Unable to find a shipment for that code.')
+    } finally {
       setLoading(false)
-    }, 700)
+    }
   }
 
   const handleBarcodeScanned = ({ data }: { data: string }) => {

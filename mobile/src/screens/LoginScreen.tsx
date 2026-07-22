@@ -6,10 +6,9 @@ import { useAuth } from '../context/AuthContext'
 
 export function LoginScreen() {
   const { colors } = useAppTheme()
-  const { signIn } = useAuth()
+  const { signIn, loading: authLoading, error } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
 
   async function onSubmit() {
     if (!username || !password) {
@@ -17,13 +16,10 @@ export function LoginScreen() {
       return
     }
 
-    setLoading(true)
     try {
       await signIn(username, password)
     } catch (error) {
       Alert.alert('Login failed', error instanceof Error ? error.message : 'Please try again.')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -52,8 +48,10 @@ export function LoginScreen() {
               style={{ marginTop: 12, padding: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff' }}
             />
 
-            <Pressable onPress={onSubmit} disabled={loading} style={{ marginTop: 18, paddingVertical: 14, borderRadius: 16, alignItems: 'center', backgroundColor: '#38bdf8' }}>
-              <Text style={{ color: '#fff', fontWeight: '800' }}>{loading ? 'Signing in...' : 'Sign in'}</Text>
+            {error ? <Text style={{ color: '#fda4af', marginTop: 12 }}>{error}</Text> : null}
+
+            <Pressable onPress={onSubmit} disabled={authLoading} style={{ marginTop: 18, paddingVertical: 14, borderRadius: 16, alignItems: 'center', backgroundColor: '#38bdf8' }}>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>{authLoading ? 'Signing in...' : 'Sign in'}</Text>
             </Pressable>
           </View>
         </View>
