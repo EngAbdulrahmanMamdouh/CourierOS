@@ -24,7 +24,7 @@ export function HomeDashboardScreen({ navigation }: { navigation: any }) {
   const { colors } = useAppTheme()
   const { user } = useAuth()
   const dashboardQuery = useDashboardStatsQuery()
-  const shipmentsQuery = useAssignedShipmentsQuery({ status: 'Assigned', pageSize: 20 })
+  const shipmentsQuery = useAssignedShipmentsQuery({status: 'Pending',pageSize: 20,})
 
   const shipments = useMemo(() => shipmentsQuery.data?.pages.flat() ?? [], [shipmentsQuery.data])
   const codCollected = useMemo(

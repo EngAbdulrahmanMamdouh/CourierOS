@@ -24,7 +24,7 @@ export function LoginCustomerScreen() {
     setLoading(true)
     try {
       const form = new URLSearchParams()
-      form.append('username', username)
+      form.append('username', username.trim())
       form.append('password', password)
 
       const response = await api.post('/auth/login', form, {

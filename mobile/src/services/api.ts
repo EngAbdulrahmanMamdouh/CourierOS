@@ -3,7 +3,7 @@ import { clearToken, getToken, isJwtExpired } from '../utils/storage'
 import { emitAuthEvent } from '../utils/authEvents'
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'http://10.242.180.191:8000',
   timeout: 15000,
 })
 
