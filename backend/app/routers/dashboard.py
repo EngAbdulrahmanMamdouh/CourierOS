@@ -100,10 +100,11 @@ def analytics(db: Session = Depends(get_db), current_user: User = Depends(get_cu
     cancelled = shipment_query.filter(Shipment.status == "Cancelled").count()
 
     last_shipments = (
-        shipment_query.order_by(Shipment.created_at.desc())
-        .limit(5)
-        .all()
-    )
+    shipment_query
+    .order_by(Shipment.created_at.desc(), Shipment.id.desc())
+    .limit(5)
+    .all()
+   )
 
     payment_query = _apply_visibility_filter_payment(db.query(Payment), current_user).filter(Payment.is_deleted == False)
     latest_payments = (
@@ -131,10 +132,11 @@ def analytics(db: Session = Depends(get_db), current_user: User = Depends(get_cu
     )
 
     top_drivers = (
-        _apply_visibility_filter_entity(db.query(Driver), Driver, current_user)
-        .order_by(Driver.created_at.desc())
-        .limit(5)
-        .all()
+    _apply_visibility_filter_entity(db.query(Driver), Driver, current_user)
+    .order_by(Driver.created_at.desc(), Driver.id.desc())
+    .limit(5)
+    .all()
+
     )
 
     top_branches = (
