@@ -142,8 +142,8 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
 
                               try {
                                 await collectCod(shipment.id, {
-                                  amount_due: shipment.cod_amount,
-                                  cash_tendered: shipment.cod_amount,
+                                  amount_due: shipment.cod_amount ?? 0,
+                                  cash_tendered: shipment.cod_amount ?? 0,
                                   change_due: 0,
                                   transaction_reference: `COD-${shipment.id}-${Date.now()}`,
                                   notes: 'Collected after delivery',
