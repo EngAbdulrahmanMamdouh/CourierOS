@@ -109,8 +109,12 @@ def create_admin():
     db = SessionLocal()
     try:
         user = db.query(User).filter(User.username == "admin-soft").first()
+
         if user:
-            return {"message": "Admin already exists"}
+            user.hashed_password = hash_password("Courier@123")
+            user.role = "admin"
+            db.commit()
+            return {"message": "Admin password reset"}
 
         user = User(
             username="admin-soft",
