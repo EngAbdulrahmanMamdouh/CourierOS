@@ -6,9 +6,24 @@ from app.security import hash_password
 
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(User).filter(
+    print("================================")
+    print("SEARCH USERNAME:", repr(username))
+
+    users = db.query(User).all()
+    print("USERS IN DATABASE:")
+    for u in users:
+        print(
+            f"id={u.id}, username={u.username}, email={u.email}, role={u.role}"
+        )
+
+    user = db.query(User).filter(
         User.username == username
     ).first()
+
+    print("FOUND USER:", user)
+    print("================================")
+
+    return user
 
 
 def create_user(db: Session, user: UserCreate):

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, SessionLocal, engine
@@ -24,6 +24,7 @@ from app.routers.company import router as company_router
 from app.routers.company_settings import router as company_settings_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.tracking import router as tracking_router
+from app.security import hash_password
 
 Base.metadata.create_all(bind=engine)
 
@@ -36,8 +37,6 @@ def ensure_default_users(db=None):
         existing_user = session.query(User).filter(User.username == "admin-soft").first()
 
         if existing_user is None:
-            from app.security import hash_password
-
             existing_user = User(
                 username="admin-soft",
                 email="admin-soft@example.com",
@@ -49,14 +48,10 @@ def ensure_default_users(db=None):
             session.refresh(existing_user)
 
         elif existing_user.hashed_password == "x" or existing_user.role != "admin":
-            from app.security import hash_password
-
             existing_user.hashed_password = hash_password("Courier@123")
             existing_user.role = "admin"
             session.commit()
             session.refresh(existing_user)
-
-        return existing_user
 
     finally:
         if close_session:
@@ -67,7 +62,7 @@ ensure_default_users()
 
 app = FastAPI(
     title="CourierOS API",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -77,8 +72,6 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
-
-        # Vercel
         "https://courier-os-ottl-gray.vercel.app",
     ],
     allow_credentials=True,
@@ -91,7 +84,7 @@ app.add_middleware(
 def permission_exception_handler(request: Request, exc: PermissionError):
     return JSONResponse(
         status_code=status.HTTP_403_FORBIDDEN,
-        content={"detail": str(exc)}
+        content={"detail": str(exc)},
     )
 
 
@@ -99,7 +92,7 @@ def permission_exception_handler(request: Request, exc: PermissionError):
 def value_error_exception_handler(request: Request, exc: ValueError):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={"detail": str(exc)}
+        content={"detail": str(exc)},
     )
 
 
@@ -108,13 +101,9 @@ def root():
     return {"message": "Welcome to CourierOS API"}
 
 
-from app.security import hash_password
-
-
 @app.get("/create-admin")
 def create_admin():
     db = SessionLocal()
-
     try:
         user = db.query(User).filter(User.username == "admin-soft").first()
 
@@ -138,6 +127,25 @@ def create_admin():
 
     finally:
         db.close()
+
+
+# ======= أضفنا ده فقط =======
+@app.get("/users")
+def users():
+    db = SessionLocal()
+    try:
+        return [
+            {
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "role": u.role,
+            }
+            for u in db.query(User).all()
+        ]
+    finally:
+        db.close()
+# ===========================
 
 
 app.include_router(shipment_router)
