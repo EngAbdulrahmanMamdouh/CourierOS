@@ -34,6 +34,7 @@ def ensure_default_users(db=None):
 
     try:
         existing_user = session.query(User).filter(User.username == "admin-soft").first()
+
         if existing_user is None:
             from app.security import hash_password
 
@@ -46,6 +47,7 @@ def ensure_default_users(db=None):
             session.add(existing_user)
             session.commit()
             session.refresh(existing_user)
+
         elif existing_user.hashed_password == "x" or existing_user.role != "admin":
             from app.security import hash_password
 
@@ -55,6 +57,7 @@ def ensure_default_users(db=None):
             session.refresh(existing_user)
 
         return existing_user
+
     finally:
         if close_session:
             session.close()
@@ -66,6 +69,7 @@ app = FastAPI(
     title="CourierOS API",
     version="1.0.0"
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -73,11 +77,15 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
+
+        # Vercel
+        "https://courier-os-ottl-gray.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.exception_handler(PermissionError)
 def permission_exception_handler(request: Request, exc: PermissionError):
@@ -100,13 +108,13 @@ def root():
     return {"message": "Welcome to CourierOS API"}
 
 
-from app.database import SessionLocal
-from app.models.user import User
 from app.security import hash_password
+
 
 @app.get("/create-admin")
 def create_admin():
     db = SessionLocal()
+
     try:
         user = db.query(User).filter(User.username == "admin-soft").first()
 
@@ -122,12 +130,15 @@ def create_admin():
             hashed_password=hash_password("Courier@123"),
             role="admin",
         )
+
         db.add(user)
         db.commit()
 
         return {"message": "Admin created"}
+
     finally:
         db.close()
+
 
 app.include_router(shipment_router)
 app.include_router(user_router)
