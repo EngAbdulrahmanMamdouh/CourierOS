@@ -100,6 +100,31 @@ def root():
     return {"message": "Welcome to CourierOS API"}
 
 
+from app.database import SessionLocal
+from app.models.user import User
+from app.security import hash_password
+
+@app.get("/create-admin")
+def create_admin():
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.username == "admin-soft").first()
+        if user:
+            return {"message": "Admin already exists"}
+
+        user = User(
+            username="admin-soft",
+            email="admin-soft@example.com",
+            hashed_password=hash_password("Courier@123"),
+            role="admin",
+        )
+        db.add(user)
+        db.commit()
+
+        return {"message": "Admin created"}
+    finally:
+        db.close()
+
 app.include_router(shipment_router)
 app.include_router(user_router)
 app.include_router(auth_router)
