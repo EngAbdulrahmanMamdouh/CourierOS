@@ -18,10 +18,14 @@ function saveAccessToken(accessToken: string): void {
   }
 
   try {
-    sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken)
+    // تنظيف أي توكن قديم
+    sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+
+    // حفظ التوكن الجديد
     localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken)
   } catch {
-    // Ignore storage errors and keep the app functional.
+    // Ignore storage errors
   }
 }
 
@@ -31,7 +35,7 @@ export function getAccessToken(): string | null {
   }
 
   try {
-    return sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
+    return localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
   } catch {
     return null
   }
@@ -50,7 +54,7 @@ export function clearSession(): void {
     sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
     localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
   } catch {
-    // Ignore storage errors and keep the app functional.
+    // Ignore storage errors
   }
 }
 
@@ -75,18 +79,25 @@ export async function login(credentials: LoginCredentials): Promise<AuthToken> {
       },
       body: body.toString(),
     })
-  } catch (fetchError) {
-    throw new Error('Unable to reach CourierOS. Please check your network connection and try again.')
+  } catch {
+    throw new Error(
+      'Unable to reach CourierOS. Please check your network connection and try again.'
+    )
   }
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null)
-    const message =
-      errorBody?.detail || errorBody?.message || 'Unable to sign in. Please check your credentials.'
-    throw new Error(message)
+
+    throw new Error(
+      errorBody?.detail ||
+      errorBody?.message ||
+      'Unable to sign in. Please check your credentials.'
+    )
   }
 
   const data = (await response.json()) as AuthToken
+
   saveAccessToken(data.access_token)
+
   return data
 }
