@@ -31,7 +31,7 @@ export async function fetchDrivers(page = 1, size = 50, search?: string) {
   const params = new URLSearchParams({ page: String(page), size: String(size) })
   if (search) params.append('search', search)
 
-  const response = await fetch(`${API_BASE}/drivers?${params.toString()}`, {
+  const response = await fetch(`${API_BASE}/drivers/?${params.toString()}`, {
     method: 'GET',
     headers: buildHeaders(),
   })
