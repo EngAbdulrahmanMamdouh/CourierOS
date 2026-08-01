@@ -9,19 +9,32 @@ import type { Company, CompanyCreatePayload } from '@/types/company'
 
 type Form = CompanyCreatePayload
 
+const optionalStringField = () =>
+  z.preprocess((value) => {
+    if (value === null || value === undefined || value === '') {
+      return undefined
+    }
+
+    if (typeof value === 'string') {
+      return value.trim()
+    }
+
+    return value
+  }, z.string().trim().optional())
+
 const schema = z.object({
   name: z.string().trim().min(2, 'Company name is required'),
   code: z.string().trim().min(2, 'Company code is required'),
-  email: z.string().trim().email('Email must be valid').optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  phone: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  address: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  city: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  country: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  tax_number: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  commercial_register: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  logo_url: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  subscription_plan: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
-  subscription_status: z.string().trim().optional().or(z.literal('')).transform((value) => (value === '' ? undefined : value)),
+  email: optionalStringField().pipe(z.string().trim().email('Email must be valid').optional()),
+  phone: optionalStringField(),
+  address: optionalStringField(),
+  city: optionalStringField(),
+  country: optionalStringField(),
+  tax_number: optionalStringField(),
+  commercial_register: optionalStringField(),
+  logo_url: optionalStringField(),
+  subscription_plan: optionalStringField(),
+  subscription_status: optionalStringField(),
   is_active: z.boolean().optional(),
 })
 
