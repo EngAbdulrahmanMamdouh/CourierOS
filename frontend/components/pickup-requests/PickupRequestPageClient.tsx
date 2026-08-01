@@ -24,15 +24,16 @@ export default function PickupRequestPageClient() {
 
   const filteredPickupRequests = useMemo(() => {
     return pickupRequests.filter((request) => {
-      const matchesStatus = statusFilter === 'all' || request.status.toLowerCase() === statusFilter.toLowerCase()
-      const matchesSearch = !search || [request.pickup_address, request.contact_name, request.contact_phone, request.status].some((value) => value.toLowerCase().includes(search.toLowerCase()))
+      const statusValue = (request.status ?? '').toLowerCase()
+      const matchesStatus = statusFilter === 'all' || statusValue === statusFilter.toLowerCase()
+      const matchesSearch = !search || [request.pickup_address, request.contact_name, request.contact_phone, request.status].some((value) => (value ?? '').toLowerCase().includes(search.toLowerCase()))
       return matchesStatus && matchesSearch
     })
   }, [pickupRequests, search, statusFilter])
 
   const summary = useMemo(() => ({
     total: filteredPickupRequests.length,
-    pending: filteredPickupRequests.filter((request) => request.status.toLowerCase() === 'pending').length,
+    pending: filteredPickupRequests.filter((request) => (request.status ?? '').toLowerCase() === 'pending').length,
   }), [filteredPickupRequests])
 
   const handleCreate = async (values: PickupRequestCreatePayload) => {

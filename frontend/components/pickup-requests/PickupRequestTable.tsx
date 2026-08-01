@@ -48,8 +48,8 @@ export default function PickupRequestTable({ pickupRequests, page, onPageChange,
                   <td className="py-5 pr-6">{request.pickup_address}</td>
                   <td className="py-5 pr-6">{request.city_id}</td>
                   <td className="py-5 pr-6">
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${request.status.toLowerCase() === 'pending' ? 'bg-amber-500/10 text-amber-300' : request.status.toLowerCase() === 'approved' ? 'bg-sky-500/10 text-sky-300' : request.status.toLowerCase() === 'assigned' ? 'bg-violet-500/10 text-violet-300' : request.status.toLowerCase() === 'picked_up' ? 'bg-emerald-500/10 text-emerald-300' : request.status.toLowerCase() === 'converted_to_shipment' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300'}`}>
-                      {request.status}
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${((request.status ?? '').toLowerCase() === 'pending' ? 'bg-amber-500/10 text-amber-300' : (request.status ?? '').toLowerCase() === 'approved' ? 'bg-sky-500/10 text-sky-300' : (request.status ?? '').toLowerCase() === 'assigned' ? 'bg-violet-500/10 text-violet-300' : (request.status ?? '').toLowerCase() === 'picked_up' ? 'bg-emerald-500/10 text-emerald-300' : (request.status ?? '').toLowerCase() === 'converted_to_shipment' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300')}`}>
+                      {request.status ?? '—'}
                     </span>
                   </td>
                   <td className="py-5 pr-6">{new Date(request.preferred_pickup_date).toLocaleString()}</td>
