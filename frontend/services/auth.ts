@@ -45,6 +45,31 @@ export function isAuthenticated(): boolean {
   return Boolean(getAccessToken())
 }
 
+export function getAuthenticatedCompanyId(): number | null {
+  const token = getAccessToken()
+
+  if (!token) {
+    return null
+  }
+
+  try {
+    const parts = token.split('.')
+
+    if (parts.length < 2) {
+      return null
+    }
+
+    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+    const normalizedPayload = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=')
+    const decoded = window.atob(normalizedPayload)
+    const parsed = JSON.parse(decoded) as { company_id?: number }
+
+    return typeof parsed.company_id === 'number' ? parsed.company_id : null
+  } catch {
+    return null
+  }
+}
+
 export function clearSession(): void {
   if (typeof window === 'undefined') {
     return
