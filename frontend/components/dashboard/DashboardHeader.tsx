@@ -33,6 +33,9 @@ export default function DashboardHeader({ greeting, dateLabel }: DashboardHeader
         </div>
 
         <div className="flex items-center justify-end gap-3">
+          <Link href="/dashboard/companies" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
+            Companies
+          </Link>
           <Link href="/dashboard/customers" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
             Customers
           </Link>
