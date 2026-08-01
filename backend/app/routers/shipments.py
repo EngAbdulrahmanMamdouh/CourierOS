@@ -21,6 +21,7 @@ from app.services.label_service import (
     create_shipment_qrcode_png_bytes,
 )
 from app.services.shipment_service import update_shipment_status as update_status_service
+from app.services.notification_service import create_notification
 from app.crud import finance as finance_crud
 from app.schemas.finance import CodCollectionResponse
 
@@ -233,6 +234,13 @@ def create_shipment(
         description="Shipment created",
     )
 
+    create_notification(
+        db=db,
+        user_id=current_user.id,
+        message=f"Shipment #{new_shipment.id} created successfully",
+        current_user=current_user,
+    )
+
     return {
         "message": "Shipment created successfully",
         "data": ShipmentResponse.model_validate(new_shipment)
@@ -276,6 +284,13 @@ def assign_shipment(
     if shipment is None:
         raise HTTPException(status_code=404, detail="Shipment not found")
 
+    create_notification(
+        db=db,
+        user_id=current_user.id,
+        message=f"Shipment #{shipment.id} assigned to employee #{employee_id}",
+        current_user=current_user,
+    )
+
     return {
         "message": "Shipment assigned successfully",
         "shipment_id": shipment.id,
@@ -311,12 +326,21 @@ def update_shipment_status(
             detail="Shipment not found"
         )
 
-    return update_status_service(
+    result = update_status_service(
         db=db,
         shipment=shipment,
         new_status=new_status_enum,
         current_user=current_user
     )
+
+    create_notification(
+        db=db,
+        user_id=current_user.id,
+        message=f"Shipment #{shipment.id} status updated to {new_status_enum.value}",
+        current_user=current_user,
+    )
+
+    return result
 
 
 @router.get("/{shipment_id}/history")
