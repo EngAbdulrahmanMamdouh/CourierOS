@@ -40,6 +40,26 @@ export async function fetchShipments(): Promise<ShipmentListItem[]> {
   return Array.isArray(payload) ? payload : []
 }
 
+export async function fetchShipmentReports(): Promise<{
+  total_shipments: number
+  grouped_counts: Record<string, number>
+  shipments: Array<{
+    id: number
+    receiver_name: string
+    status: string
+    city: string
+    owner_id: number | null
+  }>
+}> {
+  const response = await fetch(`${API_BASE}/shipments/reports/shipments`, {
+    method: 'GET',
+    headers: buildHeaders(),
+    cache: 'no-store',
+  })
+
+  return handleResponse(response)
+}
+
 export async function createShipment(payload: ShipmentCreatePayload): Promise<ShipmentResponse> {
   const response = await fetch(`${API_BASE}/shipments/`, {
     method: 'POST',
@@ -142,7 +162,7 @@ export async function executeShipmentImport(file: File): Promise<{
   validation_errors: Array<{
     row_number: number
     errors: string[]
-    mapped_data: Record<string, any>
+    mapped_data: Record<string, any>   
   }>
   created_shipment_ids: number[]
   execution_time: number

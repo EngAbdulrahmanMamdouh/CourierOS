@@ -148,6 +148,7 @@ export default function ShipmentDetailsPage() {
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">City</dt><dd>{shipment.city}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">ETA</dt><dd>{shipment.estimated_delivery_days} days</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">COD</dt><dd>EGP {shipment.cod_amount ?? 0}</dd></div>
+                  <div className="flex justify-between gap-4"><dt className="text-slate-500">Shipping Price</dt><dd>{shipment.shipping_price != null ? `EGP ${Number(shipment.shipping_price).toFixed(2)}` : '—'}</dd></div>
                 </dl>
               </div>
 

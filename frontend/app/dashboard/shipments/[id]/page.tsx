@@ -98,6 +98,7 @@ export default function DashboardShipmentDetailsPage() {
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">Created at</dt><dd>{new Date(shipment.created_at).toLocaleString()}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">Updated at</dt><dd>{shipment.updated_at ? new Date(shipment.updated_at).toLocaleString() : '—'}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-slate-500">COD</dt><dd>{shipment.cod_amount != null ? `EGP ${shipment.cod_amount}` : '—'}</dd></div>
+                  <div className="flex justify-between gap-4"><dt className="text-slate-500">Shipping Price</dt><dd>{shipment.shipping_price != null ? `EGP ${Number(shipment.shipping_price).toFixed(2)}` : '—'}</dd></div>
                 </dl>
                 {shipment.status === 'Delivered' && shipment.cod_amount && shipment.cod_amount > 0 && !codCollected ? (
                   <div className="mt-6">

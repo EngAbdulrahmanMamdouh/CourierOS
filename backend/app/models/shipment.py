@@ -26,6 +26,7 @@ class Shipment(Base):
     estimated_delivery_days = Column(Integer, nullable=False, default=1)
     notes = Column(String, nullable=True, default="")
     cod_amount = Column(Float, nullable=True, default=0.0)
+    shipping_price = Column(Float, nullable=True, default=None)
     delivered_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

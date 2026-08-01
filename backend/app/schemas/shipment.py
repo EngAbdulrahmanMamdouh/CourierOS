@@ -13,6 +13,7 @@ class ShipmentBase(BaseModel):
     estimated_delivery_days: int = Field(default=1, ge=1, le=365)
     notes: Optional[str] = Field(default="", max_length=1000)
     cod_amount: float | None = Field(default=0.0, ge=0)
+    shipping_price: float | None = Field(default=None, ge=0)
 
 
 class ShipmentCreate(ShipmentBase):

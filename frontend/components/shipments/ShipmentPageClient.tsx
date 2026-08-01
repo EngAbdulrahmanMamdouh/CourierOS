@@ -31,9 +31,9 @@ export default function ShipmentPageClient() {
     setSubmitError(null)
 
     try {
-      await createShipment(values)
+      const createdShipment = await createShipment(values)
       await queryClient.invalidateQueries({ queryKey: ['shipments'] })
-      toast.success('Shipment created successfully')
+      toast.success(`Shipment created successfully. Shipping Price: ${createdShipment.shipping_price != null ? `EGP ${Number(createdShipment.shipping_price).toFixed(2)}` : 'EGP —'}`)
       setIsCreateOpen(false)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to create shipment.'

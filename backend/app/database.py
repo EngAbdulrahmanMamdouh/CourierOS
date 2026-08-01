@@ -52,6 +52,10 @@ def ensure_schema():
             connection.execute(text("ALTER TABLE shipments ADD COLUMN cod_amount REAL DEFAULT 0"))
             connection.execute(text("UPDATE shipments SET cod_amount = 0 WHERE cod_amount IS NULL"))
 
+    if "shipping_price" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE shipments ADD COLUMN shipping_price REAL"))
+
     if "drivers" in inspector.get_table_names():
         driver_columns = {column["name"] for column in inspector.get_columns("drivers")}
 

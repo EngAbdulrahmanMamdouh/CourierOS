@@ -3,7 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+from app.models.city import City
 from app.models.customer import Customer
+from app.models.delivery_zone import DeliveryZone
+from app.models.pricing_rule import PricingRule
 from app.models.shipment import Shipment
 from app.models.shipment_history import ShipmentHistory
 
@@ -146,6 +149,117 @@ def _ensure_customer_for_shipment(db: Session, shipment_data, company_id: int):
     return customer.id
 
 
+def _resolve_pricing_rule(db: Session, shipment_data, company_id: int | None = None):
+    if company_id is None:
+        return None
+
+    origin_city_name = (
+        getattr(shipment_data, "origin_city", None)
+        or getattr(shipment_data, "origin_city_name", None)
+        or getattr(shipment_data, "sender_city", None)
+        or getattr(shipment_data, "source_city", None)
+        or getattr(shipment_data, "city", None)
+    )
+    destination_city_name = (
+        getattr(shipment_data, "destination_city", None)
+        or getattr(shipment_data, "destination_city_name", None)
+        or getattr(shipment_data, "city", None)
+    )
+
+    if not origin_city_name or not destination_city_name:
+        return None
+
+    try:
+        origin_city = (
+            db.query(City)
+            .filter(City.name.ilike(str(origin_city_name)), City.company_id == company_id)
+            .first()
+        )
+        destination_city = (
+            db.query(City)
+            .filter(City.name.ilike(str(destination_city_name)), City.company_id == company_id)
+            .first()
+        )
+    except Exception:
+        return None
+
+    if origin_city is None or destination_city is None:
+        return None
+
+    delivery_zone_id = None
+    zone_value = getattr(shipment_data, "delivery_zone", None) or getattr(shipment_data, "delivery_zone_id", None)
+    if zone_value is not None:
+        try:
+            if isinstance(zone_value, int):
+                delivery_zone = (
+                    db.query(DeliveryZone)
+                    .filter(DeliveryZone.id == zone_value, DeliveryZone.company_id == company_id)
+                    .first()
+                )
+            else:
+                delivery_zone = (
+                    db.query(DeliveryZone)
+                    .filter(DeliveryZone.zone_name.ilike(str(zone_value)), DeliveryZone.company_id == company_id)
+                    .first()
+                )
+            if delivery_zone is not None:
+                delivery_zone_id = delivery_zone.id
+        except Exception:
+            delivery_zone_id = None
+
+    try:
+        query = (
+            db.query(PricingRule)
+            .filter(
+                PricingRule.company_id == company_id,
+                PricingRule.source_city_id == origin_city.id,
+                PricingRule.destination_city_id == destination_city.id,
+                PricingRule.is_deleted == False,
+                PricingRule.is_active == True,
+            )
+        )
+        if delivery_zone_id is not None:
+            query = query.filter(PricingRule.delivery_zone_id == delivery_zone_id)
+        else:
+            query = query.filter(PricingRule.delivery_zone_id.is_(None))
+
+        return query.order_by(PricingRule.id.desc()).first()
+    except Exception:
+        return None
+
+
+def _calculate_shipping_price(db: Session, shipment_data, company_id: int | None = None):
+    pricing_rule = _resolve_pricing_rule(db, shipment_data, company_id)
+    if pricing_rule is None:
+        return None
+
+    try:
+        base_price = float(pricing_rule.base_price or 0)
+    except Exception:
+        base_price = 0.0
+
+    extra_weight_fee = 0.0
+    try:
+        weight = getattr(shipment_data, "weight", None)
+        if weight is not None:
+            weight_value = float(weight)
+            max_weight = float(pricing_rule.max_weight or 0)
+            if weight_value > max_weight:
+                extra_weight_fee = float(pricing_rule.extra_cost or 0)
+    except Exception:
+        extra_weight_fee = 0.0
+
+    cod_fee = 0.0
+    try:
+        cod_fee_value = getattr(shipment_data, "cod_fee", None)
+        if cod_fee_value is not None:
+            cod_fee = float(cod_fee_value)
+    except Exception:
+        cod_fee = 0.0
+
+    return base_price + extra_weight_fee + cod_fee
+
+
 def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: int = None):
     if owner_id is None:
         owner_id = 1
@@ -156,6 +270,7 @@ def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: i
     estimated_delivery_days = getattr(shipment_data, "estimated_delivery_days", None) or 1
     notes = getattr(shipment_data, "notes", None) or ""
     cod_amount = getattr(shipment_data, "cod_amount", None) or 0.0
+    shipping_price = getattr(shipment_data, "shipping_price", None)
 
     return Shipment(
         sender_name=shipment_data.sender_name,
@@ -169,6 +284,7 @@ def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: i
         estimated_delivery_days=estimated_delivery_days,
         notes=notes,
         cod_amount=cod_amount,
+        shipping_price=shipping_price,
     )
 
 
@@ -182,6 +298,7 @@ def create_shipment(db: Session, shipment_data, owner_id: int = None, company_id
     customer_id = _ensure_customer_for_shipment(db, shipment_data, company_id)
     shipment = _build_shipment_from_data(shipment_data, owner_id, company_id)
     shipment.customer_id = customer_id
+    shipment.shipping_price = _calculate_shipping_price(db, shipment_data, company_id)
 
     db.add(shipment)
     db.commit()
@@ -214,6 +331,7 @@ def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = Non
         customer_id = _ensure_customer_for_shipment(db, shipment_data, company_id)
         shipment = _build_shipment_from_data(shipment_data, owner_id, company_id)
         shipment.customer_id = customer_id
+        shipment.shipping_price = _calculate_shipping_price(db, shipment_data, company_id)
         shipments.append(shipment)
 
     db.add_all(shipments)
@@ -238,6 +356,7 @@ def update_shipment(db: Session, shipment_id: int, shipment_data, current_user=N
     shipment.estimated_delivery_days = getattr(shipment_data, "estimated_delivery_days", shipment.estimated_delivery_days) or shipment.estimated_delivery_days
     shipment.notes = getattr(shipment_data, "notes", None) or ""
     shipment.cod_amount = getattr(shipment_data, "cod_amount", shipment.cod_amount)
+    shipment.shipping_price = getattr(shipment_data, "shipping_price", shipment.shipping_price)
 
     db.commit()
     db.refresh(shipment)

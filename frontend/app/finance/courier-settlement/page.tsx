@@ -30,7 +30,7 @@ export default function CourierSettlementPage() {
                 <div key={item.shipment_id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-800/60 p-3 text-sm">
                   <span>Shipment #{item.shipment_id}</span>
                   <span className="text-slate-400">{item.customer_name ?? '—'}</span>
-                  <span className={item.collected ? 'text-emerald-400' : 'text-amber-400'}>EGP {item.cod_amount.toLocaleString('en-US')}</span>
+                  <span className={item.collected ? 'text-emerald-400' : 'text-amber-400'}>COD: EGP {item.cod_amount.toLocaleString('en-US')} • Shipping: {item.shipping_price != null ? `EGP ${Number(item.shipping_price).toFixed(2)}` : '—'}</span>
                 </div>
               ))}
             </div>

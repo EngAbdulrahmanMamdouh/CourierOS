@@ -5,6 +5,7 @@ import pytest
 from app.crud import city as city_crud
 from app.crud import delivery_zone as zone_crud
 from app.crud import pricing_rule as pricing_crud
+from app.crud import shipment as shipment_crud
 from app.database import Base, SessionLocal, engine
 
 
@@ -116,5 +117,68 @@ def test_pricing_rule_crud_validation_and_soft_delete():
         assert deleted.is_deleted is True
 
         assert pricing_crud.get_pricing_rule_by_id(db=db, pricing_rule_id=rule.id, current_user=admin) is None
+    finally:
+        db.close()
+
+
+def test_shipment_creation_uses_pricing_rule_for_shipping_price():
+    db = SessionLocal()
+    try:
+        admin = SimpleNamespace(id=1, role="admin", company_id=1)
+
+        source_city = city_crud.create_city(
+            db=db,
+            city_data=SimpleNamespace(name="Cairo", code="CAI", governorate="Cairo", is_active=True),
+            current_user=admin,
+        )
+        destination_city = city_crud.create_city(
+            db=db,
+            city_data=SimpleNamespace(name="Alexandria", code="ALX", governorate="Alexandria", is_active=True),
+            current_user=admin,
+        )
+        zone = zone_crud.create_delivery_zone(
+            db=db,
+            zone_data=SimpleNamespace(city_id=source_city.id, zone_name="Downtown", delivery_days="Mon-Wed", extra_cost=10.0, is_active=True),
+            current_user=admin,
+        )
+
+        pricing_crud.create_pricing_rule(
+            db=db,
+            pricing_data=SimpleNamespace(
+                source_city_id=source_city.id,
+                destination_city_id=destination_city.id,
+                delivery_zone_id=zone.id,
+                service_type="Express",
+                min_weight=1.0,
+                max_weight=5.0,
+                base_price=20.0,
+                extra_cost=2.0,
+                estimated_delivery_days=2,
+                is_active=True,
+            ),
+            current_user=admin,
+        )
+
+        shipment = shipment_crud.create_shipment(
+            db=db,
+            shipment_data=SimpleNamespace(
+                sender_name="Alice",
+                receiver_name="Bob",
+                receiver_phone="01000000000",
+                address="123 Main St",
+                city="Alexandria",
+                origin_city="Cairo",
+                destination_city="Alexandria",
+                delivery_zone="Downtown",
+                weight=6.0,
+                cod_fee=3.0,
+                status="Pending",
+                notes="",
+            ),
+            owner_id=admin.id,
+            company_id=admin.company_id,
+        )
+
+        assert shipment.shipping_price == 25.0
     finally:
         db.close()

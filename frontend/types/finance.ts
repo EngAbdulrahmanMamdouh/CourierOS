@@ -10,6 +10,7 @@ export type FinanceLedgerShipment = {
   id: number
   tracking_number: string | null
   cod_amount: number
+  shipping_price: number | null
   status: string
   created_at: string | null
   delivered_at: string | null
@@ -42,6 +43,7 @@ export type FinanceCustomerLedger = {
 export type FinanceSettlementItem = {
   shipment_id: number
   cod_amount: number
+  shipping_price: number | null
   collected: boolean
   collected_at: string | null
   customer_name: string | null

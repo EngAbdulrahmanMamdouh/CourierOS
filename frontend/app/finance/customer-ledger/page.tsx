@@ -30,7 +30,7 @@ export default function CustomerLedgerPage() {
                   <div key={shipment.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-800/60 p-3 text-sm">
                     <span>{shipment.tracking_number ?? `#${shipment.id}`}</span>
                     <span className="text-slate-400">{shipment.status}</span>
-                    <span className="text-white">EGP {shipment.cod_amount.toLocaleString('en-US')}</span>
+                    <span className="text-white">COD: EGP {shipment.cod_amount.toLocaleString('en-US')} • Shipping: {shipment.shipping_price != null ? `EGP ${Number(shipment.shipping_price).toFixed(2)}` : '—'}</span>
                   </div>
                 ))}
               </div>

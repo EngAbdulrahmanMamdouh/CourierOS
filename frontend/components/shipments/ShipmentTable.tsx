@@ -67,6 +67,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">City</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Status</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">COD</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Shipping Price</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">ETA</th>
               <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Actions</th>
             </tr>
@@ -106,6 +107,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                     </div>
                   </td>
                   <td className="py-5 pr-6">{shipment.cod_amount != null ? `EGP ${shipment.cod_amount}` : '—'}</td>
+                  <td className="py-5 pr-6">{shipment.shipping_price != null ? `EGP ${Number(shipment.shipping_price).toFixed(2)}` : '—'}</td>
                   <td className="py-5 pr-6">{shipment.estimated_delivery_days} days</td>
                   <td className="py-5 pr-6">
                     <div className="flex flex-wrap items-center gap-3">

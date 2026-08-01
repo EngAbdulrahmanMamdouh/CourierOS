@@ -12,6 +12,7 @@ export type ShipmentListItem = {
   estimated_delivery_days: number
   notes: string | null
   cod_amount: number | null
+  shipping_price: number | null
   created_at: string
   updated_at: string
 }

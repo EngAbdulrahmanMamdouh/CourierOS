@@ -27,23 +27,16 @@ def login(
 
     db_user = get_user_by_username(db, form_data.username)
 
-    print("LOGIN USER:", db_user)
-
     if db_user is None:
-        print("USER NOT FOUND")
         raise HTTPException(
             status_code=401,
             detail="Invalid username or password"
         )
 
-    print("HASH:", db_user.hashed_password)
-
     ok = verify_password(
         form_data.password,
         db_user.hashed_password
     )
-
-    print("PASSWORD OK:", ok)
 
     if not ok:
         raise HTTPException(
