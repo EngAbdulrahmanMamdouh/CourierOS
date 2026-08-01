@@ -48,14 +48,10 @@ export default function DashboardHeader({ greeting, dateLabel }: DashboardHeader
           <Link href="/finance" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-emerald-400/20 bg-emerald-500/10 px-4 text-emerald-200 transition hover:border-emerald-400/40 hover:bg-emerald-500/20">
             Finance
           </Link>
-          <button
-            type="button"
-            className="inline-flex h-12 items-center justify-center rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900"
-          >
+          <Link href="/dashboard/notifications" className="inline-flex h-12 items-center justify-center rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
             <Bell className="mr-2 h-4 w-4 text-slate-200" />
             <span className="text-sm text-slate-100">Notifications</span>
-          </button>
-
+          </Link>
           <button
             type="button"
             className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900"
