@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
+import CustomerTrackingQueryProvider from '@/components/tracking/CustomerTrackingQueryProvider'
 
 export default function TrackingPage() {
-  redirect('/dashboard/live-tracking')
+  return <CustomerTrackingQueryProvider />
 }
 

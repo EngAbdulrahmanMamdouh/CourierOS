@@ -11,13 +11,16 @@ ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 pwd_context = CryptContext(
-    schemes=["bcrypt"],
+    schemes=["pbkdf2_sha256", "bcrypt"],
     deprecated="auto"
 )
 
 
 def hash_password(password: str):
-    return pwd_context.hash(password)
+    try:
+        return pwd_context.hash(password, scheme="pbkdf2_sha256")
+    except Exception:
+        return pwd_context.hash(password)
 
 
 def verify_password(

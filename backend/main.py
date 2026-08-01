@@ -26,9 +26,6 @@ from app.routers.dashboard import router as dashboard_router
 from app.routers.tracking import router as tracking_router
 from app.security import hash_password
 
-Base.metadata.create_all(bind=engine)
-
-
 def ensure_default_users(db=None):
     session = db or SessionLocal()
     close_session = db is None
@@ -58,12 +55,18 @@ def ensure_default_users(db=None):
             session.close()
 
 
-ensure_default_users()
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="CourierOS API",
     version="1.0.0",
 )
+
+
+@app.on_event("startup")
+def startup_event():
+    ensure_default_users()
+
 
 app.add_middleware(
     CORSMiddleware,
