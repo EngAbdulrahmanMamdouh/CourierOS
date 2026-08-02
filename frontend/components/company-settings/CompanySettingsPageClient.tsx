@@ -43,6 +43,23 @@ const defaultValues: FormValues = {
   is_active: true,
 }
 
+function buildFormValues(settingsData: CompanySettings): FormValues {
+  return {
+    company_name: settingsData.company_name ?? '',
+    support_phone: settingsData.support_phone ?? '',
+    support_email: settingsData.support_email ?? '',
+    currency: settingsData.currency ?? 'USD',
+    timezone: settingsData.timezone ?? 'UTC',
+    language: settingsData.language ?? 'en',
+    shipment_prefix: settingsData.shipment_prefix ?? 'SHIP',
+    tracking_prefix: settingsData.tracking_prefix || settingsData.shipment_prefix || 'TRK',
+    cod_percentage: settingsData.cod_percentage ?? 0,
+    tax_percentage: settingsData.tax_percentage ?? 0,
+    shipping_providers: settingsData.shipping_providers || 'FedEx, UPS',
+    is_active: settingsData.is_active ?? true,
+  }
+}
+
 export default function CompanySettingsPageClient() {
   const [settings, setSettings] = useState<CompanySettings | null>(null)
   const [currentCompanyId, setCurrentCompanyId] = useState<number | null>(null)
@@ -51,7 +68,7 @@ export default function CompanySettingsPageClient() {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues,
     mode: 'onBlur',
@@ -81,21 +98,22 @@ export default function CompanySettingsPageClient() {
           shipping_providers: data.shipping_providers || 'FedEx, UPS',
         } as CompanySettings
 
+        const formValues = buildFormValues(normalizedSettings)
+
         setSettings(normalizedSettings)
-        reset({
-          company_name: normalizedSettings.company_name,
-          support_phone: normalizedSettings.support_phone ?? '',
-          support_email: normalizedSettings.support_email ?? '',
-          currency: normalizedSettings.currency,
-          timezone: normalizedSettings.timezone,
-          language: normalizedSettings.language,
-          shipment_prefix: normalizedSettings.shipment_prefix,
-          tracking_prefix: normalizedSettings.tracking_prefix,
-          cod_percentage: normalizedSettings.cod_percentage,
-          tax_percentage: normalizedSettings.tax_percentage,
-          shipping_providers: normalizedSettings.shipping_providers,
-          is_active: normalizedSettings.is_active,
-        })
+        reset(formValues)
+        setValue('company_name', formValues.company_name)
+        setValue('support_phone', formValues.support_phone)
+        setValue('support_email', formValues.support_email)
+        setValue('currency', formValues.currency)
+        setValue('timezone', formValues.timezone)
+        setValue('language', formValues.language)
+        setValue('shipment_prefix', formValues.shipment_prefix)
+        setValue('tracking_prefix', formValues.tracking_prefix)
+        setValue('cod_percentage', formValues.cod_percentage)
+        setValue('tax_percentage', formValues.tax_percentage)
+        setValue('shipping_providers', formValues.shipping_providers)
+        setValue('is_active', formValues.is_active)
       } catch (err) {
         if (active) {
           setError(err instanceof Error ? err.message : 'Unable to load company settings.')
@@ -132,7 +150,7 @@ export default function CompanySettingsPageClient() {
 
       const payload: CompanySettingsPayload = {
         company_id: resolvedCompanyId,
-        company_name: values.company_name,
+        company_name: values.company_name.trim(),
         company_logo: null,
         currency: values.currency,
         timezone: values.timezone,
