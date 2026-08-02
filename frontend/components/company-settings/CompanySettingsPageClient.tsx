@@ -135,6 +135,9 @@ export default function CompanySettingsPageClient() {
   const pageTitle = useMemo(() => settings?.company_name || 'Company settings', [settings])
 
   const onSubmit = async (values: FormValues) => {
+    console.log('FORM SUBMIT')
+    console.log(values)
+
     setIsSaving(true)
     setError(null)
     setSuccessMessage(null)
@@ -171,11 +174,13 @@ export default function CompanySettingsPageClient() {
       }
 
       if (settings) {
+        console.log('UPDATE COMPANY SETTINGS')
         const updatedSettings = await updateCompanySettings(resolvedCompanyId, payload)
         setSettings(updatedSettings)
         setCurrentCompanyId(updatedSettings.company_id)
         setSuccessMessage('Company settings updated successfully.')
       } else {
+        console.log('CREATE COMPANY SETTINGS')
         const createdSettings = await createCompanySettings(payload)
         setSettings(createdSettings)
         setCurrentCompanyId(createdSettings.company_id)
@@ -330,7 +335,7 @@ export default function CompanySettingsPageClient() {
             </section>
 
             <div className="flex flex-wrap items-center justify-end gap-3 rounded-[24px] border border-white/10 bg-slate-900/70 p-4">
-              <button type="submit" disabled={isSaving} className="rounded-[16px] bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60">
+              <button type="submit" onClick={() => console.log('BUTTON CLICK')} disabled={isSaving} className="rounded-[16px] bg-sky-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60">
                 {isSaving ? 'Saving…' : 'Save changes'}
               </button>
             </div>
