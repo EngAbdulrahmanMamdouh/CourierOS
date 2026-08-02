@@ -136,20 +136,29 @@ export default function CompanySettingsPageClient() {
 
   const onSubmit = async (values: FormValues) => {
     console.log('FORM SUBMIT')
-    console.log(values)
+    console.log('values', values)
 
     setIsSaving(true)
     setError(null)
     setSuccessMessage(null)
 
     try {
+      console.log('STEP 1')
+      console.log('currentCompanyId', currentCompanyId)
+      console.log('authCompanyId', getAuthenticatedCompanyId())
+      console.log('settings', settings)
+
       const resolvedCompanyId = currentCompanyId ?? getAuthenticatedCompanyId()
+      console.log('STEP 2 resolvedCompanyId', resolvedCompanyId)
 
       if (resolvedCompanyId === null) {
+        console.log('STEP 3: auth context missing, exiting early')
         setError('Authentication context is unavailable.')
         setIsSaving(false)
         return
       }
+
+      console.log('STEP 4: auth context available')
 
       const payload: CompanySettingsPayload = {
         company_id: resolvedCompanyId,
@@ -173,20 +182,26 @@ export default function CompanySettingsPageClient() {
         is_active: values.is_active,
       }
 
+      console.log('STEP 5 payload', payload)
+      console.log('STEP 6 settings exists?', Boolean(settings))
+
       if (settings) {
-        console.log('UPDATE COMPANY SETTINGS')
+        console.log('STEP 7: entering update branch')
         const updatedSettings = await updateCompanySettings(resolvedCompanyId, payload)
+        console.log('STEP 8: update succeeded', updatedSettings)
         setSettings(updatedSettings)
         setCurrentCompanyId(updatedSettings.company_id)
         setSuccessMessage('Company settings updated successfully.')
       } else {
-        console.log('CREATE COMPANY SETTINGS')
+        console.log('STEP 7: entering create branch')
         const createdSettings = await createCompanySettings(payload)
+        console.log('STEP 8: create succeeded', createdSettings)
         setSettings(createdSettings)
         setCurrentCompanyId(createdSettings.company_id)
         setSuccessMessage('Company settings created successfully.')
       }
     } catch (err) {
+      console.error('STEP 9: submit failed', err)
       setError(err instanceof Error ? err.message : 'Unable to save company settings.')
     } finally {
       setIsSaving(false)
