@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate
 from app.services.permissions import require_permission
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
 
 
 def _ensure_access(current_user, action: str):
@@ -13,8 +14,9 @@ def get_all_customers(db: Session, page: int = 1, size: int = 10, current_user=N
     _ensure_access(current_user, "view")
     offset = (page - 1) * size
     query = db.query(Customer)
-    if current_user.role != "admin":
-        query = query.filter(Customer.company_id == current_user.company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(Customer.company_id == company_id)
     if search:
         search_value = f"%{search}%"
         query = query.filter(
@@ -28,15 +30,15 @@ def get_all_customers(db: Session, page: int = 1, size: int = 10, current_user=N
 def get_customer_by_id(db: Session, customer_id: int, current_user=None):
     _ensure_access(current_user, "view")
     query = db.query(Customer).filter(Customer.id == customer_id)
-    if current_user.role != "admin":
-        query = query.filter(Customer.company_id == current_user.company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(Customer.company_id == company_id)
     return query.first()
 
 
 def create_customer(db: Session, customer_data: CustomerCreate, current_user=None):
     _ensure_access(current_user, "create")
-    if current_user.role != "admin" and current_user.company_id is None:
-        raise PermissionError("Company context required")
+    company_id = require_company_context(current_user) if not is_platform_admin(current_user) else None
     customer = Customer(
         full_name=customer_data.full_name,
         phone=customer_data.phone,
@@ -45,7 +47,7 @@ def create_customer(db: Session, customer_data: CustomerCreate, current_user=Non
         address=customer_data.address,
         city=customer_data.city,
         notes=customer_data.notes,
-        company_id=current_user.company_id or 1,
+        company_id=company_id,
         is_active=customer_data.is_active,
     )
     db.add(customer)
@@ -57,8 +59,9 @@ def create_customer(db: Session, customer_data: CustomerCreate, current_user=Non
 def update_customer(db: Session, customer_id: int, customer_data: CustomerUpdate, current_user=None):
     _ensure_access(current_user, "update")
     query = db.query(Customer).filter(Customer.id == customer_id)
-    if current_user.role != "admin":
-        query = query.filter(Customer.company_id == current_user.company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(Customer.company_id == company_id)
     customer = query.first()
     if customer is None:
         return None
@@ -78,8 +81,9 @@ def update_customer(db: Session, customer_id: int, customer_data: CustomerUpdate
 def delete_customer(db: Session, customer_id: int, current_user=None):
     _ensure_access(current_user, "update")
     query = db.query(Customer).filter(Customer.id == customer_id)
-    if current_user.role != "admin":
-        query = query.filter(Customer.company_id == current_user.company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(Customer.company_id == company_id)
     customer = query.first()
     if customer is None:
         return None
@@ -97,9 +101,10 @@ def get_customer_shipments(db: Session, customer_id: int, current_user=None):
         Shipment.is_deleted == False,
     )
 
-    if current_user.role != "admin":
-        if current_user.company_id is not None:
-            query = query.filter(Shipment.company_id == current_user.company_id)
+    if not is_platform_admin(current_user):
+        company_id = get_current_company_id(current_user)
+        if company_id is not None:
+            query = query.filter(Shipment.company_id == company_id)
 
         if current_user.role == "employee":
             query = query.filter(

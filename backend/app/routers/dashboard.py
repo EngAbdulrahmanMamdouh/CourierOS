@@ -13,11 +13,18 @@ from app.models.payment import Payment
 from app.models.shipment import Shipment
 from app.models.pickup_request import PickupRequest
 from app.models.user import User
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
 
 router = APIRouter(
     prefix="/dashboard",
     tags=["Dashboard"]
 )
+
+
+def _resolve_dashboard_company_id(current_user):
+    if is_platform_admin(current_user):
+        return None
+    return get_current_company_id(current_user)
 
 
 def _apply_visibility_filter(query, current_user=None):
@@ -26,16 +33,17 @@ def _apply_visibility_filter(query, current_user=None):
     if current_user is None:
         return query
 
-    if current_user.role == "admin":
+    if is_platform_admin(current_user):
         return query
 
-    if current_user.company_id is not None:
-        query = query.filter(Shipment.company_id == current_user.company_id)
+    company_id = _resolve_dashboard_company_id(current_user)
+    if company_id is not None:
+        query = query.filter(Shipment.company_id == company_id)
 
-        if current_user.role in ("company_admin", "user"):
+        if getattr(current_user, "role", None) in ("company_admin", "user"):
             return query
 
-    if current_user.role == "employee":
+    if getattr(current_user, "role", None) == "employee":
         return query.filter(
             (Shipment.owner_id == current_user.id) |
             (Shipment.assigned_to == current_user.id)
@@ -45,25 +53,27 @@ def _apply_visibility_filter(query, current_user=None):
 
 
 def _apply_visibility_filter_payment(query, current_user=None):
-    if current_user is None or current_user.role == "admin":
+    if current_user is None or is_platform_admin(current_user):
         return query
-    if current_user.company_id is not None:
-        return query.filter(Payment.company_id == current_user.company_id)
+    company_id = _resolve_dashboard_company_id(current_user)
+    if company_id is not None:
+        return query.filter(Payment.company_id == company_id)
     return query
 
 
 def _apply_visibility_filter_pickup(query, current_user=None):
-    if current_user is None or current_user.role == "admin":
+    if current_user is None or is_platform_admin(current_user):
         return query
-    if current_user.company_id is not None:
-        return query.join(PickupRequest.customer).filter(Customer.company_id == current_user.company_id)
+    company_id = _resolve_dashboard_company_id(current_user)
+    if company_id is not None:
+        return query.join(PickupRequest.customer).filter(Customer.company_id == company_id)
     return query
 
 
 def _apply_visibility_filter_entity(query, entity, current_user=None):
-    if current_user is None or current_user.role == "admin":
+    if current_user is None or is_platform_admin(current_user):
         return query
-    company_id = getattr(current_user, "company_id", None)
+    company_id = _resolve_dashboard_company_id(current_user)
     if company_id is not None:
         return query.filter(entity.company_id == company_id)
     return query

@@ -1,8 +1,10 @@
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.crud.finance import get_finance_summary
 from app.database import Base
 from app.dependencies import get_db
 from app.dependencies.auth import get_current_user
@@ -10,6 +12,28 @@ from app.models.customer import Customer
 from app.models.shipment import Shipment
 from app.models.user import User
 from main import app
+
+
+def test_finance_summary_requires_company_context_for_tenant_user():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
+    try:
+        tenant_user = User(username="tenant-finance", email="tenant-finance@example.com", hashed_password="x", role="company_admin")
+        db.add(tenant_user)
+        db.commit()
+        db.refresh(tenant_user)
+
+        with pytest.raises(PermissionError):
+            get_finance_summary(db, current_user=tenant_user)
+    finally:
+        db.close()
 
 
 def test_cod_collection_endpoint_creates_cod_and_payment():

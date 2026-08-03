@@ -13,6 +13,7 @@ from app.schemas.finance import CodCollectionResponse
 from app.services.audit_service import create_audit_log
 from app.services.payment_service import normalize_payment_payload, validate_payment_method
 from app.services.permissions import require_permission
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
 
 
 def _ensure_access(current_user, action: str):
@@ -26,12 +27,23 @@ def _ensure_access(current_user, action: str):
     return require_permission(current_user, action, allowed)
 
 
+def _resolve_finance_company_id(current_user):
+    if is_platform_admin(current_user):
+        return None
+
+    company_id = get_current_company_id(current_user)
+    if company_id is None:
+        return require_company_context(current_user)
+    return company_id
+
+
 def _validate_cod_collection(db: Session, shipment: Shipment, payload: dict, current_user=None):
     if payload["cash_tendered"] < payload["amount_due"]:
         raise ValueError("Collected amount cannot be lower than the COD due amount")
 
-    if shipment.company_id is not None and current_user.role != "admin" and getattr(current_user, "company_id", None) is not None:
-        if shipment.company_id != current_user.company_id:
+    if shipment.company_id is not None and not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        if shipment.company_id != company_id:
             raise PermissionError("Shipment does not belong to this company")
 
     if shipment.cod_amount is None or shipment.cod_amount <= 0:
@@ -47,10 +59,8 @@ def collect_cod(db: Session, shipment_id: int, payload: dict, current_user=None)
     if shipment is None:
         raise ValueError("Shipment not found")
 
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
         if shipment.company_id != company_id:
             raise PermissionError("Shipment does not belong to this company")
 
@@ -135,12 +145,11 @@ def get_finance_summary(db: Session, current_user=None):
     cod_query = db.query(COD).filter(COD.is_deleted == False)
     shipment_query = db.query(Shipment).filter(Shipment.is_deleted == False, Shipment.cod_amount != None, Shipment.cod_amount > 0)
 
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is not None:
-            payment_query = payment_query.filter(Payment.company_id == company_id)
-            cod_query = cod_query.filter(COD.company_id == company_id)
-            shipment_query = shipment_query.filter(Shipment.company_id == company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        payment_query = payment_query.filter(Payment.company_id == company_id)
+        cod_query = cod_query.filter(COD.company_id == company_id)
+        shipment_query = shipment_query.filter(Shipment.company_id == company_id)
 
     total_cod_due = float(shipment_query.with_entities(func.sum(Shipment.cod_amount)).scalar() or 0)
     total_cod_collected = float(cod_query.filter(COD.collected == True).with_entities(func.sum(COD.amount)).scalar() or 0)
@@ -160,12 +169,7 @@ def get_finance_summary(db: Session, current_user=None):
 def get_customer_ledger(db: Session, customer_id: int, current_user=None):
     _ensure_access(current_user, "read")
 
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
-    else:
-        company_id = None
+    company_id = _resolve_finance_company_id(current_user)
 
     customer = db.query(Customer).filter(Customer.id == customer_id)
     if company_id is not None:
@@ -228,12 +232,7 @@ def get_customer_ledger(db: Session, customer_id: int, current_user=None):
 def get_courier_settlement(db: Session, driver_id: int, current_user=None):
     _ensure_access(current_user, "settlement")
 
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
-    else:
-        company_id = None
+    company_id = _resolve_finance_company_id(current_user)
 
     driver = db.query(Driver).filter(Driver.id == driver_id)
     if company_id is not None:
@@ -275,11 +274,10 @@ def get_finance_history(db: Session, current_user=None):
     payment_query = db.query(Payment).filter(Payment.is_deleted == False)
     cod_query = db.query(COD).filter(COD.is_deleted == False)
 
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is not None:
-            payment_query = payment_query.filter(Payment.company_id == company_id)
-            cod_query = cod_query.filter(COD.company_id == company_id)
+    company_id = _resolve_finance_company_id(current_user)
+    if company_id is not None:
+        payment_query = payment_query.filter(Payment.company_id == company_id)
+        cod_query = cod_query.filter(COD.company_id == company_id)
 
     items = []
     for payment in payment_query.order_by(Payment.created_at.desc()).all():

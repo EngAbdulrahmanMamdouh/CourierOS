@@ -9,6 +9,21 @@ from app.models.delivery_zone import DeliveryZone
 from app.models.pricing_rule import PricingRule
 from app.models.shipment import Shipment
 from app.models.shipment_history import ShipmentHistory
+from app.services.permissions import require_permission_by_name
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
+
+
+def _resolve_company_context(current_user, require_context: bool = False):
+    if current_user is None:
+        return None
+
+    if is_platform_admin(current_user):
+        return None
+
+    if require_context:
+        return require_company_context(current_user)
+
+    return get_current_company_id(current_user)
 
 
 def _apply_visibility_filter(query, current_user=None, include_deleted=False):
@@ -18,20 +33,16 @@ def _apply_visibility_filter(query, current_user=None, include_deleted=False):
     if current_user is None:
         return query
 
-    # Admin users see all shipments (unrestricted)
-    if current_user.role == "admin":
+    if is_platform_admin(current_user):
         return query
 
-    # If current_user has no company context, preserve legacy access by skipping company filter
-    if current_user.company_id is not None:
-        query = query.filter(Shipment.company_id == current_user.company_id)
+    company_id = _resolve_company_context(current_user)
+    query = query.filter(Shipment.company_id == company_id)
 
-        # company_admin and user roles see all shipments in their company
-        if current_user.role in ("company_admin", "user"):
-            return query
+    if getattr(current_user, "role", None) in ("company_admin", "user"):
+        return query
 
-    # employee role: only see shipments they own or are assigned to
-    if current_user.role == "employee":
+    if getattr(current_user, "role", None) == "employee":
         return query.filter(
             (Shipment.owner_id == current_user.id) | (Shipment.assigned_to == current_user.id)
         )
@@ -49,6 +60,7 @@ def get_all_shipments(
     status: str = None,
     city: str = None,
 ):
+    require_permission_by_name(current_user, "shipments.view")
     offset = (page - 1) * size
 
     query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
@@ -74,14 +86,15 @@ def get_all_shipments(
 
 
 def get_shipment_by_id(db: Session, shipment_id: int, current_user=None, include_deleted: bool = False):
+    require_permission_by_name(current_user, "shipments.view")
+
     query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
 
     return query.first()
 
 
 def assign_shipment(db: Session, shipment_id: int, employee_id: int, current_user=None):
-    if current_user is None or current_user.role != "admin":
-        raise PermissionError("Only admins can assign shipments")
+    require_permission_by_name(current_user, "shipments.assign_driver")
 
     shipment = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user).first()
     if shipment is None:
@@ -106,7 +119,7 @@ def _validate_related_entities(db: Session, shipment_data, company_id: int):
 
 def _ensure_customer_for_shipment(db: Session, shipment_data, company_id: int):
     if company_id is None:
-        company_id = 1
+        raise PermissionError("Company context required for this operation")
 
     receiver_phone = getattr(shipment_data, "receiver_phone", None)
     receiver_name = getattr(shipment_data, "receiver_name", None)
@@ -264,7 +277,7 @@ def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: i
     if owner_id is None:
         owner_id = 1
     if company_id is None:
-        company_id = 1
+        raise PermissionError("Company context required for this operation")
 
     status = getattr(shipment_data, "status", None) or "Pending"
     estimated_delivery_days = getattr(shipment_data, "estimated_delivery_days", None) or 1
@@ -289,10 +302,12 @@ def _build_shipment_from_data(shipment_data, owner_id: int = None, company_id: i
 
 
 def create_shipment(db: Session, shipment_data, owner_id: int = None, company_id: int = None, current_user=None):
+    require_permission_by_name(current_user, "shipments.create")
+
     if owner_id is None:
         owner_id = 1
     if company_id is None:
-        company_id = current_user.company_id if current_user else 1
+        company_id = _resolve_company_context(current_user, require_context=True)
 
     _validate_related_entities(db, shipment_data, company_id)
     customer_id = _ensure_customer_for_shipment(db, shipment_data, company_id)
@@ -320,11 +335,11 @@ def create_shipment(db: Session, shipment_data, owner_id: int = None, company_id
     return shipment
 
 
-def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = None, company_id: int = None):
+def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = None, company_id: int = None, current_user=None):
     if owner_id is None:
         owner_id = 1
     if company_id is None:
-        company_id = 1
+        company_id = _resolve_company_context(current_user, require_context=True)
 
     shipments = []
     for shipment_data in shipment_datas:
@@ -340,6 +355,8 @@ def bulk_create_shipments(db: Session, shipment_datas: list, owner_id: int = Non
 
 
 def update_shipment(db: Session, shipment_id: int, shipment_data, current_user=None, include_deleted: bool = False):
+    require_permission_by_name(current_user, "shipments.update")
+
     query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
 
     shipment = query.first()
@@ -365,6 +382,8 @@ def update_shipment(db: Session, shipment_id: int, shipment_data, current_user=N
 
 
 def delete_shipment(db: Session, shipment_id: int, current_user=None, include_deleted: bool = False):
+    require_permission_by_name(current_user, "shipments.delete")
+
     query = _apply_visibility_filter(db.query(Shipment).filter(Shipment.id == shipment_id), current_user, include_deleted=include_deleted)
 
     shipment = query.first()
@@ -502,7 +521,7 @@ def get_reports_shipments(
 ):
     query = _apply_visibility_filter(db.query(Shipment), current_user, include_deleted=include_deleted)
 
-    if user_id is not None and current_user is not None and current_user.role == "admin":
+    if user_id is not None and current_user is not None and is_platform_admin(current_user):
         query = query.filter(Shipment.owner_id == user_id)
 
     if status:

@@ -10,6 +10,7 @@ from app.schemas.payment import PaymentCreate, PaymentUpdate
 from app.services.audit_service import create_audit_log
 from app.services.payment_service import normalize_payment_payload, validate_payment_method
 from app.services.permissions import require_permission
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
 
 
 def _ensure_access(current_user, action: str):
@@ -60,10 +61,9 @@ def get_all_payments(db: Session, page: int = 1, size: int = 10, current_user=No
     _ensure_access(current_user, "view")
     offset = (page - 1) * size
     query = db.query(Payment).filter(Payment.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is not None:
-            query = query.filter(Payment.company_id == company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(Payment.company_id == company_id)
     if search:
         search_value = f"%{search}%"
         query = query.filter(
@@ -78,16 +78,14 @@ def get_all_payments(db: Session, page: int = 1, size: int = 10, current_user=No
 def get_payment_by_id(db: Session, payment_id: int, current_user=None):
     _ensure_access(current_user, "view")
     query = db.query(Payment).filter(Payment.id == payment_id, Payment.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
         query = query.filter(Payment.company_id == company_id)
     return query.first()
 
 
 def _infer_payment_company_id(db: Session, payment_data, current_user=None):
-    company_id = getattr(current_user, "company_id", None)
+    company_id = get_current_company_id(current_user) if not is_platform_admin(current_user) else None
     if company_id is not None:
         return company_id
 
@@ -113,8 +111,8 @@ def create_payment(db: Session, payment_data: PaymentCreate, current_user=None):
     _ensure_access(current_user, "create")
     payment_data = normalize_payment_payload(payment_data)
     company_id = _infer_payment_company_id(db, payment_data, current_user=current_user)
-    if current_user.role != "admin" and company_id is None:
-        raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
     _validate_payment(db, payment_data, company_id=company_id)
 
     payment = Payment(
@@ -149,10 +147,8 @@ def update_payment(db: Session, payment_id: int, payment_data: PaymentUpdate, cu
     _ensure_access(current_user, "update")
     payment_data = normalize_payment_payload(payment_data)
     query = db.query(Payment).filter(Payment.id == payment_id, Payment.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
         query = query.filter(Payment.company_id == company_id)
     payment = query.first()
     if payment is None:
@@ -189,10 +185,8 @@ def update_payment(db: Session, payment_id: int, payment_data: PaymentUpdate, cu
 def delete_payment(db: Session, payment_id: int, current_user=None):
     _ensure_access(current_user, "update")
     query = db.query(Payment).filter(Payment.id == payment_id, Payment.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
         query = query.filter(Payment.company_id == company_id)
     payment = query.first()
     if payment is None:
@@ -204,7 +198,7 @@ def delete_payment(db: Session, payment_id: int, current_user=None):
     create_audit_log(
         db,
         actor_id=getattr(current_user, "id", None),
-        company_id=getattr(current_user, "company_id", None),
+        company_id=company_id,
         action="delete",
         entity="payment",
         entity_id=payment.id,

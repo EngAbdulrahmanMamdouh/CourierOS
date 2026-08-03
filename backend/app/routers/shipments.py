@@ -276,9 +276,6 @@ def assign_shipment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Only admins can assign shipments")
-
     shipment = shipment_crud.assign_shipment(db, shipment_id, employee_id, current_user=current_user)
 
     if shipment is None:
@@ -305,14 +302,6 @@ def update_shipment_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # صلاحيات
-    if current_user.role not in ["admin", "employee", "company_admin"]:
-        raise HTTPException(
-            status_code=403,
-            detail="Not authorized to change shipment status"
-        )
-
-    # جلب الشحنة
     try:
         new_status_enum = ShipmentStatus(new_status)
     except Exception:
