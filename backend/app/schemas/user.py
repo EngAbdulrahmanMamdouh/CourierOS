@@ -22,8 +22,27 @@ class UserResponse(UserBase):
     id: int
     role: str
     company_id: int | None = None
+    full_name: str | None = None
+    phone: str | None = None
+    is_active: bool = True
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    phone: str | None = None
+    email: EmailStr | None = None
+
+
+class UserRoleUpdate(BaseModel):
+    role: str
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
 
 
 class UserLogin(BaseModel):
