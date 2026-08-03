@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import OperationsPanel from '@/components/dashboard/OperationsPanel'
 import RecentShipmentsTable from '@/components/dashboard/RecentShipmentsTable'
 import ShipmentChart from '@/components/dashboard/ShipmentChart'
@@ -49,9 +50,14 @@ export default function DashboardPage() {
     day: 'numeric',
   })
 
+ 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 sm:px-8 lg:px-10">
-      <div className="mx-auto grid w-full max-w-[1600px] gap-8">
+  <main className="min-h-screen bg-slate-950 px-4 py-4 sm:px-6 lg:px-6 lg:py-6">
+    <div className="mx-auto flex w-full max-w-[1600px] gap-6">
+
+      <DashboardSidebar />
+
+      <div className="flex-1 space-y-6">
         <DashboardHeader greeting="Good morning, Abdelrahman." dateLabel={dateLabel} />
 
         {isLoading ? (
@@ -86,7 +92,10 @@ export default function DashboardPage() {
             </div>
           </>
         ) : null}
+        </div>
       </div>
     </main>
   )
+
+  
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import { Bell, Search, UserCircle } from 'lucide-react'
-import Link from 'next/link'
 import { useState } from 'react'
 
 type DashboardHeaderProps = {
@@ -32,52 +31,32 @@ export default function DashboardHeader({ greeting, dateLabel }: DashboardHeader
           />
         </div>
 
+       
         <div className="flex items-center justify-end gap-3">
-          <Link href="/dashboard/companies" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Companies
-          </Link>
-          <Link href="/dashboard/payments" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Payments
-          </Link>
-          <Link href="/dashboard/pickup-requests" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Pickup Requests
-          </Link>
-          <Link href="/dashboard/cod" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            COD
-          </Link>
-          <Link href="/dashboard/customers" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Customers
-          </Link>
-          <Link href="/dashboard/pricing-rules" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Pricing Rules
-          </Link>
-          <Link href="/dashboard/delivery-zones" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Delivery Zones
-          </Link>
-          <Link href="/dashboard/cities" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Cities
-          </Link>
-          <Link href="/dashboard/company-settings" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Company Settings
-          </Link>
-          <Link href="/dashboard/tracking" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            Tracking
-          </Link>
-          <Link href="/finance" className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-emerald-400/20 bg-emerald-500/10 px-4 text-emerald-200 transition hover:border-emerald-400/40 hover:bg-emerald-500/20">
-            Finance
-          </Link>
-          <Link href="/dashboard/notifications" className="inline-flex h-12 items-center justify-center rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900">
-            <Bell className="mr-2 h-4 w-4 text-slate-200" />
-            <span className="text-sm text-slate-100">Notifications</span>
-          </Link>
+
           <button
-            type="button"
-            className="inline-flex h-12 items-center gap-3 rounded-[18px] border border-white/8 bg-slate-900/80 px-4 text-slate-100 transition hover:border-sky-400/40 hover:bg-slate-900"
+            className="flex h-10 w-10 items-center justify-center rounded-[10px] border border-white/10 bg-[#1F2937] transition hover:border-sky-400/40"
           >
-            <UserCircle className="h-5 w-5 text-slate-100" />
-            <span className="text-sm text-slate-100">Abdelrahman</span>
+            <Bell className="h-5 w-5 text-gray-300" />
           </button>
-        </div>
+
+          <button
+            className="flex items-center gap-3 rounded-[10px] border border-white/10 bg-[#1F2937] px-3 py-2 transition hover:border-sky-400/40"
+          >
+            <UserCircle className="h-8 w-8 text-gray-300" />
+
+            <div className="text-left">
+              <p className="text-sm font-medium text-white">
+                 Abdelrahman
+              </p>
+
+              <p className="text-xs text-gray-400">
+                 Administrator
+              </p>
+          </div>
+        </button>
+
+    </div>
       </div>
     </section>
   )
