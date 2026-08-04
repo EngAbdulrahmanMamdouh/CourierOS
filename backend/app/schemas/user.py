@@ -16,6 +16,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
     company_id: int | None = None
+    role: str = "employee"
 
 
 class UserResponse(UserBase):

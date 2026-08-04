@@ -24,17 +24,6 @@ def register(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    existing_user = user_crud.get_user_by_username(
-        db,
-        user.username
-    )
-
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Username already exists"
-        )
-
     try:
         require_permission(current_user, "create", {"users.create"})
     except PermissionError as exc:
@@ -43,6 +32,10 @@ def register(
             detail="You are not authorized to create users"
         ) from exc
 
+    user.username = (user.username or '').strip()
+    user.email = (user.email or '').strip().lower()
+    user.role = (user.role or 'employee').strip().lower()
+
     if current_user.role == "company_admin":
         if user.company_id is not None and user.company_id != current_user.company_id:
             raise HTTPException(
@@ -50,6 +43,20 @@ def register(
                 detail="Company admin can only create users in own company"
             )
         user.company_id = current_user.company_id
+
+    existing_user = user_crud.get_user_by_username(db, user.username)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists"
+        )
+
+    existing_email = user_crud.get_user_by_email(db, user.email)
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already exists"
+        )
 
     return user_crud.create_user(db, user)
 

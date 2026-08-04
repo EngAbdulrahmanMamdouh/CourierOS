@@ -12,16 +12,8 @@ def require_permission(current_user, action: str, allowed_actions: set[str]):
     if normalized_role in {"super_admin", "admin"}:
         return
 
-    if normalized_role == "company_admin" and action in allowed_actions:
-        return
-
-    if normalized_role == "employee" and action in {"view", "read"}:
-        return
-
-    if normalized_role == "user":
-        raise PermissionError("Not authorized")
-
-    if action in allowed_actions:
+    role_permissions = resolve_role_permissions(normalized_role)
+    if allowed_actions & role_permissions:
         return
 
     raise PermissionError("Not authorized")

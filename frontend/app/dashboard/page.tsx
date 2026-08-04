@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
+import RouteGuard from '@/components/dashboard/RouteGuard'
 import OperationsPanel from '@/components/dashboard/OperationsPanel'
 import RecentShipmentsTable from '@/components/dashboard/RecentShipmentsTable'
 import ShipmentChart from '@/components/dashboard/ShipmentChart'
@@ -52,6 +53,7 @@ export default function DashboardPage() {
 
  
   return (
+  <RouteGuard>
   <main className="min-h-screen bg-slate-950 px-4 py-4 sm:px-6 lg:px-6 lg:py-6">
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
 
@@ -95,6 +97,7 @@ export default function DashboardPage() {
         </div>
       </div>
     </main>
+  </RouteGuard>
   )
 
   

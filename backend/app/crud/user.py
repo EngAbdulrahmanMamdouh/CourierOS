@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -7,22 +8,36 @@ from app.schemas.user import UserCreate, UserRoleUpdate, UserStatusUpdate, UserU
 from app.security import hash_password
 
 
+def _normalize_lookup_value(value: str | None) -> str | None:
+    if value is None:
+        return None
+    return value.strip().lower()
+
+
 def get_user_by_username(db: Session, username: str):
+    normalized_username = _normalize_lookup_value(username)
+    if normalized_username is None:
+        return None
+
     return db.query(User).filter(
-        User.username == username
+        func.lower(User.username) == normalized_username
     ).first()
 
 
 def create_user(db: Session, user: UserCreate):
+    username = (user.username or '').strip()
+    email = (user.email or '').strip().lower()
+    role = (getattr(user, 'role', 'employee') or 'employee').strip().lower()
+
     new_user = User(
-        username=user.username,
-        email=user.email,
+        username=username,
+        email=email,
         hashed_password=hash_password(user.password),
-        role="employee",
+        role=role,
         company_id=user.company_id,
-        full_name=getattr(user, "full_name", None),
-        phone=getattr(user, "phone", None),
-        is_active=getattr(user, "is_active", True),
+        full_name=(getattr(user, 'full_name', None) or '').strip() or None,
+        phone=(getattr(user, 'phone', None) or '').strip() or None,
+        is_active=getattr(user, 'is_active', True),
     )
 
     db.add(new_user)
@@ -37,7 +52,11 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+    normalized_email = _normalize_lookup_value(email)
+    if normalized_email is None:
+        return None
+
+    return db.query(User).filter(func.lower(User.email) == normalized_email).first()
 
 
 def update_user(db: Session, user_id: int, user_update: UserUpdate):

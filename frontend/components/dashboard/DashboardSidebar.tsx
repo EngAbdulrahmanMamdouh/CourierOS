@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ComponentType } from 'react'
+import { getAuthenticatedUserContext, getRoleLabel } from '@/services/rbac'
 import {
   BellRing,
   Building2,
@@ -27,6 +28,7 @@ type NavItem = {
   label: string
   href: string
   icon: ComponentType<{ className?: string }>
+  allowed?: boolean
 }
 
 type NavSection = {
@@ -67,6 +69,11 @@ const sections: NavSection[] = [
       {
         label: 'Customers',
         href: '/dashboard/customers',
+        icon: Users,
+      },
+      {
+        label: 'Users',
+        href: '/dashboard/users',
         icon: Users,
       },
       {
@@ -140,6 +147,50 @@ const sections: NavSection[] = [
 export default function DashboardSidebar() {
   const pathname = usePathname()
   const activeHref = pathname || '/dashboard'
+  const { role, username } = getAuthenticatedUserContext()
+  const roleLabel = getRoleLabel(role)
+
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        if (item.href === '/dashboard') {
+          return true
+        }
+
+        if (item.href === '/dashboard/companies') {
+          return ['super_admin', 'company_admin', 'admin'].includes(role)
+        }
+
+        if (item.href === '/dashboard/users') {
+          return ['super_admin', 'company_admin', 'admin'].includes(role)
+        }
+
+        if (item.href === '/dashboard/branches') {
+          return ['super_admin', 'company_admin', 'admin'].includes(role)
+        }
+
+        if (item.href === '/dashboard/cod' || item.href === '/dashboard/payments' || item.href === '/dashboard/pricing-rules') {
+          return ['super_admin', 'company_admin', 'admin', 'branch_manager'].includes(role)
+        }
+
+        if (item.href === '/dashboard/company-settings') {
+          return ['super_admin', 'company_admin', 'admin'].includes(role)
+        }
+
+        if (item.href === '/dashboard/notifications') {
+          return ['super_admin', 'company_admin', 'admin', 'branch_manager', 'dispatcher', 'employee', 'driver'].includes(role)
+        }
+
+        if (item.href === '/dashboard/tracking') {
+          return ['super_admin', 'company_admin', 'admin', 'branch_manager', 'dispatcher', 'driver'].includes(role)
+        }
+
+        return true
+      }),
+    }))
+    .filter((section) => section.items.length > 0)
+
   return (
   <aside className="glass-card w-[260px] min-h-screen overflow-hidden">
     <div className="flex w-full flex-col px-6 py-6">
@@ -164,7 +215,7 @@ export default function DashboardSidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
 
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.title} className="mb-8">
 
             <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">
@@ -228,11 +279,11 @@ export default function DashboardSidebar() {
           <div>
 
             <p className="text-sm font-medium text-gray-100">
-              Abdelrahman
+              {username || 'User'}
             </p>
 
             <p className="text-xs text-gray-500">
-              Administrator
+              {roleLabel}
             </p>
 
           </div>
