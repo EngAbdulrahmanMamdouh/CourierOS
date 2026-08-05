@@ -6,6 +6,7 @@ from app.models.pricing_rule import PricingRule
 from app.schemas.pricing_rule import PricingRuleCreate, PricingRuleUpdate
 from app.services.audit_service import create_audit_log
 from app.services.permissions import require_permission
+from app.services.tenant_context import is_platform_admin, require_write_company_id, require_company_context
 
 
 def _ensure_access(current_user, action: str):
@@ -67,12 +68,14 @@ def get_pricing_rule_by_id(db: Session, pricing_rule_id: int, current_user=None)
 
 def create_pricing_rule(db: Session, pricing_data: PricingRuleCreate, current_user=None):
     _ensure_access(current_user, "create")
-    if current_user.role != "admin" and getattr(current_user, "company_id", None) is None:
+    if not is_platform_admin(current_user) and getattr(current_user, "company_id", None) is None:
         raise PermissionError("Company context required")
     if float(pricing_data.min_weight) > float(pricing_data.max_weight):
         raise ValueError("min_weight cannot be greater than max_weight")
 
-    company_id = getattr(current_user, "company_id", None)
+    company_id = require_write_company_id(current_user, getattr(pricing_data, "company_id", None))
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
     if _has_overlap(
         db=db,
         source_city_id=pricing_data.source_city_id,
@@ -116,10 +119,9 @@ def create_pricing_rule(db: Session, pricing_data: PricingRuleCreate, current_us
 def update_pricing_rule(db: Session, pricing_rule_id: int, pricing_data: PricingRuleUpdate, current_user=None):
     _ensure_access(current_user, "update")
     query = db.query(PricingRule).filter(PricingRule.id == pricing_rule_id, PricingRule.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is not None:
-            query = query.filter(PricingRule.company_id == company_id)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        query = query.filter(PricingRule.company_id == company_id)
     pricing_rule = query.first()
     if pricing_rule is None:
         return None
@@ -127,7 +129,15 @@ def update_pricing_rule(db: Session, pricing_rule_id: int, pricing_data: Pricing
     if float(pricing_data.min_weight) > float(pricing_data.max_weight):
         raise ValueError("min_weight cannot be greater than max_weight")
 
-    company_id = getattr(current_user, "company_id", None)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+    else:
+        company_id = getattr(pricing_data, "company_id", None)
+        if company_id is None:
+            company_id = pricing_rule.company_id
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
+
     if _has_overlap(
         db=db,
         source_city_id=pricing_data.source_city_id,
@@ -144,7 +154,7 @@ def update_pricing_rule(db: Session, pricing_rule_id: int, pricing_data: Pricing
     pricing_rule.source_city_id = pricing_data.source_city_id
     pricing_rule.destination_city_id = pricing_data.destination_city_id
     pricing_rule.delivery_zone_id = pricing_data.delivery_zone_id
-    pricing_rule.company_id = getattr(current_user, "company_id", None)
+    pricing_rule.company_id = company_id
     pricing_rule.service_type = pricing_data.service_type
     pricing_rule.min_weight = pricing_data.min_weight
     pricing_rule.max_weight = pricing_data.max_weight

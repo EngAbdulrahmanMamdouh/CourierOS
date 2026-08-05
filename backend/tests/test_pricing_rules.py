@@ -17,9 +17,9 @@ def setup_function():
 def test_pricing_rule_crud_validation_and_soft_delete():
     db = SessionLocal()
     try:
-        admin = SimpleNamespace(id=1, role="admin")
-        employee = SimpleNamespace(id=2, role="employee")
-        regular_user = SimpleNamespace(id=3, role="user")
+        admin = SimpleNamespace(id=1, role="admin", company_id=1)
+        employee = SimpleNamespace(id=2, role="employee", company_id=1)
+        regular_user = SimpleNamespace(id=3, role="user", company_id=1)
 
         source_city = city_crud.create_city(
             db=db,
@@ -177,6 +177,7 @@ def test_shipment_creation_uses_pricing_rule_for_shipping_price():
             ),
             owner_id=admin.id,
             company_id=admin.company_id,
+            current_user=admin,
         )
 
         assert shipment.shipping_price == 25.0

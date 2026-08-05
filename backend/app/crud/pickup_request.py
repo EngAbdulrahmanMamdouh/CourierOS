@@ -8,6 +8,8 @@ from app.services.audit_service import create_audit_log
 from app.services.permissions import require_permission
 from app.models.pickup_request_status import PickupRequestStatus
 from app.services.pickup_request_service import change_pickup_request_status as change_status_service
+from app.services.tenant_context import is_platform_admin, require_company_context
+from app.models.customer import Customer
 
 
 def _ensure_access(current_user, action: str):
@@ -64,6 +66,13 @@ def get_pickup_request_by_id(db: Session, request_id: int, current_user=None, in
 def create_pickup_request(db: Session, request_data: PickupRequestCreate, current_user=None):
     _ensure_access(current_user, "create")
 
+    # Validate customer belongs to current tenant for non-platform admins
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        customer = db.query(Customer).filter(Customer.id == request_data.customer_id, Customer.company_id == company_id).first()
+        if customer is None:
+            raise PermissionError("Customer does not belong to your company")
+
     pickup_request = PickupRequest(
         customer_id=request_data.customer_id,
         pickup_address=request_data.pickup_address,
@@ -105,6 +114,13 @@ def update_pickup_request(db: Session, request_id: int, request_data: PickupRequ
 
     if current_user.role == "user" and pickup_request.created_by != current_user.id:
         raise PermissionError("Not authorized")
+
+    # Ensure updated customer belongs to tenant
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+        customer = db.query(Customer).filter(Customer.id == request_data.customer_id, Customer.company_id == company_id).first()
+        if customer is None:
+            raise PermissionError("Customer does not belong to your company")
 
     pickup_request.customer_id = request_data.customer_id
     pickup_request.pickup_address = request_data.pickup_address

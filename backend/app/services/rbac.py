@@ -37,6 +37,7 @@ ROLE_PERMISSIONS = {
         "shipments.view",
         "shipments.create",
         "shipments.update",
+        "shipments.delete",
         "shipments.assign_driver",
         "customers.view",
         "customers.manage",
@@ -68,6 +69,7 @@ ROLE_PERMISSIONS = {
     },
     "employee": {
         "shipments.view",
+        "shipments.update",
         "customers.view",
         "reports.view",
     },

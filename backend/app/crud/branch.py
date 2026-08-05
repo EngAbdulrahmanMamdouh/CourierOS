@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.branch import Branch
 from app.schemas.branch import BranchCreate, BranchUpdate
 from app.services.permissions import require_permission
+from app.services.tenant_context import is_platform_admin, require_write_company_id
 
 
 def _ensure_access(current_user, action: str):
@@ -35,8 +36,12 @@ def get_branch_by_id(db: Session, branch_id: int, current_user=None):
 
 def create_branch(db: Session, branch_data: BranchCreate, current_user=None):
     _ensure_access(current_user, "create")
-    if current_user.role != "admin" and current_user.company_id is None:
+    if not is_platform_admin(current_user) and getattr(current_user, "company_id", None) is None:
         raise PermissionError("Company context required")
+    company_id = require_write_company_id(current_user, getattr(branch_data, "company_id", None) if hasattr(branch_data, "company_id") else None)
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
+
     branch = Branch(
         name=branch_data.name,
         code=branch_data.code,
@@ -44,7 +49,7 @@ def create_branch(db: Session, branch_data: BranchCreate, current_user=None):
         city=branch_data.city,
         phone=branch_data.phone,
         manager_id=branch_data.manager_id,
-        company_id=current_user.company_id or 1,
+        company_id=company_id,
         is_active=branch_data.is_active,
     )
     db.add(branch)

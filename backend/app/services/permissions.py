@@ -16,6 +16,13 @@ def require_permission(current_user, action: str, allowed_actions: set[str]):
     if allowed_actions & role_permissions:
         return
 
+    # Support generic CRUD-like action names such as view/create/update/delete
+    # for role permissions that are defined as resource-scoped names like
+    # customers.view, shipments.create, drivers.update, etc.
+    for permission in role_permissions:
+        if "." in permission and permission.rsplit(".", 1)[-1] in allowed_actions:
+            return
+
     raise PermissionError("Not authorized")
 
 

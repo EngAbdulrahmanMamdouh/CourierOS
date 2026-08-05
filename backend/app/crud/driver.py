@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.driver import Driver
 from app.schemas.driver import DriverCreate, DriverUpdate
 from app.services.permissions import require_permission
-from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
+from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context, require_write_company_id
 
 
 def _ensure_access(current_user, action: str):
@@ -38,7 +38,9 @@ def get_driver_by_id(db: Session, driver_id: int, current_user=None):
 
 def create_driver(db: Session, driver_data: DriverCreate, current_user=None):
     _ensure_access(current_user, "create")
-    company_id = require_company_context(current_user) if not is_platform_admin(current_user) else None
+    company_id = require_write_company_id(current_user, getattr(driver_data, "company_id", None) if hasattr(driver_data, "company_id") else None)
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
     status = getattr(driver_data, "status", "Active")
     driver = Driver(
         full_name=getattr(driver_data, "full_name", ""),

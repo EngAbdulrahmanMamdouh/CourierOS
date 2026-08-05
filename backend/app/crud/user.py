@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRoleUpdate, UserStatusUpdate, UserUpdate
 from app.security import hash_password
+from app.services.tenant_context import require_write_company_id
 
 
 def _normalize_lookup_value(value: str | None) -> str | None:
@@ -24,17 +25,21 @@ def get_user_by_username(db: Session, username: str):
     ).first()
 
 
-def create_user(db: Session, user: UserCreate):
+def create_user(db: Session, user: UserCreate, current_user=None):
     username = (user.username or '').strip()
     email = (user.email or '').strip().lower()
     role = (getattr(user, 'role', 'employee') or 'employee').strip().lower()
+
+    company_id = getattr(user, 'company_id', None)
+    if current_user is not None:
+        company_id = require_write_company_id(current_user, company_id)
 
     new_user = User(
         username=username,
         email=email,
         hashed_password=hash_password(user.password),
         role=role,
-        company_id=user.company_id,
+        company_id=company_id,
         full_name=(getattr(user, 'full_name', None) or '').strip() or None,
         phone=(getattr(user, 'phone', None) or '').strip() or None,
         is_active=getattr(user, 'is_active', True),

@@ -223,7 +223,7 @@ def create_shipment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    new_shipment = shipment_crud.create_shipment(db, shipment, owner_id=current_user.id, company_id=current_user.company_id or 1, current_user=current_user)
+    new_shipment = shipment_crud.create_shipment(db, shipment, owner_id=current_user.id, company_id=getattr(shipment, "company_id", None), current_user=current_user)
 
     log_event(
         db=db,

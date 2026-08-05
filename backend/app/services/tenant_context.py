@@ -51,3 +51,28 @@ def require_company_context(current_user) -> int:
     if company_id is None:
         raise PermissionError("Company context required for this operation")
     return company_id
+
+
+def require_write_company_id(current_user, provided_company_id: int | None = None) -> int:
+    """Resolve the company_id to use for tenant-scoped write operations.
+
+    Rules:
+    - If the current user is a platform admin, use the explicitly supplied
+      `provided_company_id` when present, otherwise fall back to the admin's
+      own assigned `company_id` if available.
+    - If the current user is tenant-scoped, ignore any provided company id and
+      use the current user's company via `require_company_context`.
+    - Raises PermissionError if no company context is available.
+    """
+    if current_user is None:
+        raise PermissionError("Authentication required")
+
+    if is_platform_admin(current_user):
+        if provided_company_id is not None:
+            return provided_company_id
+        company_id = getattr(current_user, "company_id", None)
+        if company_id is None:
+            raise PermissionError("Company context required for this operation")
+        return company_id
+
+    return require_company_context(current_user)

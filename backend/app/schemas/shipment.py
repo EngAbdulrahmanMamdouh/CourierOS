@@ -17,7 +17,7 @@ class ShipmentBase(BaseModel):
 
 
 class ShipmentCreate(ShipmentBase):
-    pass
+    company_id: int | None = None
 
 
 class ShipmentUpdate(ShipmentBase):

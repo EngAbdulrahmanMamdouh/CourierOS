@@ -113,6 +113,9 @@ def create_payment(db: Session, payment_data: PaymentCreate, current_user=None):
     company_id = _infer_payment_company_id(db, payment_data, current_user=current_user)
     if not is_platform_admin(current_user):
         company_id = require_company_context(current_user)
+    # Ensure company_id is resolved for all writes
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
     _validate_payment(db, payment_data, company_id=company_id)
 
     payment = Payment(
@@ -154,7 +157,12 @@ def update_payment(db: Session, payment_id: int, payment_data: PaymentUpdate, cu
     if payment is None:
         return None
 
-    company_id = getattr(current_user, "company_id", None) or payment.company_id or _infer_payment_company_id(db, payment_data, current_user=current_user)
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
+    else:
+        company_id = payment.company_id or _infer_payment_company_id(db, payment_data, current_user=current_user)
+    if company_id is None:
+        raise PermissionError("Company context required for this operation")
     _validate_payment(db, payment_data, company_id=company_id, existing_payment_id=payment.id)
 
     payment.shipment_id = payment_data.shipment_id
@@ -191,6 +199,7 @@ def delete_payment(db: Session, payment_id: int, current_user=None):
     payment = query.first()
     if payment is None:
         return None
+    company_id = payment.company_id
     payment.is_deleted = True
     payment.deleted_at = datetime.now(timezone.utc)
     db.commit()

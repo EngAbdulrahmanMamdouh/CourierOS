@@ -8,6 +8,7 @@ from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.crud.user import get_all_users
 from app.services.permissions import require_permission
+from app.services.tenant_context import is_platform_admin
 
 router = APIRouter(
     prefix="/users",
@@ -36,6 +37,42 @@ def register(
     user.email = (user.email or '').strip().lower()
     user.role = (user.role or 'employee').strip().lower()
 
+    # Allow platform-scoped user creation (company_id == None) only when a
+    # platform admin is explicitly creating a platform-level user (admin/super_admin).
+    # This is a narrow exception that does NOT change tenant helpers or global
+    # write behavior: for this path we intentionally call `create_user` with
+    # `current_user=None` so the tenant guard in `require_write_company_id` is
+    # bypassed only for this specific, validated case.
+    if is_platform_admin(current_user):
+        provided_company = getattr(user, "company_id", None)
+        if provided_company is None:
+            if user.role not in ("admin", "super_admin"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Platform-scoped users must be created as platform-level roles"
+                )
+            # For platform-level admin creation, still perform duplicate
+            # username/email checks to return clean HTTP 409 responses
+            # instead of letting the DB raise integrity errors.
+            existing_user = user_crud.get_user_by_username(db, user.username)
+            if existing_user:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Username already exists"
+                )
+
+            existing_email = user_crud.get_user_by_email(db, user.email)
+            if existing_email:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Email already exists"
+                )
+
+            # Create platform-level user without passing current_user so the
+            # tenant helper is not invoked for writes. This keeps tenant
+            # enforcement strict elsewhere.
+            return user_crud.create_user(db, user, current_user=None)
+
     if current_user.role == "company_admin":
         if user.company_id is not None and user.company_id != current_user.company_id:
             raise HTTPException(
@@ -58,7 +95,7 @@ def register(
             detail="Email already exists"
         )
 
-    return user_crud.create_user(db, user)
+    return user_crud.create_user(db, user, current_user=current_user)
 
 @router.get("/me")
 def read_me(

@@ -2,12 +2,16 @@ from sqlalchemy.orm import Session
 
 from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate
-from app.services.permissions import require_permission
+from app.services.permissions import require_permission_by_name
 from app.services.tenant_context import get_current_company_id, is_platform_admin, require_company_context
 
 
 def _ensure_access(current_user, action: str):
-    return require_permission(current_user, action, {"view", "create", "update"})
+    # Use permission-by-name for customers to align with RBAC permissions.
+    if action == "view":
+        return require_permission_by_name(current_user, "customers.view")
+    # create/update require manage permission
+    return require_permission_by_name(current_user, "customers.manage")
 
 
 def get_all_customers(db: Session, page: int = 1, size: int = 10, current_user=None, search: str | None = None):
@@ -38,7 +42,17 @@ def get_customer_by_id(db: Session, customer_id: int, current_user=None):
 
 def create_customer(db: Session, customer_data: CustomerCreate, current_user=None):
     _ensure_access(current_user, "create")
-    company_id = require_company_context(current_user) if not is_platform_admin(current_user) else None
+    # Resolve company context safely:
+    # - Platform admins may use their assigned company_id when present.
+    # - Tenant-scoped users must use their own company and cannot override it.
+    if is_platform_admin(current_user):
+        company_id = getattr(customer_data, "company_id", None)
+        if company_id is None:
+            company_id = getattr(current_user, "company_id", None)
+        if company_id is None:
+            raise PermissionError("Company context required for this operation")
+    else:
+        company_id = require_company_context(current_user)
     customer = Customer(
         full_name=customer_data.full_name,
         phone=customer_data.phone,

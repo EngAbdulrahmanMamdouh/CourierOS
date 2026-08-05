@@ -7,6 +7,7 @@ from app.models.delivery_zone import DeliveryZone
 from app.schemas.city import CityCreate, CityUpdate
 from app.services.audit_service import create_audit_log
 from app.services.permissions import require_permission
+from app.services.tenant_context import is_platform_admin, require_company_context
 
 
 def _ensure_access(current_user, action: str):
@@ -22,7 +23,7 @@ def get_all_cities(db: Session, page: int = 1, size: int = 10, current_user=None
     _ensure_access(current_user, "view")
     offset = (page - 1) * size
     query = db.query(City).filter(City.is_deleted == False)
-    if current_user.role != "admin":
+    if not is_platform_admin(current_user):
         company_id = getattr(current_user, "company_id", None)
         if company_id is not None:
             query = query.filter(
@@ -37,21 +38,20 @@ def get_all_cities(db: Session, page: int = 1, size: int = 10, current_user=None
 def get_city_by_id(db: Session, city_id: int, current_user=None):
     _ensure_access(current_user, "view")
     query = db.query(City).filter(City.id == city_id, City.is_deleted == False)
-    if current_user.role != "admin":
+    if not is_platform_admin(current_user):
         company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
-        query = query.filter(
-            (City.company_id == company_id) | (City.company_id.is_(None))
-        )
+        if company_id is not None:
+            query = query.filter(
+                (City.company_id == company_id) | (City.company_id.is_(None))
+            )
     return query.first()
 
 
 def create_city(db: Session, city_data: CityCreate, current_user=None):
     _ensure_access(current_user, "create")
-    company_id = getattr(current_user, "company_id", None)
-    if current_user.role != "admin" and company_id is None:
+    if not is_platform_admin(current_user) and getattr(current_user, "company_id", None) is None:
         raise PermissionError("Company context required")
+    company_id = getattr(current_user, "company_id", None)
     city = City(
         name=city_data.name,
         code=city_data.code,
@@ -77,10 +77,8 @@ def create_city(db: Session, city_data: CityCreate, current_user=None):
 def update_city(db: Session, city_id: int, city_data: CityUpdate, current_user=None):
     _ensure_access(current_user, "update")
     query = db.query(City).filter(City.id == city_id, City.is_deleted == False)
-    if current_user.role != "admin":
-        company_id = getattr(current_user, "company_id", None)
-        if company_id is None:
-            raise PermissionError("Company context required")
+    if not is_platform_admin(current_user):
+        company_id = require_company_context(current_user)
         query = query.filter(
             (City.company_id == company_id) | (City.company_id.is_(None))
         )

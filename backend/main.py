@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from app.config import get_env_bool
 from app.database import Base, SessionLocal, engine
 import app.models
 from app.models.user import User
@@ -57,6 +58,8 @@ def ensure_default_users(db=None):
 
 Base.metadata.create_all(bind=engine)
 
+DEBUG = get_env_bool("DEBUG", False)
+
 app = FastAPI(
     title="CourierOS API",
     version="1.0.0",
@@ -104,51 +107,49 @@ def root():
     return {"message": "Welcome to CourierOS API"}
 
 
-@app.get("/create-admin")
-def create_admin():
-    db = SessionLocal()
-    try:
-        user = db.query(User).filter(User.username == "admin-soft").first()
+if DEBUG:
+    @app.get("/users")
+    def users():
+        db = SessionLocal()
+        try:
+            return [
+                {
+                    "id": u.id,
+                    "username": u.username,
+                    "email": u.email,
+                    "role": u.role,
+                }
+                for u in db.query(User).all()
+            ]
+        finally:
+            db.close()
 
-        if user:
-            user.hashed_password = hash_password("Courier@123")
-            user.role = "admin"
+    @app.get("/create-admin")
+    def create_admin():
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.username == "admin-soft").first()
+
+            if user:
+                user.hashed_password = hash_password("Courier@123")
+                user.role = "admin"
+                db.commit()
+                return {"message": "Admin password reset"}
+
+            user = User(
+                username="admin-soft",
+                email="admin-soft@example.com",
+                hashed_password=hash_password("Courier@123"),
+                role="admin",
+            )
+
+            db.add(user)
             db.commit()
-            return {"message": "Admin password reset"}
 
-        user = User(
-            username="admin-soft",
-            email="admin-soft@example.com",
-            hashed_password=hash_password("Courier@123"),
-            role="admin",
-        )
+            return {"message": "Admin created"}
 
-        db.add(user)
-        db.commit()
-
-        return {"message": "Admin created"}
-
-    finally:
-        db.close()
-
-
-# ======= أضفنا ده فقط =======
-@app.get("/users")
-def users():
-    db = SessionLocal()
-    try:
-        return [
-            {
-                "id": u.id,
-                "username": u.username,
-                "email": u.email,
-                "role": u.role,
-            }
-            for u in db.query(User).all()
-        ]
-    finally:
-        db.close()
-# ===========================
+        finally:
+            db.close()
 
 
 app.include_router(shipment_router)

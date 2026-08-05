@@ -29,7 +29,7 @@ def test_driver_update_schema_allows_blank_license_expiry():
 def test_driver_crud_search_pagination_and_permissions():
     db = SessionLocal()
     try:
-        admin = SimpleNamespace(id=1, role="admin", company_id=None)
+        admin = SimpleNamespace(id=1, role="admin", company_id=1)
         employee = SimpleNamespace(id=2, role="employee", company_id=1)
         regular_user = SimpleNamespace(id=3, role="user", company_id=1)
 

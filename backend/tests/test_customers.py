@@ -19,7 +19,7 @@ def setup_function():
 def test_customer_crud_search_and_permissions():
     db = SessionLocal()
     try:
-        admin = SimpleNamespace(id=1, role="admin", company_id=None)
+        admin = SimpleNamespace(id=1, role="admin", company_id=1)
         company_admin = SimpleNamespace(id=2, role="company_admin", company_id=1)
         employee = SimpleNamespace(id=3, role="employee", company_id=1)
         regular_user = SimpleNamespace(id=4, role="user", company_id=1)
@@ -100,5 +100,73 @@ def test_customer_crud_search_and_permissions():
 
         deleted = customer_crud.delete_customer(db=db, customer_id=created.id, current_user=admin)
         assert deleted is not None
+    finally:
+        db.close()
+
+
+def test_platform_admin_customer_creation_requires_company_selection():
+    db = SessionLocal()
+    try:
+        admin = SimpleNamespace(id=1, role="admin", company_id=None)
+
+        with pytest.raises(PermissionError):
+            customer_crud.create_customer(
+                db=db,
+                customer_data=SimpleNamespace(
+                    full_name="Platform Customer",
+                    phone="1111111111",
+                    email="platform@example.com",
+                    company_name="Platform LLC",
+                    address="3 Main St",
+                    city="Cairo",
+                    notes="",
+                    is_active=True,
+                ),
+                current_user=admin,
+            )
+
+        created = customer_crud.create_customer(
+            db=db,
+            customer_data=SimpleNamespace(
+                full_name="Platform Customer",
+                phone="1111111111",
+                email="platform@example.com",
+                company_name="Platform LLC",
+                address="3 Main St",
+                city="Cairo",
+                notes="",
+                is_active=True,
+                company_id=7,
+            ),
+            current_user=admin,
+        )
+
+        assert created.company_id == 7
+    finally:
+        db.close()
+
+
+def test_company_admin_customer_creation_uses_own_company_id():
+    db = SessionLocal()
+    try:
+        company_admin = SimpleNamespace(id=2, role="company_admin", company_id=3)
+
+        created = customer_crud.create_customer(
+            db=db,
+            customer_data=SimpleNamespace(
+                full_name="Company Customer",
+                phone="2222222222",
+                email="company@example.com",
+                company_name="Company LLC",
+                address="4 Main St",
+                city="Alex",
+                notes="",
+                is_active=True,
+                company_id=99,
+            ),
+            current_user=company_admin,
+        )
+
+        assert created.company_id == 3
     finally:
         db.close()

@@ -2,13 +2,14 @@ from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
 from app.models.user import User
+from app.services.tenant_context import is_platform_admin
 
 
 def create_notification(db: Session, user_id: int, message: str, is_read: bool = False, current_user: User | None = None) -> Notification:
     if current_user is not None:
-        if current_user.role == "admin":
+        if is_platform_admin(current_user):
             pass
-        elif current_user.role == "company_admin":
+        elif getattr(current_user, "role", None) == "company_admin":
             target_user = db.query(User).filter(User.id == user_id).first()
             if target_user is None or target_user.company_id != current_user.company_id:
                 raise PermissionError("Company admin can only create notifications for users in the same company")
@@ -35,7 +36,7 @@ def mark_as_read(db: Session, notification_id: int, current_user: User | None = 
     if notification is None:
         return None
 
-    if current_user is not None and current_user.role != "admin" and notification.user_id != current_user.id:
+    if current_user is not None and not is_platform_admin(current_user) and notification.user_id != current_user.id:
         return None
 
     notification.is_read = True
@@ -47,7 +48,7 @@ def mark_as_read(db: Session, notification_id: int, current_user: User | None = 
 def mark_all_as_read(db: Session, user_id: int, current_user: User | None = None):
     query = db.query(Notification).filter(Notification.user_id == user_id)
 
-    if current_user is not None and current_user.role != "admin" and user_id != current_user.id:
+    if current_user is not None and not is_platform_admin(current_user) and user_id != current_user.id:
         return 0
 
     notifications = query.all()

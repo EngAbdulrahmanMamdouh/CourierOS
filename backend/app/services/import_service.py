@@ -234,6 +234,8 @@ def preview_uploaded_workbook(file_bytes: bytes) -> dict[str, Any]:
 def execute_import_workbook(db, file_name: str, file_bytes: bytes, current_user) -> dict[str, Any]:
     from datetime import datetime, timezone
 
+    import_company_id = getattr(current_user, "company_id", None) or 1
+
     try:
         workbook = load_workbook(filename=BytesIO(file_bytes), data_only=True)
     except Exception as exc:
@@ -288,7 +290,13 @@ def execute_import_workbook(db, file_name: str, file_bytes: bytes, current_user)
 
     successful_rows = 0
     if valid_shipments:
-        shipments = bulk_create_shipments(db, valid_shipments, owner_id=current_user.id, company_id=getattr(current_user, "company_id", 1))
+        shipments = bulk_create_shipments(
+            db,
+            valid_shipments,
+            owner_id=current_user.id,
+            company_id=import_company_id,
+            current_user=current_user,
+        )
         created_shipment_ids = [shipment.id for shipment in shipments]
         successful_rows = len(shipments)
 
@@ -299,7 +307,7 @@ def execute_import_workbook(db, file_name: str, file_bytes: bytes, current_user)
         db=db,
         file_name=file_name,
         uploaded_by=current_user.id,
-        company_id=getattr(current_user, "company_id", None),
+        company_id=import_company_id,
         status="Completed",
         total_rows=total_rows,
         imported_rows=successful_rows,
@@ -319,7 +327,7 @@ def execute_import_workbook(db, file_name: str, file_bytes: bytes, current_user)
     create_audit_log(
         db=db,
         actor_id=current_user.id,
-        company_id=getattr(current_user, "company_id", None),
+        company_id=import_company_id,
         action="execute",
         entity="import_job",
         entity_id=import_job.id,
@@ -361,6 +369,7 @@ def store_uploaded_workbook(db, file_name: str, file_bytes: bytes, current_user)
         db=db,
         file_name=file_name,
         uploaded_by=current_user.id,
+        company_id=getattr(current_user, "company_id", None),
         status="Uploaded",
         total_rows=row_count,
         imported_rows=0,
