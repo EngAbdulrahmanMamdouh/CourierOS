@@ -23,6 +23,31 @@ const optionalStringField = () =>
     return value
   }, z.string().trim().optional())
 
+const booleanField = () =>
+  z.preprocess((value) => {
+    if (value === null || value === undefined || value === '') {
+      return undefined
+    }
+
+    if (typeof value === 'boolean') {
+      return value
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase()
+
+      if (normalized === 'true') {
+        return true
+      }
+
+      if (normalized === 'false') {
+        return false
+      }
+    }
+
+    return value
+  }, z.boolean().optional())
+
 const schema = (t: (key: string) => string) => z.object({
   name: z.string().trim().min(2, t('companies.errors.name_required')),
   code: z.string().trim().min(2, t('companies.errors.code_required')),
@@ -36,7 +61,7 @@ const schema = (t: (key: string) => string) => z.object({
   logo_url: optionalStringField(),
   subscription_plan: optionalStringField(),
   subscription_status: optionalStringField(),
-  is_active: z.boolean().optional(),
+  is_active: booleanField(),
 })
 
 type Props = {
