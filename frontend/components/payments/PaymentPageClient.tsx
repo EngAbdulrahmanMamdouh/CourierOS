@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { usePaymentsQuery, useCreatePaymentMutation, useDeletePaymentMutation, useUpdatePaymentMutation } from '@/hooks/usePaymentQueries'
 import type { Payment, PaymentCreatePayload } from '@/types/payment'
@@ -8,6 +9,7 @@ import PaymentTable from './PaymentTable'
 import CreatePaymentDialog from './CreatePaymentDialog'
 
 export default function PaymentPageClient() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [size] = useState(10)
   const [search, setSearch] = useState('')
@@ -42,16 +44,16 @@ export default function PaymentPageClient() {
     try {
       if (editing) {
         await updateMutation.mutateAsync({ id: editing.id, payload: values })
-        toast.success('Payment updated successfully')
+        toast.success(t('payments.toast.updated'))
       } else {
         await createMutation.mutateAsync(values)
-        toast.success('Payment created successfully')
+        toast.success(t('payments.toast.created'))
       }
 
       setIsCreateOpen(false)
       setEditing(null)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save payment.'
+      const message = error instanceof Error ? error.message : t('payments.toast.save_failed')
       setSubmitError(message)
       toast.error(message)
     } finally {
@@ -60,13 +62,13 @@ export default function PaymentPageClient() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this payment?')) return
+    if (!confirm(t('payments.toast.delete_failed'))) return
 
     try {
       await deleteMutation.mutateAsync(id)
-      toast.success('Payment deleted successfully')
+      toast.success(t('payments.toast.deleted'))
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to delete payment.')
+      toast.error(error instanceof Error ? error.message : t('payments.toast.delete_failed'))
     }
   }
 
@@ -74,15 +76,15 @@ export default function PaymentPageClient() {
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Payments</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage payments</h1>
-          <p className="mt-2 text-sm text-slate-400">Track payment records and collections.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('payments.page.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('payments.page.manage')}</h1>
+          <p className="mt-2 text-sm text-slate-400">{t('payments.page.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{summary.total} payments</div>
+          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{t('payments.page.summary', { total: summary.total })}</div>
           <button type="button" onClick={() => setIsCreateOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New payment
+            {t('payments.page.new_payment')}
           </button>
         </div>
       </div>
@@ -108,9 +110,9 @@ export default function PaymentPageClient() {
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-sm text-slate-400">Loading payments…</p>
+          <p className="text-sm text-slate-400">{t('payments.page.loading')}</p>
         ) : isError ? (
-          <p className="text-rose-400">Unable to load payments</p>
+          <p className="text-rose-400">{t('payments.page.load_failed')}</p>
         ) : (
           <PaymentTable
             payments={filteredPayments}

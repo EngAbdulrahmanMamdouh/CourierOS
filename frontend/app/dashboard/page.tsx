@@ -11,7 +11,7 @@ import ShipmentChart from '@/components/dashboard/ShipmentChart'
 import ShipmentStatusSummary from '@/components/dashboard/ShipmentStatusSummary'
 import StatCard from '@/components/dashboard/StatCard'
 import SummaryPanel from '@/components/dashboard/SummaryPanel'
-import { fetchDashboardAnalytics } from '@/services/dashboard'
+import { getDashboardAnalytics } from '@/services/dashboard'
 import type { DashboardAnalytics } from '@/services/dashboard'
 
 export default function DashboardPage() {
@@ -19,13 +19,15 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardAnalytics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+  const [dateLabel, setDateLabel] = useState('')
 
   useEffect(() => {
     let active = true
 
     async function loadDashboard() {
       try {
-        const result = await fetchDashboardAnalytics()
+        const result = await getDashboardAnalytics()
         if (active) {
           setData(result)
         }
@@ -40,18 +42,22 @@ export default function DashboardPage() {
       }
     }
 
+    setIsMounted(true)
+    setDateLabel(
+      new Intl.DateTimeFormat(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      }).format(new Date())
+    )
     loadDashboard()
 
     return () => {
       active = false
     }
-  }, [])
+  }, [i18n.language])
 
-  const dateLabel = new Intl.DateTimeFormat(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date())
+  const resolvedDateLabel = isMounted ? dateLabel : ''
 
  
   return (
@@ -62,7 +68,7 @@ export default function DashboardPage() {
       <DashboardSidebar />
 
       <div className="flex-1 space-y-6">
-        <DashboardHeader greeting={t('dashboard.greeting_morning', { name: 'Abdelrahman' })} dateLabel={dateLabel} />
+        <DashboardHeader greeting={t('dashboard.greeting_morning', { name: 'Abdelrahman' })} dateLabel={resolvedDateLabel} />
 
         {isLoading ? (
           <div className="rounded-[28px] border border-white/10 bg-slate-900/70 p-8 text-slate-400">{t('dashboard.loading_dashboard_statistics')}</div>

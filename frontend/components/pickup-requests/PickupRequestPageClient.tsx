@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useCreatePickupRequestMutation, useDeletePickupRequestMutation, usePickupRequestsQuery, useUpdatePickupRequestMutation } from '@/hooks/usePickupRequestQueries'
 import type { PickupRequest, PickupRequestCreatePayload } from '@/types/pickupRequest'
@@ -8,6 +9,7 @@ import PickupRequestTable from './PickupRequestTable'
 import CreatePickupRequestDialog from './CreatePickupRequestDialog'
 
 export default function PickupRequestPageClient() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [size] = useState(10)
   const [search, setSearch] = useState('')
@@ -43,16 +45,16 @@ export default function PickupRequestPageClient() {
     try {
       if (editing) {
         await updateMutation.mutateAsync({ id: editing.id, payload: values })
-        toast.success('Pickup request updated successfully')
+        toast.success(t('pickupRequests.toast.updated'))
       } else {
         await createMutation.mutateAsync(values)
-        toast.success('Pickup request created successfully')
+        toast.success(t('pickupRequests.toast.created'))
       }
 
       setIsCreateOpen(false)
       setEditing(null)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save pickup request.'
+      const message = error instanceof Error ? error.message : t('pickupRequests.toast.save_failed')
       setSubmitError(message)
       toast.error(message)
     } finally {
@@ -65,9 +67,9 @@ export default function PickupRequestPageClient() {
 
     try {
       await deleteMutation.mutateAsync(id)
-      toast.success('Pickup request deleted successfully')
+      toast.success(t('pickupRequests.toast.deleted'))
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to delete pickup request.')
+      toast.error(error instanceof Error ? error.message : t('pickupRequests.toast.delete_failed'))
     }
   }
 
@@ -75,15 +77,15 @@ export default function PickupRequestPageClient() {
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Pickup Requests</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage pickup requests</h1>
-          <p className="mt-2 text-sm text-slate-400">Coordinate customer pickups and driver assignment.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('pickupRequests.page.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('pickupRequests.page.manage')}</h1>
+          <p className="mt-2 text-sm text-slate-400">{t('pickupRequests.page.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{summary.total} requests</div>
+          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{t('pickupRequests.page.summary', { total: summary.total })}</div>
           <button type="button" onClick={() => setIsCreateOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New request
+            {t('pickupRequests.page.new_request')}
           </button>
         </div>
       </div>
@@ -112,9 +114,9 @@ export default function PickupRequestPageClient() {
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-sm text-slate-400">Loading pickup requests…</p>
+          <p className="text-sm text-slate-400">{t('pickupRequests.page.loading')}</p>
         ) : isError ? (
-          <p className="text-rose-400">Unable to load pickup requests</p>
+          <p className="text-rose-400">{t('pickupRequests.page.load_failed')}</p>
         ) : (
           <PickupRequestTable
             pickupRequests={filteredPickupRequests}

@@ -10,6 +10,7 @@ import { collectCod } from '@/services/finance'
 import { updateShipmentStatus } from '@/services/shipment'
 import type { ShipmentListItem } from '@/types/shipment'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 
 type ShipmentTableProps = {
   shipments: ShipmentListItem[]
@@ -19,6 +20,7 @@ type ShipmentTableProps = {
 
 export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdated }: ShipmentTableProps) {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
   const [updatingId, setUpdatingId] = useState<number | null>(null)
   const [collectingId, setCollectingId] = useState<number | null>(null)
   const [collectedShipmentIds, setCollectedShipmentIds] = useState<number[]>([])
@@ -32,10 +34,10 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
 
     try {
       await updateShipmentStatus(shipmentId, nextStatus as ShipmentListItem['status'])
-      toast.success('Shipment status updated')
+      toast.success(t('dashboard.shipments.status_updated'))
       onStatusUpdated?.()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to update shipment status')
+      toast.error(error instanceof Error ? error.message : t('dashboard.shipments.unable_update_status'))
     } finally {
       setUpdatingId(null)
     }
@@ -44,15 +46,15 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
     <section className="rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Live list</p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">Recent shipments</h2>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('dashboard.live_list')}</p>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{t('dashboard.recent_shipments')}</h2>
         </div>
         <div className="flex items-center gap-3">
           <button type="button" onClick={onCreateClick} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New shipment
+            {t('shipments.button.new_shipment')}
           </button>
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white">
-            Back to dashboard
+            {t('dashboard.back_to_dashboard')}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -62,21 +64,21 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
         <table className="min-w-full text-left text-sm text-slate-300">
           <thead>
             <tr className="border-b border-white/10 text-slate-500">
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Tracking</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Receiver</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">City</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Status</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">COD</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Shipping Price</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">ETA</th>
-              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">Actions</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.tracking_number')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.receiver')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.city')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.status')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.cod')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.shipping_price')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.eta')}</th>
+              <th className="py-4 pr-6 text-xs uppercase tracking-[0.25em]">{t('dashboard.table.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
             {shipments.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-slate-400">
-                  No shipments available yet.
+                  {t('shipments.empty_state')}
                 </td>
               </tr>
             ) : (
@@ -91,7 +93,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                         <div>{shipment.tracking_number ?? `TRK-${shipment.id}`}</div>
                         <div className="text-xs text-slate-500">{shipment.sender_name}</div>
                         <Link href={`/dashboard/shipments/${shipment.id}`} className="mt-1 inline-flex text-xs font-semibold text-sky-400 transition hover:text-sky-300">
-                          View details
+                          {t('dashboard.table.view_details')}
                         </Link>
                       </div>
                     </div>
@@ -112,7 +114,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                   <td className="py-5 pr-6">
                     <div className="flex flex-wrap items-center gap-3">
                       <Link href={`/dashboard/shipments/${shipment.id}`} className="inline-flex items-center gap-2 rounded-[12px] border border-white/10 bg-slate-900/80 px-3 py-1 text-sm font-semibold text-slate-100 transition hover:border-sky-400/40">
-                        View Details
+                        {t('dashboard.table.view_details')}
                       </Link>
                       <select
                         value={shipment.status}
@@ -129,14 +131,14 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                       {shipment.status === 'Delivered' && shipment.cod_amount && shipment.cod_amount > 0 ? (
                         collectedShipmentIds.includes(shipment.id) ? (
                           <span className="inline-flex items-center rounded-[12px] bg-slate-700 px-3 py-2 text-sm font-semibold text-slate-300">
-                            COD collected
+                            {t('shipments.cod_collected')}
                           </span>
                         ) : (
                           <button
                             type="button"
                             disabled={collectingId === shipment.id}
                             onClick={async () => {
-                              if (!window.confirm(`Confirm collection of EGP ${shipment.cod_amount} COD for ${shipment.tracking_number ?? `shipment ${shipment.id}`}?`)) {
+                              if (!window.confirm(t('shipments.collect_confirm', { amount: shipment.cod_amount, tracking: shipment.tracking_number ?? `${t('shipments.collect_confirm')} ${shipment.id}` }))) {
                                 return
                               }
 
@@ -151,7 +153,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                                   notes: 'Collected after delivery',
                                 })
 
-                                toast.success('COD collected successfully')
+                                toast.success(t('shipments.cod_collected_success'))
                                 setCollectedShipmentIds((prev) => [...prev, shipment.id])
                                 await queryClient.invalidateQueries({ queryKey: ['shipments'] })
                                 await queryClient.invalidateQueries({ queryKey: ['finance', 'summary'] })
@@ -165,7 +167,7 @@ export default function ShipmentTable({ shipments, onCreateClick, onStatusUpdate
                             }}
                             className="inline-flex items-center gap-2 rounded-[12px] bg-emerald-500 px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            {collectingId === shipment.id ? 'Collecting…' : 'Collect COD'}
+                            {collectingId === shipment.id ? t('shipments.collecting') : t('shipments.collect_cod')}
                           </button>
                         )
                       ) : null}

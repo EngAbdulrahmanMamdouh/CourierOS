@@ -93,7 +93,8 @@
   ,
   "language": {
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "label": "اللغة"
   }
 
   ,
@@ -117,13 +118,69 @@
     },
     "processing": "جارٍ المعالجة…",
     "deleting": "جارٍ الحذف…",
+    "page": "الصفحة {{page}}",
+    "previous": "السابق",
+    "next": "التالي",
     "action": {
       "confirm": "تأكيد الإجراء"
     }
   },
+  "auth": {
+    "page_title": "مرحبًا بعودتك",
+    "subtitle": "الوصول إلى مساحة عمل CourierOS الخاصة بك.",
+    "email_or_username": "البريد الإلكتروني أو اسم المستخدم",
+    "password": "كلمة المرور",
+    "placeholder_username": "you@courieros.com",
+    "placeholder_password": "أدخل كلمة المرور الخاصة بك",
+    "sign_in": "تسجيل الدخول",
+    "signing_in": "جارٍ تسجيل الدخول…",
+    "error": "فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+    "copyright": "© 2026 CourierOS"
+  },
   "users": {
+    "page": {
+      "title": "المستخدمون",
+      "manage": "إدارة المستخدمين",
+      "subtitle": "تصفح وإدارة مستخدمي المنصة والأذونات.",
+      "total": "الإجمالي",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "search_placeholder": "ابحث في المستخدمين",
+      "clear": "مسح",
+      "loading": "جارٍ تحميل المستخدمين…",
+      "load_failed": "تعذر تحميل المستخدمين.",
+      "empty_title": "لا يوجد مستخدمون",
+      "empty_description": "جرّب مصطلح بحث مختلف أو أضف مستخدمًا جديدًا.",
+      "access_denied": "ليس لديك حق الوصول إلى هذه الوحدة.",
+      "new_user": "إضافة مستخدم",
+      "summary": "{{count}} مستخدم"
+    },
     "delete_title": "إزالة {{username}}?",
     "delete_description": "لا يمكن التراجع عن هذا الإجراء. سيتم إزالة المستخدم من النظام ولن يكون قادرًا على تسجيل الدخول.",
+    "toast": {
+      "updated": "تم تحديث المستخدم بنجاح",
+      "created": "تم إنشاء المستخدم بنجاح",
+      "save_failed": "تعذر حفظ المستخدم.",
+      "delete_failed": "تعذر حذف المستخدم.",
+      "role_failed": "تعذر تغيير الدور.",
+      "status_failed": "تعذر تحديث الحالة."
+    },
+    "table": {
+      "avatar": "الصورة",
+      "username": "اسم المستخدم",
+      "full_name": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "role": "الدور",
+      "company": "الشركة",
+      "status": "الحالة",
+      "created": "تاريخ الإنشاء",
+      "actions": "الإجراءات",
+      "edit": "تعديل",
+      "disable": "تعطيل",
+      "enable": "تمكين",
+      "delete": "حذف"
+    },
     "button": {
       "delete_user": "حذف المستخدم"
     }
@@ -146,10 +203,12 @@
     "load_failed": "تعذر تحميل تفاصيل الشحنة",
     "info": {
       "title": "معلومات الشحنة",
+      "id": "معرّف الشحنة",
       "sender": "المرسل",
       "receiver": "المستلم",
       "phone": "الهاتف",
       "city": "المدينة",
+      "status": "الحالة",
       "eta": "الوقت المقدر للتسليم",
       "days": "{{count}} يوم",
       "cod": "الدفع عند التسليم",
@@ -157,6 +216,8 @@
     },
     "delivery": {
       "title": "تفاصيل التسليم",
+      "created_at": "تاريخ الإنشاء",
+      "updated_at": "تاريخ التحديث",
       "address": "العنوان",
       "status": "الحالة",
       "notes": "ملاحظات",
@@ -189,25 +250,6 @@
     },
     "invalid_id": "معرّف شحنة غير صالح.",
     "address_timing": "العنوان والوقت",
-    "info": {
-      "id": "معرّف الشحنة",
-      "sender": "المرسل",
-      "receiver": "المستلم",
-      "phone": "الهاتف",
-      "city": "المدينة",
-      "eta": "الوقت المقدر للتسليم",
-      "days": "{{count}} يوم",
-      "cod": "الدفع عند التسليم",
-      "shipping_price": "سعر الشحن"
-    },
-    "delivery": {
-      "created_at": "تاريخ الإنشاء",
-      "updated_at": "تاريخ التحديث",
-      "address": "العنوان",
-      "status": "الحالة",
-      "notes": "ملاحظات",
-      "created": "تاريخ الإنشاء"
-    },
     "collect_confirm": "تأكيد تحصيل مبلغ EGP {{amount}} كـ COD للشحنة {{tracking}}؟",
     "collecting": "جارٍ التحصيل…",
     "collect_cod": "تحصيل COD",
@@ -234,6 +276,7 @@
       "saving": "جارٍ الحفظ…",
       "cancel": "إلغاء"
     },
+    "empty_state": "لا توجد شحنات متاحة بعد.",
     "load_failed_list": "تعذر تحميل الشحنات الآن.",
     "loading_list": "جارٍ تحميل الشحنات…",
     "created_success": "تم إنشاء الشحنة بنجاح. سعر الشحن: {{price}}",
@@ -298,6 +341,22 @@
   "drivers": {
     "create_title": "إنشاء سائق",
     "create_subtitle": "سائق جديد",
+    "page": {
+      "title": "السائقون",
+      "manage": "إدارة السائقين",
+      "subtitle": "إنشاء وإدارة السائقين عبر الفروع.",
+      "summary": "{{total}} سائق",
+      "new_driver": "سائق جديد",
+      "loading": "جارٍ تحميل السائقين…",
+      "load_failed": "تعذر تحميل السائقين"
+    },
+    "toast": {
+      "created": "تم إنشاء السائق بنجاح",
+      "updated": "تم تحديث بيانات السائق بنجاح",
+      "deleted": "تم حذف السائق",
+      "save_failed": "تعذر حفظ بيانات السائق.",
+      "delete_failed": "تعذر حذف السائق"
+    },
     "label": {
       "full_name": "الاسم الكامل",
       "phone": "الهاتف",
@@ -377,11 +436,19 @@
     "delete_failed": "تعذر حذف السائق",
     "back_to_list": "عودة",
     "table": {
+      "name": "الاسم",
       "phone": "الهاتف",
       "email": "البريد الإلكتروني",
       "national_id": "الهوية الوطنية",
       "availability": "التوافر",
-      "active": "نشط"
+      "branch": "الفرع",
+      "vehicle": "المركبة",
+      "status": "الحالة",
+      "deliveries": "التسليمات",
+      "actions": "الإجراءات",
+      "active": "نشط",
+      "assigned_count": "{{count}} مُخصص",
+      "pending_count": "{{count}} Pending"
     },
     "details": {
       "title": "تفاصيل السائق"
@@ -410,6 +477,22 @@
   "companies": {
     "create_title": "إنشاء شركة",
     "create_subtitle": "شركة جديدة",
+    "page": {
+      "title": "الشركات",
+      "manage": "إدارة الشركات",
+      "subtitle": "إنشاء وإدارة الشركات المستأجرة.",
+      "summary": "{{total}} شركة",
+      "new_company": "شركة جديدة",
+      "loading": "جارٍ تحميل الشركات…",
+      "load_failed": "تعذر تحميل الشركات"
+    },
+    "toast": {
+      "created": "تم إنشاء الشركة بنجاح",
+      "updated": "تم تحديث بيانات الشركة بنجاح",
+      "deleted": "تم حذف الشركة بنجاح",
+      "save_failed": "تعذر حفظ بيانات الشركة.",
+      "delete_failed": "تعذر حذف الشركة"
+    },
     "label": {
       "name": "اسم الشركة",
       "code": "رمز الشركة",
@@ -482,6 +565,34 @@
   "branches": {
     "create_title": "إنشاء فرع",
     "create_subtitle": "فرع جديد",
+    "list_title": "قائمة الفروع",
+    "no_branches": "لا يوجد فروع بعد.",
+    "confirm_delete": "حذف هذا الفرع؟",
+    "view": "عرض",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "page": {
+      "title": "الفروع",
+      "manage": "إدارة الفروع",
+      "subtitle": "إنشاء وإدارة مواقع الفروع.",
+      "summary": "{{total}} فرع",
+      "new_branch": "فرع جديد",
+      "loading": "جارٍ تحميل الفروع…",
+      "load_failed": "تعذر تحميل الفروع",
+      "search_placeholder": "ابحث في الفروع",
+      "search": "بحث",
+      "clear": "مسح",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {{page}}"
+    },
+    "toast": {
+      "created": "تم إنشاء الفرع بنجاح",
+      "updated": "تم تحديث الفرع بنجاح",
+      "deleted": "تم حذف الفرع بنجاح",
+      "save_failed": "تعذر حفظ الفرع.",
+      "delete_failed": "تعذر حذف الفرع."
+    },
     "label": {
       "name": "اسم الفرع",
       "code": "رمز الفرع",
@@ -509,6 +620,15 @@
       "cancel": "إلغاء",
       "save": "حفظ الفرع",
       "saving": "جارٍ الحفظ…"
+    },
+    "table": {
+      "name": "الاسم",
+      "code": "الرمز",
+      "city": "المدينة",
+      "manager": "المدير",
+      "phone": "الهاتف",
+      "status": "الحالة",
+      "actions": "الإجراءات"
     }
       ,
       "errors": {
@@ -523,6 +643,28 @@
   "cities": {
     "create_title": "إنشاء مدينة",
     "create_subtitle": "مدينة جديدة",
+    "page": {
+      "title": "المدن",
+      "manage": "إدارة المدن",
+      "subtitle": "إنشاء وإدارة المدن للشحن في عملياتك.",
+      "summary": "{{total}} مدينة • {{active}} نشط",
+      "new_city": "مدينة جديدة",
+      "loading": "جارٍ تحميل المدن…",
+      "load_failed": "تعذر تحميل المدن",
+      "search_placeholder": "ابحث في المدن",
+      "search": "بحث",
+      "clear": "مسح",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {{page}}"
+    },
+    "toast": {
+      "created": "تم إنشاء المدينة بنجاح",
+      "updated": "تم تحديث المدينة بنجاح",
+      "deleted": "تم حذف المدينة بنجاح",
+      "save_failed": "تعذر حفظ المدينة.",
+      "delete_failed": "تعذر حذف المدينة."
+    },
     "update_title": "تعديل المدينة",
     "update_subtitle": "تحديث بيانات المدينة",
     "label": {
@@ -552,6 +694,23 @@
   "customers": {
     "create_title": "إنشاء عميل",
     "create_subtitle": "عميل جديد",
+    "page": {
+      "title": "العملاء",
+      "manage": "إدارة العملاء",
+      "subtitle": "إنشاء وإدارة سجلات العملاء.",
+      "summary": "{{total}} عميل",
+      "new_customer": "عميل جديد",
+      "loading": "جارٍ تحميل العملاء…",
+      "load_failed": "تعذر تحميل العملاء",
+      "search_placeholder": "ابحث في العملاء"
+    },
+    "toast": {
+      "created": "تم إنشاء العميل",
+      "updated": "تم تحديث العميل",
+      "deleted": "تم حذف العميل",
+      "save_failed": "تعذر إنشاء العميل",
+      "delete_failed": "تعذر حذف العميل"
+    },
     "label": {
       "full_name": "الاسم الكامل",
       "phone": "الهاتف",
@@ -615,6 +774,30 @@
   "cods": {
     "create_title": "إنشاء COD",
     "create_subtitle": "COD جديد",
+    "list_title": "قائمة COD",
+    "no_cods": "لا توجد سجلات COD بعد.",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "status": {
+      "collected": "تم التحصيل",
+      "pending": "قيد الانتظار"
+    },
+    "page": {
+      "title": "COD",
+      "manage": "إدارة COD",
+      "subtitle": "تتبع التحصيلات النقدية والمبالغ المستحقة.",
+      "summary": "{{total}} سجل COD",
+      "new_cod": "COD جديد",
+      "loading": "جارٍ تحميل COD…",
+      "load_failed": "تعذر تحميل COD"
+    },
+    "toast": {
+      "created": "تم إنشاء COD بنجاح",
+      "updated": "تم تحديث COD بنجاح",
+      "deleted": "تم حذف COD بنجاح",
+      "save_failed": "تعذر حفظ COD.",
+      "delete_failed": "تعذر حذف COD."
+    },
     "label": {
       "shipment_id": "معرّف الشحنة",
       "amount": "المبلغ",
@@ -637,11 +820,43 @@
       "cancel": "إلغاء",
       "save": "حفظ COD",
       "saving": "جارٍ الحفظ…"
+    },
+    "table": {
+      "id": "معرّف COD",
+      "shipment": "الشحنة",
+      "customer": "العميل",
+      "amount": "المبلغ",
+      "collected_amount": "المبلغ المحصل",
+      "status": "الحالة",
+      "due_date": "تاريخ الاستحقاق",
+      "actions": "الإجراءات"
     }
   },
   "deliveryZones": {
     "create_title": "إنشاء منطقة توصيل",
     "create_subtitle": "منطقة توصيل جديدة",
+    "page": {
+      "title": "مناطق التوصيل",
+      "manage": "إدارة مناطق التوصيل",
+      "subtitle": "حدد مناطق التغطية لشبكة الشحن الخاصة بك.",
+      "summary": "{{total}} منطقة • {{active}} نشط",
+      "new_zone": "منطقة جديدة",
+      "loading": "جارٍ تحميل مناطق التوصيل…",
+      "load_failed": "تعذر تحميل مناطق التوصيل",
+      "search_placeholder": "ابحث في مناطق التوصيل",
+      "search": "بحث",
+      "clear": "مسح",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {{page}}"
+    },
+    "toast": {
+      "created": "تم إنشاء منطقة التوصيل بنجاح",
+      "updated": "تم تحديث منطقة التوصيل بنجاح",
+      "deleted": "تم حذف منطقة التوصيل بنجاح",
+      "save_failed": "تعذر حفظ منطقة التوصيل.",
+      "delete_failed": "تعذر حذف منطقة التوصيل."
+    },
     "update_title": "تحديث منطقة التوصيل",
     "update_subtitle": "تعديل بيانات منطقة التوصيل",
     "label": {
@@ -673,6 +888,22 @@
   "payments": {
     "create_title": "إنشاء دفعة",
     "create_subtitle": "دفعة جديدة",
+    "page": {
+      "title": "الدفعات",
+      "manage": "إدارة الدفعات",
+      "subtitle": "تتبع سجلات الدفعات والتحصيلات.",
+      "summary": "{{total}} دفعة",
+      "new_payment": "دفعة جديدة",
+      "loading": "جارٍ تحميل الدفعات…",
+      "load_failed": "تعذر تحميل الدفعات"
+    },
+    "toast": {
+      "created": "تم إنشاء الدفعة بنجاح",
+      "updated": "تم تحديث الدفعة بنجاح",
+      "deleted": "تم حذف الدفعة بنجاح",
+      "save_failed": "تعذر حفظ الدفعة.",
+      "delete_failed": "تعذر حذف الدفعة."
+    },
     "label": {
       "customer_id": "معرّف العميل",
       "shipment_id": "معرّف الشحنة",
@@ -715,6 +946,22 @@
   "pickupRequests": {
     "create_title": "إنشاء طلب استلام",
     "create_subtitle": "طلب استلام جديد",
+    "page": {
+      "title": "طلبات الاستلام",
+      "manage": "إدارة طلبات الاستلام",
+      "subtitle": "تنسيق استلامات العملاء وتعيين السائقين.",
+      "summary": "{{total}} طلب",
+      "new_request": "طلب جديد",
+      "loading": "جارٍ تحميل طلبات الاستلام…",
+      "load_failed": "تعذر تحميل طلبات الاستلام"
+    },
+    "toast": {
+      "created": "تم إنشاء طلب الاستلام بنجاح",
+      "updated": "تم تحديث طلب الاستلام بنجاح",
+      "deleted": "تم حذف طلب الاستلام بنجاح",
+      "save_failed": "تعذر حفظ طلب الاستلام.",
+      "delete_failed": "تعذر حذف طلب الاستلام."
+    },
     "label": {
       "customer_id": "معرّف العميل",
       "city_id": "معرّف المدينة",
@@ -756,6 +1003,33 @@
   "pricingRules": {
     "create_title": "إنشاء قاعدة تسعير",
     "create_subtitle": "قاعدة جديدة",
+    "errors": {
+      "source_city_required": "المدينة المصدر مطلوبة",
+      "destination_city_required": "مدينة الوجهة مطلوبة",
+      "service_type_required": "نوع الخدمة مطلوب",
+      "min_weight_required": "الوزن الأدنى مطلوب",
+      "max_weight_required": "الوزن الأقصى مطلوب",
+      "base_price_required": "السعر الأساسي مطلوب",
+      "extra_cost_required": "التكلفة الإضافية مطلوبة",
+      "estimated_delivery_days_required": "أيام التوصيل المقدرة مطلوبة",
+      "status_required": "الحالة مطلوبة"
+    },
+    "page": {
+      "title": "قواعد التسعير",
+      "manage": "إدارة قواعد التسعير",
+      "subtitle": "حدد قواعد الشحن حسب المسار ونطاق الوزن ونوع الخدمة.",
+      "summary": "{{total}} قاعدة • {{active}} نشط",
+      "new_rule": "قاعدة جديدة",
+      "loading": "جارٍ تحميل قواعد التسعير…",
+      "load_failed": "تعذر تحميل قواعد التسعير"
+    },
+    "toast": {
+      "created": "تم إنشاء قاعدة التسعير بنجاح",
+      "updated": "تم تحديث قاعدة التسعير بنجاح",
+      "deleted": "تم حذف قاعدة التسعير بنجاح",
+      "save_failed": "تعذر حفظ قاعدة التسعير.",
+      "delete_failed": "تعذر حذف قاعدة التسعير."
+    },
     "update_title": "تحديث قاعدة التسعير",
     "update_subtitle": "تعديل القاعدة",
     "label": {

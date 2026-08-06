@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { createShipment, fetchShipments } from '@/services/shipment'
 import type { ShipmentCreatePayload } from '@/types/shipment'
 import ShipmentTable from '@/components/shipments/ShipmentTable'
@@ -15,6 +16,7 @@ export default function ShipmentPageClient() {
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const { t } = useTranslation()
 
   const { data: shipments = [], isLoading, isError } = useQuery({
     queryKey: ['shipments'],
@@ -33,7 +35,7 @@ export default function ShipmentPageClient() {
     try {
       const createdShipment = await createShipment(values)
       await queryClient.invalidateQueries({ queryKey: ['shipments'] })
-      toast.success(`Shipment created successfully. Shipping Price: ${createdShipment.shipping_price != null ? `EGP ${Number(createdShipment.shipping_price).toFixed(2)}` : 'EGP —'}`)
+      toast.success(t('shipments.created_success', { price: createdShipment.shipping_price != null ? `EGP ${Number(createdShipment.shipping_price).toFixed(2)}` : 'EGP —' }))
       setIsCreateOpen(false)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to create shipment.'
@@ -46,7 +48,7 @@ export default function ShipmentPageClient() {
 
   const handleImportSuccess = async () => {
     await queryClient.invalidateQueries({ queryKey: ['shipments'] })
-    toast.success('Shipments imported successfully')
+    toast.success(t('shipments.import_success'))
     setIsImportOpen(false)
   }
 
@@ -54,26 +56,26 @@ export default function ShipmentPageClient() {
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Shipment Operations</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage shipments</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400">Track dispatches, monitor COD, and review delivery progress in one workspace.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('shipments.ops.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('shipments.ops.manage')}</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-400">{t('shipments.ops.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">
-            {summary.total} shipments • {summary.pending} pending
+            {t('shipments.summary.counts', { total: summary.total, pending: summary.pending })}
           </div>
           <button type="button" onClick={() => setIsImportOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">
-            Import Excel
+            {t('shipments.button.import_excel')}
           </button>
           <button type="button" onClick={() => setIsCreateOpen(true)} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New shipment
+            {t('shipments.button.new_shipment')}
           </button>
         </div>
       </div>
 
-      {isError ? <p className="rounded-[18px] border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">Unable to load shipments right now.</p> : null}
+      {isError ? <p className="rounded-[18px] border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{t('shipments.load_failed_list')}</p> : null}
 
-      {isLoading ? <p className="text-sm text-slate-400">Loading shipments…</p> : <ShipmentTable shipments={shipments} onCreateClick={() => setIsCreateOpen(true)} onStatusUpdated={() => queryClient.invalidateQueries({ queryKey: ['shipments'] })} />}
+      {isLoading ? <p className="text-sm text-slate-400">{t('shipments.loading_list')}</p> : <ShipmentTable shipments={shipments} onCreateClick={() => setIsCreateOpen(true)} onStatusUpdated={() => queryClient.invalidateQueries({ queryKey: ['shipments'] })} />}
 
       <CreateShipmentDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} onSubmit={handleCreateShipment} isSubmitting={isSubmitting} submitError={submitError} />
       <ImportExcelDialog open={isImportOpen} onClose={() => setIsImportOpen(false)} onSuccess={handleImportSuccess} />

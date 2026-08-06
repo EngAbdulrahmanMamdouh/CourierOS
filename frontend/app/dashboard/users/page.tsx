@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Search, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { useChangeRole, useChangeStatus, useCreateUser, useDeleteUser, useUpdateUser, useUsers } from '@/hooks/useUsers'
 import UserDialog, { type UserFormValues } from '@/components/users/UserDialog'
 import DeleteUserDialog from '@/components/users/DeleteUserDialog'
@@ -27,6 +28,7 @@ export default function UsersPage() {
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const { t } = useTranslation()
   const { data: users = [], isLoading, isError, error } = useUsers()
   const createUserMutation = useCreateUser()
   const updateUserMutation = useUpdateUser()
@@ -109,7 +111,7 @@ export default function UsersPage() {
             phone: values.phone || null,
           },
         })
-        toast.success('User updated successfully')
+        toast.success(t('users.toast.updated'))
       } else {
         const normalizedCompanyId: number | null = values.company_id == null ? null : Number(values.company_id)
         const safeCompanyId = normalizedCompanyId === null ? null : Number.isFinite(normalizedCompanyId) && normalizedCompanyId > 0 ? normalizedCompanyId : null
@@ -124,12 +126,12 @@ export default function UsersPage() {
           phone: values.phone?.trim() || null,
         })
 
-        toast.success('User created successfully')
+        toast.success(t('users.toast.created'))
       }
 
       closeDialogs()
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save user.'
+      const message = error instanceof Error ? error.message : t('users.toast.save_failed')
       setSubmitError(message)
       toast.error(message)
     }
@@ -142,7 +144,7 @@ export default function UsersPage() {
       await deleteUserMutation.mutateAsync(selectedUser.id)
       closeDialogs()
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Unable to delete user.')
+      setSubmitError(error instanceof Error ? error.message : t('users.toast.delete_failed'))
     }
   }
 
@@ -156,7 +158,7 @@ export default function UsersPage() {
       })
       closeDialogs()
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Unable to change role.')
+      setSubmitError(error instanceof Error ? error.message : t('users.toast.role_failed'))
     }
   }
 
@@ -170,28 +172,28 @@ export default function UsersPage() {
       })
       closeDialogs()
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Unable to update status.')
+      setSubmitError(error instanceof Error ? error.message : t('users.toast.status_failed'))
     }
   }
 
   const renderContent = () => {
     if (!canView) {
-      return <Card className="p-6 text-sm text-rose-300">You do not have access to this module.</Card>
+      return <Card className="p-6 text-sm text-rose-300">{t('users.page.access_denied')}</Card>
     }
 
     if (isLoading) {
-      return <Card className="p-6 text-sm text-slate-400">Loading users…</Card>
+      return <Card className="p-6 text-sm text-slate-400">{t('users.page.loading')}</Card>
     }
 
     if (isError) {
-      return <Card className="border-rose-500/30 bg-rose-950/20 p-6 text-sm text-rose-300">{error instanceof Error ? error.message : 'Unable to load users.'}</Card>
+      return <Card className="border-rose-500/30 bg-rose-950/20 p-6 text-sm text-rose-300">{error instanceof Error ? error.message : t('users.page.load_failed')}</Card>
     }
 
     if (!filteredUsers.length) {
       return (
         <Card className="border-dashed border-white/10 bg-slate-900/60 p-12 text-center text-sm text-slate-400">
-          <p className="text-lg font-medium text-slate-200">No users found</p>
-          <p className="mt-2">Try a different search term or add a new user.</p>
+          <p className="text-lg font-medium text-slate-200">{t('users.page.empty_title')}</p>
+          <p className="mt-2">{t('users.page.empty_description')}</p>
         </Card>
       )
     }
@@ -203,17 +205,17 @@ export default function UsersPage() {
     <div className="flex w-full flex-1 flex-col gap-8 px-6 py-6">
       <Card className="flex flex-col gap-4 rounded-xl border border-white/10 bg-slate-900/70 p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Users</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage users</h1>
-          <p className="mt-2 text-sm text-slate-400">Browse and manage platform users and permissions.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('users.page.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('users.page.manage')}</h1>
+          <p className="mt-2 text-sm text-slate-400">{t('users.page.subtitle')}</p>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{stats.total} users</div>
+          <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">{t('users.page.summary', { count: stats.total })}</div>
           {canCreate ? (
             <Button onClick={openCreateDialog} className="gap-2" variant="primary">
               <Plus className="h-4 w-4" />
-              Add User
+              {t('users.page.new_user')}
             </Button>
           ) : null}
         </div>
@@ -222,15 +224,15 @@ export default function UsersPage() {
       <Card className="rounded-xl border border-white/10 bg-slate-900/70 p-6 shadow-sm">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-[18px] border border-white/10 bg-slate-950/40 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Total</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{t('users.page.total')}</p>
             <p className="mt-3 text-2xl font-semibold text-white">{stats.total}</p>
           </div>
           <div className="rounded-[18px] border border-white/10 bg-slate-950/40 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-emerald-300">Active</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-emerald-300">{t('users.page.active')}</p>
             <p className="mt-3 text-2xl font-semibold text-white">{stats.active}</p>
           </div>
           <div className="rounded-[18px] border border-white/10 bg-slate-950/40 p-4">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Inactive</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{t('users.page.inactive')}</p>
             <p className="mt-3 text-2xl font-semibold text-white">{stats.inactive}</p>
           </div>
         </div>
@@ -240,11 +242,11 @@ export default function UsersPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input id="user-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search users" className="pl-11 pr-4" />
+            <Input id="user-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('users.page.search_placeholder')} className="pl-11 pr-4" />
           </div>
           {search ? (
             <Button type="button" variant="secondary" onClick={() => setSearch('')} className="whitespace-nowrap">
-              Clear
+              {t('users.page.clear')}
             </Button>
           ) : null}
         </div>

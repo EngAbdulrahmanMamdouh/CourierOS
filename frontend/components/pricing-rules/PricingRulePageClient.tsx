@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { createPricingRule, deletePricingRule, fetchPricingRules, updatePricingRule } from '@/services/pricingRule'
@@ -11,6 +12,7 @@ import CreatePricingRuleDialog from '@/components/pricing-rules/CreatePricingRul
 const PAGE_SIZE = 10
 
 export default function PricingRulePageClient() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -61,17 +63,17 @@ export default function PricingRulePageClient() {
 
       if (editingRule) {
         await updatePricingRule(editingRule.id, payload)
-        toast.success('Pricing rule updated successfully')
+        toast.success(t('pricingRules.toast.updated'))
       } else {
         await createPricingRule(payload)
-        toast.success('Pricing rule created successfully')
+        toast.success(t('pricingRules.toast.created'))
       }
 
       await queryClient.invalidateQueries({ queryKey: ['pricing-rules'] })
       setIsCreateOpen(false)
       setEditingRule(null)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save pricing rule.'
+      const message = error instanceof Error ? error.message : t('pricingRules.toast.save_failed')
       setSubmitError(message)
       toast.error(message)
     } finally {
@@ -80,14 +82,14 @@ export default function PricingRulePageClient() {
   }
 
   const handleDelete = async (pricingRule: PricingRule) => {
-    if (!window.confirm('Delete this pricing rule?')) return
+    if (!window.confirm(t('pricingRules.toast.delete_failed'))) return
 
     try {
       await deletePricingRule(pricingRule.id)
       await queryClient.invalidateQueries({ queryKey: ['pricing-rules'] })
-      toast.success('Pricing rule deleted successfully')
+      toast.success(t('pricingRules.toast.deleted'))
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to delete pricing rule.'
+      const message = error instanceof Error ? error.message : t('pricingRules.toast.delete_failed')
       toast.error(message)
     }
   }
@@ -96,17 +98,17 @@ export default function PricingRulePageClient() {
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Pricing rules</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage pricing rules</h1>
-          <p className="mt-2 text-sm text-slate-400">Define shipping rules by route, weight band, and service type.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('pricingRules.page.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('pricingRules.page.manage')}</h1>
+          <p className="mt-2 text-sm text-slate-400">{t('pricingRules.page.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">
-            {summary.total} rules • {summary.active} active
+            {t('pricingRules.page.summary', { total: summary.total, active: summary.active })}
           </div>
           <button type="button" onClick={() => { setEditingRule(null); setIsCreateOpen(true) }} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New rule
+            {t('pricingRules.page.new_rule')}
           </button>
         </div>
       </div>
@@ -122,26 +124,26 @@ export default function PricingRulePageClient() {
                 handleSearch()
               }
             }}
-            placeholder="Search pricing rules"
+            placeholder={t('pricingRules.page.search_placeholder')}
             className="h-12 flex-1 rounded-[16px] border border-white/10 bg-slate-950/70 px-4 text-sm text-white outline-none transition focus:border-sky-400"
           />
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleSearch} className="rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">Search</button>
+            <button type="button" onClick={handleSearch} className="rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">{t('pricingRules.page.search')}</button>
             {(appliedSearch || searchInput) ? (
-              <button type="button" onClick={handleClearSearch} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">Clear</button>
+              <button type="button" onClick={handleClearSearch} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">{t('pricingRules.page.clear')}</button>
             ) : null}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-            Previous
+            {t('pricingRules.page.previous')}
           </button>
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100">
-            Page {page}
+            {t('pricingRules.page.page', { page })}
           </div>
           <button type="button" onClick={() => setPage((current) => current + 1)} disabled={pricingRules.length < PAGE_SIZE} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-            Next
+            {t('pricingRules.page.next')}
           </button>
         </div>
       </div>

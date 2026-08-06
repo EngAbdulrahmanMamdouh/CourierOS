@@ -1,6 +1,7 @@
 import './globals.css'
 import { ReactNode } from 'react'
 import AppQueryProvider from '@/components/AppQueryProvider'
+import I18nProvider from '@/components/I18nProvider'
 
 export const metadata = {
   title: 'CourierOS Enterprise',
@@ -13,9 +14,11 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr">
       <body>
-        <AppQueryProvider>{children}</AppQueryProvider>
+        <I18nProvider>
+          <AppQueryProvider>{children}</AppQueryProvider>
+        </I18nProvider>
       </body>
     </html>
   )

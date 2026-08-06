@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useCitiesQuery, useCreateCityMutation, useDeleteCityMutation, useUpdateCityMutation } from '@/hooks/useCityQueries'
 import type { City, CityCreatePayload } from '@/types/city'
@@ -10,6 +11,7 @@ import CreateCityDialog from './CreateCityDialog'
 const PAGE_SIZE = 10
 
 export default function CityPageClient() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -53,16 +55,16 @@ export default function CityPageClient() {
 
       if (editingCity) {
         await updateMutation.mutateAsync({ id: editingCity.id, payload })
-        toast.success('City updated successfully')
+        toast.success(t('cities.toast.updated'))
       } else {
         await createMutation.mutateAsync(payload)
-        toast.success('City created successfully')
+        toast.success(t('cities.toast.created'))
       }
 
       setIsCreateOpen(false)
       setEditingCity(null)
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to save city.'
+      const message = error instanceof Error ? error.message : t('cities.toast.save_failed')
       setSubmitError(message)
       toast.error(message)
     } finally {
@@ -71,13 +73,13 @@ export default function CityPageClient() {
   }
 
   const handleDelete = async (city: City) => {
-    if (!window.confirm('Delete this city?')) return
+    if (!window.confirm(t('common.action.confirm'))) return
 
     try {
       await deleteMutation.mutateAsync(city.id)
-      toast.success('City deleted successfully')
+      toast.success(t('cities.toast.deleted'))
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to delete city.')
+      toast.error(error instanceof Error ? error.message : t('cities.toast.delete_failed'))
     }
   }
 
@@ -85,17 +87,17 @@ export default function CityPageClient() {
     <>
       <div className="flex flex-col gap-4 rounded-[28px] border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/40 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Cities</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Manage cities</h1>
-          <p className="mt-2 text-sm text-slate-400">Create and manage shipping cities for your operations.</p>
+          <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('cities.page.title')}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">{t('cities.page.manage')}</h1>
+          <p className="mt-2 text-sm text-slate-400">{t('cities.page.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm text-slate-300">
-            {summary.total} cities • {summary.active} active
+            {t('cities.page.summary', { total: summary.total, active: summary.active })}
           </div>
           <button type="button" onClick={() => { setEditingCity(null); setIsCreateOpen(true) }} className="inline-flex items-center gap-2 rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            New city
+            {t('cities.page.new_city')}
           </button>
         </div>
       </div>
@@ -111,26 +113,26 @@ export default function CityPageClient() {
                 handleSearch()
               }
             }}
-            placeholder="Search cities"
+            placeholder={t('cities.page.search_placeholder')}
             className="h-12 flex-1 rounded-[16px] border border-white/10 bg-slate-950/70 px-4 text-sm text-white outline-none transition focus:border-sky-400"
           />
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleSearch} className="rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">Search</button>
+            <button type="button" onClick={handleSearch} className="rounded-[16px] bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">{t('cities.page.search')}</button>
             {(appliedSearch || searchInput) ? (
-              <button type="button" onClick={handleClearSearch} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">Clear</button>
+              <button type="button" onClick={handleClearSearch} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">{t('cities.page.clear')}</button>
             ) : null}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-            Previous
+            {t('cities.page.previous')}
           </button>
           <div className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100">
-            Page {page}
+            {t('cities.page.page', { page })}
           </div>
           <button type="button" onClick={() => setPage((current) => current + 1)} disabled={cities.length < PAGE_SIZE} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-            Next
+            {t('cities.page.next')}
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { getAccessToken } from '@/services/auth'
+import { getAccessToken, isLocalDevAuthEnabled, LOCAL_DEV_ROLE_STORAGE_KEY, LOCAL_DEV_USERNAME_STORAGE_KEY, LOCAL_DEV_COMPANY_ID_STORAGE_KEY } from '@/services/auth'
 
 export type FrontendPermission =
   | 'users.view'
@@ -203,6 +203,22 @@ export function normalizeRole(role: string | null | undefined): FrontendRole {
 }
 
 export function getAuthenticatedUserContext(): AuthUserContext {
+  if (isLocalDevAuthEnabled() && typeof window !== 'undefined') {
+    try {
+      const role = localStorage.getItem(LOCAL_DEV_ROLE_STORAGE_KEY) || 'super_admin'
+      const username = localStorage.getItem(LOCAL_DEV_USERNAME_STORAGE_KEY) || 'local-dev-admin'
+      const companyIdValue = Number(localStorage.getItem(LOCAL_DEV_COMPANY_ID_STORAGE_KEY) || '1')
+
+      return {
+        role: normalizeRole(role),
+        companyId: Number.isFinite(companyIdValue) ? companyIdValue : 1,
+        username,
+      }
+    } catch {
+      return { role: 'super_admin', companyId: 1, username: 'local-dev-admin' }
+    }
+  }
+
   const token = getAccessToken()
 
   if (!token) {
@@ -297,6 +313,10 @@ export function canDeleteUsers(): boolean {
 }
 
 export function canAccessRoute(pathname: string): boolean {
+  if (isLocalDevAuthEnabled()) {
+    return true
+  }
+
   const token = getAccessToken()
 
   if (!token) {

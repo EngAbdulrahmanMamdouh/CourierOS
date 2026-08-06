@@ -93,7 +93,8 @@
   ,
   "language": {
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "label": "Language"
   }
 
   ,
@@ -117,13 +118,69 @@
     },
     "processing": "Processing…",
     "deleting": "Deleting…",
+    "page": "Page {{page}}",
+    "previous": "Previous",
+    "next": "Next",
     "action": {
       "confirm": "Confirm action"
     }
   },
+  "auth": {
+    "page_title": "Welcome back",
+    "subtitle": "Access your CourierOS workspace.",
+    "email_or_username": "Email or username",
+    "password": "Password",
+    "placeholder_username": "you@courieros.com",
+    "placeholder_password": "Enter your password",
+    "sign_in": "Sign in",
+    "signing_in": "Signing in…",
+    "error": "Login failed. Please try again.",
+    "copyright": "© 2026 CourierOS"
+  },
   "users": {
+    "page": {
+      "title": "Users",
+      "manage": "Manage users",
+      "subtitle": "Browse and manage platform users and permissions.",
+      "total": "Total",
+      "active": "Active",
+      "inactive": "Inactive",
+      "search_placeholder": "Search users",
+      "clear": "Clear",
+      "loading": "Loading users…",
+      "load_failed": "Unable to load users.",
+      "empty_title": "No users found",
+      "empty_description": "Try a different search term or add a new user.",
+      "access_denied": "You do not have access to this module.",
+      "new_user": "Add user",
+      "summary": "{{count}} users"
+    },
     "delete_title": "Remove {{username}}?",
     "delete_description": "This action cannot be undone. The user will be removed from the system and will no longer be able to sign in.",
+    "toast": {
+      "updated": "User updated successfully",
+      "created": "User created successfully",
+      "save_failed": "Unable to save user.",
+      "delete_failed": "Unable to delete user.",
+      "role_failed": "Unable to change role.",
+      "status_failed": "Unable to update status."
+    },
+    "table": {
+      "avatar": "Avatar",
+      "username": "Username",
+      "full_name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "role": "Role",
+      "company": "Company",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions",
+      "edit": "Edit",
+      "disable": "Disable",
+      "enable": "Enable",
+      "delete": "Delete"
+    },
     "button": {
       "delete_user": "Delete user"
     }
@@ -146,10 +203,12 @@
     "load_failed": "Unable to load shipment details",
     "info": {
       "title": "Shipment info",
+      "id": "Shipment ID",
       "sender": "Sender",
       "receiver": "Receiver",
       "phone": "Phone",
       "city": "City",
+      "status": "Status",
       "eta": "ETA",
       "days": "{{count}} days",
       "cod": "COD",
@@ -157,6 +216,8 @@
     },
     "delivery": {
       "title": "Delivery details",
+      "created_at": "Created at",
+      "updated_at": "Updated at",
       "address": "Address",
       "status": "Status",
       "notes": "Notes",
@@ -190,25 +251,6 @@
     },
     "invalid_id": "Invalid shipment ID.",
     "address_timing": "Address & timing",
-    "info": {
-      "id": "Shipment ID",
-      "sender": "Sender",
-      "receiver": "Receiver",
-      "phone": "Phone",
-      "city": "City",
-      "eta": "ETA",
-      "days": "{{count}} days",
-      "cod": "COD",
-      "shipping_price": "Shipping Price"
-    },
-    "delivery": {
-      "created_at": "Created at",
-      "updated_at": "Updated at",
-      "address": "Address",
-      "status": "Status",
-      "notes": "Notes",
-      "created": "Created"
-    },
     "collect_confirm": "Confirm collection of EGP {{amount}} COD for {{tracking}}?",
     "collecting": "Collecting…",
     "collect_cod": "Collect COD",
@@ -235,6 +277,7 @@
       "saving": "Saving…",
       "cancel": "Cancel"
     },
+    "empty_state": "No shipments available yet.",
     "load_failed_list": "Unable to load shipments right now.",
     "loading_list": "Loading shipments…",
     "created_success": "Shipment created successfully. Shipping Price: {{price}}",
@@ -299,6 +342,22 @@
   "drivers": {
     "create_title": "Create driver",
     "create_subtitle": "New driver",
+    "page": {
+      "title": "Drivers",
+      "manage": "Manage drivers",
+      "subtitle": "Create and manage delivery drivers across branches.",
+      "summary": "{{total}} drivers",
+      "new_driver": "New driver",
+      "loading": "Loading drivers…",
+      "load_failed": "Unable to load drivers"
+    },
+    "toast": {
+      "created": "Driver created successfully",
+      "updated": "Driver updated successfully",
+      "deleted": "Driver deleted",
+      "save_failed": "Unable to save driver.",
+      "delete_failed": "Unable to delete driver"
+    },
     "label": {
       "full_name": "Full name",
       "phone": "Phone",
@@ -378,11 +437,19 @@
     "delete_failed": "Unable to delete driver",
     "back_to_list": "Back",
     "table": {
+      "name": "Name",
       "phone": "Phone",
       "email": "Email",
       "national_id": "National ID",
       "availability": "Availability",
-      "active": "Active"
+      "branch": "Branch",
+      "vehicle": "Vehicle",
+      "status": "Status",
+      "deliveries": "Deliveries",
+      "actions": "Actions",
+      "active": "Active",
+      "assigned_count": "{{count}} assigned",
+      "pending_count": "{{count}} pending"
     },
     "details": {
       "title": "Driver details"
@@ -412,6 +479,22 @@
   "companies": {
     "create_title": "Create company",
     "create_subtitle": "New company",
+    "page": {
+      "title": "Companies",
+      "manage": "Manage companies",
+      "subtitle": "Create and manage tenant companies.",
+      "summary": "{{total}} companies",
+      "new_company": "New company",
+      "loading": "Loading companies…",
+      "load_failed": "Unable to load companies"
+    },
+    "toast": {
+      "created": "Company created successfully",
+      "updated": "Company updated successfully",
+      "deleted": "Company deleted successfully",
+      "save_failed": "Unable to save company.",
+      "delete_failed": "Unable to delete company"
+    },
     "label": {
       "name": "Company name",
       "code": "Company code",
@@ -484,6 +567,34 @@
   "branches": {
     "create_title": "Create branch",
     "create_subtitle": "New branch",
+    "list_title": "Branch list",
+    "no_branches": "No branches yet.",
+    "confirm_delete": "Delete this branch?",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "page": {
+      "title": "Branches",
+      "manage": "Manage branches",
+      "subtitle": "Create and manage branch locations.",
+      "summary": "{{total}} branches",
+      "new_branch": "New branch",
+      "loading": "Loading branches…",
+      "load_failed": "Unable to load branches",
+      "search_placeholder": "Search branches",
+      "search": "Search",
+      "clear": "Clear",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}}"
+    },
+    "toast": {
+      "created": "Branch created successfully",
+      "updated": "Branch updated successfully",
+      "deleted": "Branch deleted successfully",
+      "save_failed": "Unable to save branch.",
+      "delete_failed": "Unable to delete branch."
+    },
     "label": {
       "name": "Branch name",
       "code": "Branch code",
@@ -511,6 +622,15 @@
       "cancel": "Cancel",
       "save": "Save branch",
       "saving": "Saving…"
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "city": "City",
+      "manager": "Manager",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions"
     }
       ,
       "errors": {
@@ -525,6 +645,28 @@
   "cities": {
     "create_title": "Create city",
     "create_subtitle": "New city",
+    "page": {
+      "title": "Cities",
+      "manage": "Manage cities",
+      "subtitle": "Create and manage shipping cities for your operations.",
+      "summary": "{{total}} cities • {{active}} active",
+      "new_city": "New city",
+      "loading": "Loading cities…",
+      "load_failed": "Unable to load cities",
+      "search_placeholder": "Search cities",
+      "search": "Search",
+      "clear": "Clear",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}}"
+    },
+    "toast": {
+      "created": "City created successfully",
+      "updated": "City updated successfully",
+      "deleted": "City deleted successfully",
+      "save_failed": "Unable to save city.",
+      "delete_failed": "Unable to delete city."
+    },
     "update_title": "Edit city",
     "update_subtitle": "Update city details",
     "label": {
@@ -554,6 +696,23 @@
   "customers": {
     "create_title": "Create customer",
     "create_subtitle": "New customer",
+    "page": {
+      "title": "Customers",
+      "manage": "Manage customers",
+      "subtitle": "Create and manage customer records.",
+      "summary": "{{total}} customers",
+      "new_customer": "New customer",
+      "loading": "Loading customers…",
+      "load_failed": "Unable to load customers",
+      "search_placeholder": "Search customers"
+    },
+    "toast": {
+      "created": "Customer created",
+      "updated": "Customer updated",
+      "deleted": "Customer deleted",
+      "save_failed": "Unable to create customer",
+      "delete_failed": "Unable to delete customer"
+    },
     "label": {
       "full_name": "Full name",
       "phone": "Phone",
@@ -617,6 +776,30 @@
   "cods": {
     "create_title": "Create COD",
     "create_subtitle": "New COD",
+    "list_title": "COD list",
+    "no_cods": "No COD records yet.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "status": {
+      "collected": "Collected",
+      "pending": "Pending"
+    },
+    "page": {
+      "title": "COD",
+      "manage": "Manage COD",
+      "subtitle": "Track over-the-counter collections and cash due.",
+      "summary": "{{total}} COD records",
+      "new_cod": "New COD",
+      "loading": "Loading COD…",
+      "load_failed": "Unable to load COD"
+    },
+    "toast": {
+      "created": "COD created successfully",
+      "updated": "COD updated successfully",
+      "deleted": "COD deleted successfully",
+      "save_failed": "Unable to save COD.",
+      "delete_failed": "Unable to delete COD."
+    },
     "label": {
       "shipment_id": "Shipment ID",
       "amount": "Amount",
@@ -639,11 +822,43 @@
       "cancel": "Cancel",
       "save": "Save COD",
       "saving": "Saving…"
+    },
+    "table": {
+      "id": "COD ID",
+      "shipment": "Shipment",
+      "customer": "Customer",
+      "amount": "Amount",
+      "collected_amount": "Collected Amount",
+      "status": "Status",
+      "due_date": "Due Date",
+      "actions": "Actions"
     }
   },
   "deliveryZones": {
     "create_title": "Create delivery zone",
     "create_subtitle": "New delivery zone",
+    "page": {
+      "title": "Delivery zones",
+      "manage": "Manage delivery zones",
+      "subtitle": "Define delivery coverage areas for your shipping network.",
+      "summary": "{{total}} zones • {{active}} active",
+      "new_zone": "New zone",
+      "loading": "Loading delivery zones…",
+      "load_failed": "Unable to load delivery zones",
+      "search_placeholder": "Search delivery zones",
+      "search": "Search",
+      "clear": "Clear",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}}"
+    },
+    "toast": {
+      "created": "Delivery zone created successfully",
+      "updated": "Delivery zone updated successfully",
+      "deleted": "Delivery zone deleted successfully",
+      "save_failed": "Unable to save delivery zone.",
+      "delete_failed": "Unable to delete delivery zone."
+    },
     "update_title": "Update delivery zone",
     "update_subtitle": "Edit delivery zone",
     "label": {
@@ -675,6 +890,22 @@
   "payments": {
     "create_title": "Create payment",
     "create_subtitle": "New payment",
+    "page": {
+      "title": "Payments",
+      "manage": "Manage payments",
+      "subtitle": "Track payment records and collections.",
+      "summary": "{{total}} payments",
+      "new_payment": "New payment",
+      "loading": "Loading payments…",
+      "load_failed": "Unable to load payments"
+    },
+    "toast": {
+      "created": "Payment created successfully",
+      "updated": "Payment updated successfully",
+      "deleted": "Payment deleted successfully",
+      "save_failed": "Unable to save payment.",
+      "delete_failed": "Unable to delete payment."
+    },
     "label": {
       "customer_id": "Customer ID",
       "shipment_id": "Shipment ID",
@@ -717,6 +948,22 @@
   "pickupRequests": {
     "create_title": "Create pickup request",
     "create_subtitle": "New pickup request",
+    "page": {
+      "title": "Pickup requests",
+      "manage": "Manage pickup requests",
+      "subtitle": "Coordinate customer pickups and driver assignment.",
+      "summary": "{{total}} requests",
+      "new_request": "New request",
+      "loading": "Loading pickup requests…",
+      "load_failed": "Unable to load pickup requests"
+    },
+    "toast": {
+      "created": "Pickup request created successfully",
+      "updated": "Pickup request updated successfully",
+      "deleted": "Pickup request deleted successfully",
+      "save_failed": "Unable to save pickup request.",
+      "delete_failed": "Unable to delete pickup request."
+    },
     "label": {
       "customer_id": "Customer ID",
       "city_id": "City ID",
@@ -758,6 +1005,33 @@
   "pricingRules": {
     "create_title": "Create pricing rule",
     "create_subtitle": "New rule",
+    "errors": {
+      "source_city_required": "Source city is required",
+      "destination_city_required": "Destination city is required",
+      "service_type_required": "Service type is required",
+      "min_weight_required": "Minimum weight is required",
+      "max_weight_required": "Maximum weight is required",
+      "base_price_required": "Base price is required",
+      "extra_cost_required": "Extra cost is required",
+      "estimated_delivery_days_required": "Estimated delivery days are required",
+      "status_required": "Status is required"
+    },
+    "page": {
+      "title": "Pricing rules",
+      "manage": "Manage pricing rules",
+      "subtitle": "Define shipping rules by route, weight band, and service type.",
+      "summary": "{{total}} rules • {{active}} active",
+      "new_rule": "New rule",
+      "loading": "Loading pricing rules…",
+      "load_failed": "Unable to load pricing rules"
+    },
+    "toast": {
+      "created": "Pricing rule created successfully",
+      "updated": "Pricing rule updated successfully",
+      "deleted": "Pricing rule deleted successfully",
+      "save_failed": "Unable to save pricing rule.",
+      "delete_failed": "Unable to delete pricing rule."
+    },
     "update_title": "Update pricing rule",
     "update_subtitle": "Edit rule",
     "label": {

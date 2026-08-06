@@ -1,6 +1,7 @@
 "use client"
 
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type DeleteConfirmationDialogProps = {
   open: boolean
@@ -15,10 +16,13 @@ export default function DeleteConfirmationDialog({
   open,
   onClose,
   onConfirm,
-  title = 'Delete shipment',
-  description = 'This action cannot be undone.',
+  title,
+  description,
   isSubmitting = false,
 }: DeleteConfirmationDialogProps) {
+  const { t } = useTranslation()
+  const resolvedTitle = title ?? t('shipments.delete_title')
+  const resolvedDescription = description ?? t('shipments.delete_description')
   if (!open) {
     return null
   }
@@ -28,22 +32,22 @@ export default function DeleteConfirmationDialog({
       <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-slate-900/95 p-6 shadow-2xl shadow-slate-950/70">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Confirm action</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
+            <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('common.action.confirm')}</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">{resolvedTitle}</h2>
           </div>
           <button type="button" onClick={onClose} className="rounded-full border border-white/10 bg-slate-800/70 p-2 text-slate-200 transition hover:bg-slate-700">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <p className="text-sm leading-7 text-slate-400">{description}</p>
+        <p className="text-sm leading-7 text-slate-400">{resolvedDescription}</p>
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} disabled={isSubmitting} className="rounded-[16px] border border-white/10 bg-slate-800/80 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60">
-            Cancel
+            {t('common.button.cancel')}
           </button>
           <button type="button" onClick={onConfirm} disabled={isSubmitting} className="rounded-[16px] bg-rose-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
-            {isSubmitting ? 'Deleting…' : 'Delete'}
+            {isSubmitting ? t('common.deleting') : t('common.button.delete')}
           </button>
         </div>
       </div>

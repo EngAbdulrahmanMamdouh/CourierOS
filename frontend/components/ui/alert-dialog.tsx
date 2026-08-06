@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card } from './card'
 import { Button } from './button'
 
@@ -26,6 +27,7 @@ export function AlertDialog({
   isSubmitting,
   confirmVariant = 'danger',
 }: AlertDialogProps) {
+  const { t } = useTranslation()
   if (!open) return null
 
   return (
@@ -34,7 +36,7 @@ export function AlertDialog({
       <Card className="relative z-10 w-full max-w-md border border-white/10 bg-slate-900/95 p-6 shadow-2xl shadow-slate-950/70" role="dialog" aria-modal="true">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Confirm</p>
+            <p className="text-sm uppercase tracking-[0.35em] text-slate-400">{t('common.action.confirm')}</p>
             <h2 className="mt-2 text-2xl font-semibold text-white">{title}</h2>
           </div>
         </div>
@@ -49,7 +51,7 @@ export function AlertDialog({
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button variant="secondary" type="button" onClick={onClose}>{cancelLabel}</Button>
           <Button variant={confirmVariant === 'danger' ? 'danger' : 'primary'} type="button" onClick={onConfirm} disabled={isSubmitting}>
-            {isSubmitting ? 'Processing…' : confirmLabel}
+            {isSubmitting ? t('common.button.processing') : confirmLabel}
           </Button>
         </div>
       </Card>
