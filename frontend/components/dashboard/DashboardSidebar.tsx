@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ComponentType } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getAuthenticatedUserContext, getRoleLabel } from '@/services/rbac'
 import {
   BellRing,
@@ -36,112 +37,6 @@ type NavSection = {
   items: NavItem[]
 }
 
-const sections: NavSection[] = [
-  {
-    title: 'Overview',
-    items: [
-      {
-        label: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-      },
-      {
-        label: 'Shipments',
-        href: '/dashboard/shipments',
-        icon: Package,
-      },
-    ],
-  },
-
-  {
-    title: 'Operations',
-    items: [
-      {
-        label: 'Branches',
-        href: '/dashboard/branches',
-        icon: Warehouse,
-      },
-      {
-        label: 'Companies',
-        href: '/dashboard/companies',
-        icon: Building2,
-      },
-      {
-        label: 'Customers',
-        href: '/dashboard/customers',
-        icon: Users,
-      },
-      {
-        label: 'Users',
-        href: '/dashboard/users',
-        icon: Users,
-      },
-      {
-        label: 'Drivers',
-        href: '/dashboard/drivers',
-        icon: Truck,
-      },
-      {
-        label: 'Cities',
-        href: '/dashboard/cities',
-        icon: MapPin,
-      },
-      {
-        label: 'Delivery Zones',
-        href: '/dashboard/delivery-zones',
-        icon: MapPin,
-      },
-      {
-        label: 'Pickup Requests',
-        href: '/dashboard/pickup-requests',
-        icon: PackageCheck,
-      },
-    ],
-  },
-
-  {
-    title: 'Finance',
-    items: [
-      {
-        label: 'COD',
-        href: '/dashboard/cod',
-        icon: Receipt,
-      },
-      {
-        label: 'Payments',
-        href: '/dashboard/payments',
-        icon: CircleDollarSign,
-      },
-      {
-        label: 'Pricing Rules',
-        href: '/dashboard/pricing-rules',
-        icon: ShieldCheck,
-      },
-    ],
-  },
-
-  {
-    title: 'System',
-    items: [
-      {
-        label: 'Notifications',
-        href: '/dashboard/notifications',
-        icon: BellRing,
-      },
-      {
-        label: 'Company Settings',
-        href: '/dashboard/company-settings',
-        icon: Settings,
-      },
-      {
-        label: 'Tracking',
-        href: '/dashboard/tracking',
-        icon: MoveRight,
-      },
-    ],
-  },
-]
-
 // ⬇️ بعد كده يبدأ الكومبوننت
 
 export default function DashboardSidebar() {
@@ -149,6 +44,113 @@ export default function DashboardSidebar() {
   const activeHref = pathname || '/dashboard'
   const { role, username } = getAuthenticatedUserContext()
   const roleLabel = getRoleLabel(role)
+  const { t } = useTranslation()
+
+  const sections: NavSection[] = [
+    {
+      title: t('dashboard.sidebar.overview'),
+      items: [
+        {
+          label: t('dashboard.sidebar.dashboard'),
+          href: '/dashboard',
+          icon: LayoutDashboard,
+        },
+        {
+          label: t('dashboard.sidebar.shipments'),
+          href: '/dashboard/shipments',
+          icon: Package,
+        },
+      ],
+    },
+
+    {
+      title: t('dashboard.sidebar.operations'),
+      items: [
+        {
+          label: t('dashboard.sidebar.branches'),
+          href: '/dashboard/branches',
+          icon: Warehouse,
+        },
+        {
+          label: t('dashboard.sidebar.companies'),
+          href: '/dashboard/companies',
+          icon: Building2,
+        },
+        {
+          label: t('dashboard.sidebar.customers'),
+          href: '/dashboard/customers',
+          icon: Users,
+        },
+        {
+          label: t('dashboard.sidebar.users'),
+          href: '/dashboard/users',
+          icon: Users,
+        },
+        {
+          label: t('dashboard.sidebar.drivers'),
+          href: '/dashboard/drivers',
+          icon: Truck,
+        },
+        {
+          label: t('dashboard.sidebar.cities'),
+          href: '/dashboard/cities',
+          icon: MapPin,
+        },
+        {
+          label: t('dashboard.sidebar.delivery_zones'),
+          href: '/dashboard/delivery-zones',
+          icon: MapPin,
+        },
+        {
+          label: t('dashboard.sidebar.pickup_requests'),
+          href: '/dashboard/pickup-requests',
+          icon: PackageCheck,
+        },
+      ],
+    },
+
+    {
+      title: t('dashboard.sidebar.finance'),
+      items: [
+        {
+          label: t('dashboard.sidebar.cod'),
+          href: '/dashboard/cod',
+          icon: Receipt,
+        },
+        {
+          label: t('dashboard.sidebar.payments'),
+          href: '/dashboard/payments',
+          icon: CircleDollarSign,
+        },
+        {
+          label: t('dashboard.sidebar.pricing_rules'),
+          href: '/dashboard/pricing-rules',
+          icon: ShieldCheck,
+        },
+      ],
+    },
+
+    {
+      title: t('dashboard.sidebar.system'),
+      items: [
+        {
+          label: t('dashboard.sidebar.notifications'),
+          href: '/dashboard/notifications',
+          icon: BellRing,
+        },
+        {
+          label: t('dashboard.sidebar.company_settings'),
+          href: '/dashboard/company-settings',
+          icon: Settings,
+        },
+        {
+          label: t('dashboard.sidebar.tracking'),
+          href: '/dashboard/tracking',
+          icon: MoveRight,
+        },
+      ],
+    },
+  ]
 
   const visibleSections = sections
     .map((section) => ({
@@ -207,7 +209,7 @@ export default function DashboardSidebar() {
           </p>
 
           <p className="text-xs text-gray-400">
-            Enterprise Platform
+            {t('dashboard.sidebar.enterprise_platform')}
           </p>
         </div>
       </div>

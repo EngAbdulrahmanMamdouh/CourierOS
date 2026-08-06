@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import {
   Area,
   AreaChart,
@@ -20,13 +21,15 @@ type ShipmentChartProps = {
 }
 
 export default function ShipmentChart({ data }: ShipmentChartProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="glass-card overflow-hidden p-6">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">Shipment analytics</p>
-          <h2 className="mt-2 text-[20px] font-semibold text-white">Daily shipment volume</h2>
-          <p className="mt-2 text-sm text-gray-400">Performance trend across the most recent shipment activity.</p>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">{t('dashboard.shipment_chart.title')}</p>
+          <h2 className="mt-2 text-[20px] font-semibold text-white">{t('dashboard.shipment_chart.heading')}</h2>
+          <p className="mt-2 text-sm text-gray-400">{t('dashboard.shipment_chart.description')}</p>
         </div>
       </div>
 

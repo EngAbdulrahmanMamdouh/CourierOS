@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar'
 import RouteGuard from '@/components/dashboard/RouteGuard'
@@ -14,6 +15,7 @@ import { fetchDashboardAnalytics } from '@/services/dashboard'
 import type { DashboardAnalytics } from '@/services/dashboard'
 
 export default function DashboardPage() {
+  const { t, i18n } = useTranslation()
   const [data, setData] = useState<DashboardAnalytics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,11 +47,11 @@ export default function DashboardPage() {
     }
   }, [])
 
-  const dateLabel = new Date().toLocaleDateString('en-US', {
+  const dateLabel = new Intl.DateTimeFormat(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
-  })
+  }).format(new Date())
 
  
   return (
@@ -60,20 +62,20 @@ export default function DashboardPage() {
       <DashboardSidebar />
 
       <div className="flex-1 space-y-6">
-        <DashboardHeader greeting="Good morning, Abdelrahman." dateLabel={dateLabel} />
+        <DashboardHeader greeting={t('dashboard.greeting_morning', { name: 'Abdelrahman' })} dateLabel={dateLabel} />
 
         {isLoading ? (
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/70 p-8 text-slate-400">Loading dashboard statistics…</div>
+          <div className="rounded-[28px] border border-white/10 bg-slate-900/70 p-8 text-slate-400">{t('dashboard.loading_dashboard_statistics')}</div>
         ) : error ? (
           <div className="rounded-[28px] border border-rose-500/20 bg-rose-500/10 p-8 text-rose-300">{error}</div>
         ) : data ? (
           <>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              <StatCard title="Total Shipments" value={String(data.statistics.totalShipments)} trend="Stable" subtitle="Active shipments in the network" />
-              <StatCard title="Pending Shipments" value={String(data.statistics.pendingShipments)} trend="Tracking" subtitle="Shipments awaiting dispatch" />
-              <StatCard title="In Transit" value={String(data.statistics.inTransitShipments)} trend="Moving" subtitle="Shipments currently on the road" />
-              <StatCard title="Delivered Shipments" value={String(data.statistics.deliveredShipments)} trend="Delivered" subtitle="Shipments completed successfully" />
-              <StatCard title="Cancelled Shipments" value={String(data.statistics.cancelledShipments)} trend="Risk" subtitle="Shipments that were cancelled" />
+              <StatCard titleKey="dashboard.cards.total_shipments.title" value={String(data.statistics.totalShipments)} trendKey="dashboard.trends.stable" subtitleKey="dashboard.cards.total_shipments.subtitle" />
+              <StatCard titleKey="dashboard.cards.pending_shipments.title" value={String(data.statistics.pendingShipments)} trendKey="dashboard.trends.tracking" subtitleKey="dashboard.cards.pending_shipments.subtitle" />
+              <StatCard titleKey="dashboard.cards.in_transit.title" value={String(data.statistics.inTransitShipments)} trendKey="dashboard.trends.moving" subtitleKey="dashboard.cards.in_transit.subtitle" />
+              <StatCard titleKey="dashboard.cards.delivered.title" value={String(data.statistics.deliveredShipments)} trendKey="dashboard.trends.delivered" subtitleKey="dashboard.cards.delivered.subtitle" />
+              <StatCard titleKey="dashboard.cards.cancelled.title" value={String(data.statistics.cancelledShipments)} trendKey="dashboard.trends.risk" subtitleKey="dashboard.cards.cancelled.subtitle" />
             </div>
 
             <div className="grid gap-6 grid-cols-1 lg:grid-cols-[0.7fr_0.3fr]">

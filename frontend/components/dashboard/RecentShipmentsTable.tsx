@@ -6,6 +6,8 @@ import { SHIPMENT_STATUS_OPTIONS } from '@/constants/shipment'
 import { updateShipmentStatus } from '@/services/shipment'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { formatDateValue, getLocaleFromLanguage } from '@/utils/locale'
 
 type RecentShipmentRow = {
   id?: number
@@ -40,15 +42,17 @@ function statusBadgeStyle(status: string) {
 
 export default function RecentShipmentsTable({ shipments }: RecentShipmentsTableProps) {
   const [updatingId, setUpdatingId] = useState<number | null>(null)
+  const { t, i18n } = useTranslation()
+  const locale = getLocaleFromLanguage(i18n.language)
 
   const handleStatusChange = async (shipmentId: number | undefined, nextStatus: string) => {
     if (!shipmentId || !nextStatus) return
     setUpdatingId(shipmentId)
     try {
       await updateShipmentStatus(shipmentId, nextStatus as any)
-      toast.success('Shipment status updated')
+      toast.success(t('dashboard.shipments.status_updated'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Unable to update shipment status')
+      toast.error(err instanceof Error ? err.message : t('dashboard.shipments.unable_update_status'))
     } finally {
       setUpdatingId(null)
     }
@@ -58,11 +62,11 @@ export default function RecentShipmentsTable({ shipments }: RecentShipmentsTable
     <section className="rounded-[16px] border border-white/[0.08] bg-[rgba(17,24,39,0.75)] p-6 backdrop-blur transition-all duration-150 hover:-translate-y-[1px] hover:border-white/[0.16] hover:shadow-lg">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">Recent shipments</p>
-          <h2 className="mt-2 text-[20px] font-semibold text-gray-50">Latest movement</h2>
+          <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">{t('dashboard.recent_shipments')}</p>
+          <h2 className="mt-2 text-[20px] font-semibold text-gray-50">{t('dashboard.latest_movement')}</h2>
         </div>
         <button className="inline-flex items-center gap-2 rounded-[12px] border border-white/[0.08] bg-slate-900/70 px-4 py-2 text-sm font-semibold text-gray-100 transition duration-150 hover:border-sky-400/40 hover:bg-slate-900">
-          View all shipments
+          {t('dashboard.view_all_shipments')}
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
@@ -71,13 +75,13 @@ export default function RecentShipmentsTable({ shipments }: RecentShipmentsTable
         <table className="min-w-full text-left text-sm text-gray-100">
           <thead>
             <tr className="border-b border-white/[0.05] text-gray-400">
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Tracking Number</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Receiver</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">City</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Status</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Assigned Driver</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Created Date</th>
-              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">Actions</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.tracking_number')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.receiver')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.city')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.status')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.assigned_driver')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.created_date')}</th>
+              <th className="py-3 pr-6 text-[12px] uppercase tracking-[0.08em]">{t('dashboard.table.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.05]">
@@ -94,14 +98,14 @@ export default function RecentShipmentsTable({ shipments }: RecentShipmentsTable
                   </span>
                 </td>
                 <td className="py-3 pr-6 text-sm text-gray-100">{shipment.assignedDriver}</td>
-                <td className="py-3 pr-6 text-sm text-gray-100">{shipment.createdAt}</td>
+                <td className="py-3 pr-6 text-sm text-gray-100">{formatDateValue(shipment.createdAt, locale, { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                 <td className="py-3 pr-6">
                   <div className="flex items-center gap-3">
                     <Link
                       href={`/dashboard/shipments/${shipment.id ?? shipment.trackingNumber}`}
                       className="inline-flex items-center gap-2 rounded-[10px] border border-white/[0.08] bg-slate-900/70 px-3 py-1.5 text-sm font-semibold text-gray-100 transition duration-150 hover:border-sky-400/40"
                     >
-                      View Details
+                      {t('dashboard.table.view_details')}
                     </Link>
                     <select
                       value={shipment.status}

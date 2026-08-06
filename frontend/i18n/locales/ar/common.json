@@ -1,0 +1,797 @@
+{
+  "dashboard": {
+    "operations": "العمليات",
+    "search_placeholder": "ابحث في الشحنات، العملاء، الفروع",
+    "role_administrator": "المسؤول",
+    "status_summary": "ملخص الحالة",
+    "shipment_status": "حالة الشحنات",
+    "recent_shipments": "الشحنات الأخيرة",
+    "live_list": "القائمة المباشرة",
+    "back_to_dashboard": "العودة إلى لوحة التحكم",
+    "latest_movement": "أحدث الحركة",
+    "view_all_shipments": "عرض كل الشحنات",
+    "table": {
+      "tracking_number": "رقم التتبع",
+      "receiver": "المستلم",
+      "city": "المدينة",
+      "status": "الحالة",
+      "assigned_driver": "السائق المخصص",
+      "created_date": "تاريخ الإنشاء",
+      "actions": "الإجراءات",
+      "view_details": "عرض التفاصيل",
+      "cod": "COD",
+      "shipping_price": "سعر الشحن",
+      "eta": "ETA"
+    },
+    "shipments": {
+      "status_updated": "تم تحديث حالة الشحنة",
+      "unable_update_status": "تعذر تحديث حالة الشحنة"
+    },
+    "loading_dashboard_statistics": "جارٍ تحميل إحصاءات لوحة التحكم…",
+    "unable_load_dashboard_data": "تعذر تحميل بيانات لوحة التحكم.",
+    "greeting_morning": "صباح الخير، {{name}}.",
+    "cards": {
+      "total_shipments": { "title": "إجمالي الشحنات", "subtitle": "الشحنات النشطة في الشبكة" },
+      "pending_shipments": { "title": "الشحنات المعلقة", "subtitle": "الشحنات في انتظار الإرسال" },
+      "in_transit": { "title": "في الطريق", "subtitle": "الشحنات المتوجهة حالياً" },
+      "delivered": { "title": "الشحنات المسلمة", "subtitle": "الشحنات المكتملة بنجاح" },
+      "cancelled": { "title": "الشحنات الملغاة", "subtitle": "الشحنات التي تم إلغاءها" }
+    },
+    "trends": {
+      "stable": "مستقر",
+      "tracking": "تتبع",
+      "moving": "متحرك",
+      "delivered": "تم التسليم",
+      "risk": "مخاطر"
+    },
+    "sidebar": {
+      "overview": "نظرة عامة",
+      "operations": "العمليات",
+      "finance": "المالية",
+      "system": "النظام",
+      "dashboard": "لوحة التحكم",
+      "shipments": "الشحنات",
+      "branches": "الفروع",
+      "companies": "الشركات",
+      "customers": "العملاء",
+      "users": "المستخدمون",
+      "drivers": "السائقون",
+      "cities": "المدن",
+      "delivery_zones": "مناطق التسليم",
+      "pickup_requests": "طلبات الالتقاط",
+      "cod": "COD",
+      "payments": "الدفعات",
+      "pricing_rules": "قواعد التسعير",
+      "notifications": "الإشعارات",
+      "company_settings": "إعدادات الشركة",
+      "tracking": "التتبع",
+      "enterprise_platform": "منصة المؤسسة"
+    },
+    "operations_panel": {
+      "title": "لوحة العمليات",
+      "heading": "الأداء التشغيلي",
+      "description": "عرض مختصر لصحة العمليات الحالية والزخم التشغيلي."
+    },
+    "shipment_chart": {
+      "title": "تحليلات الشحن",
+      "heading": "حجم الشحن اليومي",
+      "description": "اتجاه الأداء خلال أحدث نشاط للشحنات."
+    },
+    "summary": {
+      "title": "ملخص",
+      "top_performers": "الأفضل أداءً",
+      "key_highlights": "أبرز النقاط من نطاق التشغيل الحالي.",
+      "recent_activity": "النشاط الأخير"
+    }
+    ,
+    "access_denied": {
+      "title": "تم الرفض",
+      "heading": "ليس لديك إذن لعرض هذه الصفحة.",
+      "description": "يرجى الاتصال بمسؤول النظام إذا كنت تعتقد أن هذا خطأ."
+    }
+  }
+  ,
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  }
+
+  ,
+  "status": {
+    "shipments": {
+      "pending": "معلقة",
+      "in_transit": "في الطريق",
+      "delivered": "مسلمة",
+      "cancelled": "ملغاة",
+      "returned": "أُعيدت"
+    }
+  }
+
+  ,
+  "common": {
+    "button": {
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "delete": "حذف",
+      "processing": "جارٍ المعالجة…"
+    },
+    "processing": "جارٍ المعالجة…",
+    "deleting": "جارٍ الحذف…",
+    "action": {
+      "confirm": "تأكيد الإجراء"
+    }
+  },
+  "users": {
+    "delete_title": "إزالة {{username}}?",
+    "delete_description": "لا يمكن التراجع عن هذا الإجراء. سيتم إزالة المستخدم من النظام ولن يكون قادرًا على تسجيل الدخول.",
+    "button": {
+      "delete_user": "حذف المستخدم"
+    }
+  },
+  "shipments": {
+    "delete_title": "حذف الشحنة",
+    "delete_description": "لا يمكن التراجع عن هذا الإجراء.",
+    "back_to_list": "العودة إلى الشحنات",
+    "loading": "جارٍ تحميل الشحنة…",
+    "details": {
+      "title": "تفاصيل الشحنة"
+    },
+    "tracking": "التتبع: {{tracking}}",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "updated_success": "تم تحديث الشحنة بنجاح",
+    "update_failed": "تعذر تحديث الشحنة.",
+    "deleted_success": "تم حذف الشحنة بنجاح",
+    "delete_failed": "تعذر حذف الشحنة.",
+    "load_failed": "تعذر تحميل تفاصيل الشحنة",
+    "info": {
+      "title": "معلومات الشحنة",
+      "sender": "المرسل",
+      "receiver": "المستلم",
+      "phone": "الهاتف",
+      "city": "المدينة",
+      "eta": "الوقت المقدر للتسليم",
+      "days": "{{count}} يوم",
+      "cod": "الدفع عند التسليم",
+      "shipping_price": "سعر الشحن"
+    },
+    "delivery": {
+      "title": "تفاصيل التسليم",
+      "address": "العنوان",
+      "status": "الحالة",
+      "notes": "ملاحظات",
+      "created": "تاريخ الإنشاء"
+    },
+    "delete_confirm_title": "حذف الشحنة",
+    "delete_confirm_description": "سيؤدي هذا إلى إزالة الشحنة {{tracking}} نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+    "back_to_details": "العودة إلى التفاصيل",
+    "edit_title": "تعديل الشحنة",
+    "create_title": "إنشاء شحنة",
+    "create_subtitle": "شحنة جديدة",
+    "label": {
+      "sender_name": "اسم المرسل",
+      "receiver_name": "اسم المستقبل",
+      "receiver_phone": "هاتف المستقبل",
+      "address": "العنوان",
+      "city": "المدينة",
+      "status": "الحالة",
+      "estimated_delivery_days": "أيام التوصيل",
+      "cod_amount": "مبلغ COD",
+      "notes": "ملاحظات"
+    },
+    "placeholder": {
+      "sender_name": "اسم المرسل",
+      "receiver_name": "اسم المستقبل",
+      "receiver_phone": "01000000000",
+      "address": "عنوان التسليم الكامل",
+      "city": "المدينة",
+      "notes": "ملاحظات اختيارية"
+    },
+    "invalid_id": "معرّف شحنة غير صالح.",
+    "address_timing": "العنوان والوقت",
+    "info": {
+      "id": "معرّف الشحنة",
+      "sender": "المرسل",
+      "receiver": "المستلم",
+      "phone": "الهاتف",
+      "city": "المدينة",
+      "eta": "الوقت المقدر للتسليم",
+      "days": "{{count}} يوم",
+      "cod": "الدفع عند التسليم",
+      "shipping_price": "سعر الشحن"
+    },
+    "delivery": {
+      "created_at": "تاريخ الإنشاء",
+      "updated_at": "تاريخ التحديث",
+      "address": "العنوان",
+      "status": "الحالة",
+      "notes": "ملاحظات",
+      "created": "تاريخ الإنشاء"
+    },
+    "collect_confirm": "تأكيد تحصيل مبلغ EGP {{amount}} كـ COD للشحنة {{tracking}}؟",
+    "collecting": "جارٍ التحصيل…",
+    "collect_cod": "تحصيل COD",
+    "cod_collected_success": "تم تحصيل COD بنجاح",
+    "cod_collect_failed": "تعذر تحصيل COD.",
+    "cod_collected_message": "تم تحصيل COD بنجاح.",
+    "confirm_collect_cod": "تأكيد تحصيل مبلغ EGP {{amount}} كـ COD للشحنة {{tracking}}؟",
+    "unable_collect_cod": "تعذر تحصيل COD.",
+    "cod_collected": "تم تحصيل COD",
+    "ops": {
+      "title": "عمليات الشحن",
+      "manage": "إدارة الشحنات",
+      "subtitle": "تتبع الإرساليات، ومراقبة COD، ومراجعة تقدم التسليم في مكان واحد."
+    },
+    "summary": {
+      "counts": "{{total}} شحنة • {{pending}} معلقة"
+    },
+    "button": {
+      "import_excel": "استيراد Excel",
+      "new_shipment": "شحنة جديدة",
+      "create": "إنشاء شحنة",
+      "creating": "جارٍ الإنشاء…",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ…",
+      "cancel": "إلغاء"
+    },
+    "load_failed_list": "تعذر تحميل الشحنات الآن.",
+    "loading_list": "جارٍ تحميل الشحنات…",
+    "created_success": "تم إنشاء الشحنة بنجاح. سعر الشحن: {{price}}",
+    "import_success": "تم استيراد الشحنات بنجاح",
+    "import": {
+      "title": "استيراد الشحنات",
+      "upload_heading": "تحميل ملف Excel للشحنات",
+      "preview_heading": "مراجعة معاينة الاستيراد",
+      "executing_heading": "جارٍ استيراد الشحنات",
+      "results_heading": "نتائج الاستيراد",
+      "drag_drop_prompt": "اسحب وأفلت ملف .xlsx هنا",
+      "select_different_file": "انقر لاختيار ملف مختلف",
+      "or": "أو",
+      "browse_files": "استعراض الملفات",
+      "file_selected": "تم اختيار الملف: {{fileName}}",
+      "required_columns": "الأعمدة المطلوبة",
+      "required_columns_list": "sender_name, receiver_name, receiver_phone, address, city",
+      "optional_columns": "الأعمدة الاختيارية",
+      "optional_columns_list": "customer, cod_amount, notes",
+      "download_template_loading": "جارٍ تنزيل النموذج…",
+      "download_template": "تنزيل النموذج",
+      "cancel": "إلغاء",
+      "previewing": "جارٍ المعاينة…",
+      "preview": "معاينة",
+      "total_rows": "إجمالي الصفوف",
+      "valid": "صالحة",
+      "invalid": "غير صالحة",
+      "missing_required_columns": "الأعمدة المطلوبة مفقودة: {{columns}}",
+      "validation_errors": "أخطاء التحقق",
+      "row": "الصف {{row}}",
+      "back": "عودة",
+      "importing": "جارٍ الاستيراد…",
+      "import": "استيراد",
+      "processing": "جارٍ معالجة الاستيراد…",
+      "processing_hint": "يرجى الانتظار أثناء معالجة الاستيراد.",
+      "completed_success": "اكتمل الاستيراد بنجاح",
+      "imported": "تم استيرادها",
+      "duplicates": "مكررة",
+      "failed": "فشل",
+      "execution_time": "زمن التنفيذ",
+      "validation_errors_heading": "أخطاء التحقق ({{count}})",
+      "error_row": "صف الخطأ {{row}}",
+      "close": "إغلاق",
+      "import_more": "استيراد المزيد من الشحنات",
+      "errors": {
+        "invalid_file_type": "يُسمح فقط بملفات .xlsx.",
+        "failed_download_template": "فشل تنزيل النموذج.",
+        "failed_preview": "فشل عرض معاينة ملف الاستيراد.",
+        "failed_execute": "فشل تنفيذ الاستيراد."
+      }
+    },
+    "errors": {
+      "sender_name_required": "اسم المرسل مطلوب",
+      "receiver_name_required": "اسم المستلم مطلوب",
+      "receiver_phone_invalid": "يجب أن يكون رقم هاتف المستلم 11 رقمًا",
+      "address_required": "العنوان مطلوب",
+      "city_required": "المدينة مطلوبة"
+    }
+  }
+
+  ,
+  "drivers": {
+    "create_title": "إنشاء سائق",
+    "create_subtitle": "سائق جديد",
+    "label": {
+      "full_name": "الاسم الكامل",
+      "phone": "الهاتف",
+      "national_id": "الهوية الوطنية",
+      "email": "البريد الإلكتروني",
+      "vehicle_type": "نوع المركبة",
+      "vehicle_plate": "لوحة المركبة",
+      "license_number": "رقم الرخصة",
+      "license_expiry": "تاريخ انتهاء الرخصة",
+      "branch_id": "معرّف الفرع",
+      "availability": "التوافر",
+      "status": "الحالة",
+      "is_active": "نشط السائق"
+    },
+    "placeholder": {
+      "full_name": "اسم السائق الكامل",
+      "phone": "01000000000",
+      "national_id": "12345678901234",
+      "email": "name@example.com",
+      "vehicle_type": "دراجة نارية",
+      "vehicle_plate": "ABC-1234",
+      "license_number": "LIC-001",
+      "branch_id": "معرّف الفرع"
+    },
+    "option": {
+      "availability": {
+        "available": "متاح",
+        "unavailable": "غير متاح",
+        "on_duty": "في الخدمة"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "is_active": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ السائق",
+      "saving": "جارٍ الحفظ…"
+    }
+    ,
+    "errors": {
+      "full_name_required": "الاسم الكامل مطلوب",
+      "national_id_required": "الهوية الوطنية مطلوبة",
+      "phone_required": "هاتف مطلوب",
+      "email_invalid": "البريد الإلكتروني غير صالح",
+      "vehicle_type_required": "نوع المركبة مطلوب",
+      "vehicle_plate_required": "لوحة المركبة مطلوبة",
+      "license_number_required": "رقم الرخصة مطلوب",
+      "status_required": "الحالة مطلوبة",
+      "availability_required": "التوافر مطلوب"
+    }
+    ,
+    "created_success": "تم إنشاء السائق بنجاح",
+    "updated_success": "تم تحديث بيانات السائق بنجاح",
+    "save_failed": "تعذر حفظ بيانات السائق.",
+    "title": "السائقون",
+    "manage": "إدارة السائقين",
+    "subtitle": "إنشاء وإدارة السائقين عبر الفروع.",
+    "summary": { "counts": "{{total}} سائق" },
+    "button": {
+      "new_driver": "سائق جديد"
+    },
+    "loading": "جارٍ تحميل السائقين…",
+    "load_failed": "تعذر تحميل السائقين",
+    "list_title": "قائمة السائقين",
+    "no_drivers": "لا يوجد سائقين بعد.",
+    "view": "عرض",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "confirm_delete": "حذف {{name}}؟",
+    "deleted_success": "تم حذف السائق",
+    "delete_failed": "تعذر حذف السائق",
+    "back_to_list": "عودة",
+    "table": {
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "national_id": "الهوية الوطنية",
+      "availability": "التوافر",
+      "active": "نشط"
+    },
+    "details": {
+      "title": "تفاصيل السائق"
+    },
+    "unassigned_branch": "غير معين",
+    "personal": { "title": "معلومات شخصية" },
+    "vehicle": {
+      "title": "معلومات المركبة",
+      "type": "المركبة",
+      "plate": "اللوحة",
+      "license": "الرخصة",
+      "license_expiry": "تاريخ انتهاء الرخصة"
+    },
+    "stats": {
+      "assigned_title": "مخصص",
+      "assigned_sub": "الشحنات المخصصة",
+      "pending_title": "قيد الانتظار",
+      "pending_sub": "التسليمات المعلقة",
+      "delivered_title": "المسلّم اليوم",
+      "delivered_sub": "التسليمات المكتملة"
+    },
+    "not_found": "لم يتم العثور على السائق.",
+    "invalid_id": "معرّف سائق غير صالح.",
+    "invalid_selection": "اختيار سائق غير صالح"
+  },
+  "companies": {
+    "create_title": "إنشاء شركة",
+    "create_subtitle": "شركة جديدة",
+    "label": {
+      "name": "اسم الشركة",
+      "code": "رمز الشركة",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "city": "المدينة",
+      "country": "البلد",
+      "tax_number": "الرقم الضريبي",
+      "commercial_register": "السجل التجاري",
+      "logo_url": "رابط الشعار",
+      "subscription_plan": "خطة الاشتراك",
+      "subscription_status": "حالة الاشتراك",
+      "is_active": "حالة الشركة"
+    },
+    "placeholder": {
+      "name": "اسم الشركة",
+      "code": "رمز الشركة",
+      "email": "name@example.com",
+      "phone": "01000000000",
+      "address": "عنوان الشركة",
+      "city": "المدينة",
+      "country": "البلد",
+      "tax_number": "123456789",
+      "commercial_register": "123456789",
+      "logo_url": "https://example.com/logo.png",
+      "subscription_plan": "Gold",
+      "subscription_status": "نشط"
+    },
+    "option": {
+      "is_active": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ الشركة",
+      "saving": "جارٍ الحفظ…"
+    }
+      ,
+      "errors": {
+        "name_required": "اسم الشركة مطلوب",
+        "code_required": "رمز الشركة مطلوب",
+        "email_invalid": "البريد الإلكتروني غير صالح"
+      }
+      ,
+      "created_success": "تم إنشاء الشركة بنجاح",
+      "updated_success": "تم تحديث بيانات الشركة بنجاح",
+      "save_failed": "تعذر حفظ بيانات الشركة.",
+      "deleted_success": "تم حذف الشركة بنجاح",
+      "delete_failed": "تعذر حذف الشركة",
+      "confirm_delete": "حذف هذه الشركة؟",
+      "title": "الشركات",
+      "manage": "إدارة الشركات",
+      "subtitle": "إنشاء وإدارة الشركات المستأجرة.",
+      "summary": { "counts": "{{total}} شركة" },
+      "button": { "new_company": "شركة جديدة" },
+      "loading": "جارٍ تحميل الشركات…",
+      "load_failed": "تعذر تحميل الشركات",
+      "list_title": "قائمة الشركات",
+      "no_companies": "لا توجد شركات بعد.",
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "page": "الصفحة {{page}}",
+      "pagination": { "previous": "السابق", "next": "التالي" },
+      "table": { "name": "الاسم", "email": "البريد الإلكتروني", "phone": "الهاتف", "status": "الحالة", "created_at": "تاريخ الإنشاء", "actions": "الإجراءات" }
+    },
+  "branches": {
+    "create_title": "إنشاء فرع",
+    "create_subtitle": "فرع جديد",
+    "label": {
+      "name": "اسم الفرع",
+      "code": "رمز الفرع",
+      "city": "المدينة",
+      "address": "العنوان",
+      "phone": "الهاتف",
+      "manager_name": "اسم المدير",
+      "status": "حالة الفرع"
+    },
+    "placeholder": {
+      "name": "اسم الفرع",
+      "code": "رمز الفرع",
+      "city": "مدينة الفرع",
+      "address": "عنوان الفرع",
+      "phone": "01000000000",
+      "manager_name": "اسم المدير"
+    },
+    "option": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ الفرع",
+      "saving": "جارٍ الحفظ…"
+    }
+      ,
+      "errors": {
+        "name_required": "اسم الفرع مطلوب",
+        "code_required": "رمز الفرع مطلوب",
+        "city_required": "المدينة مطلوبة",
+        "address_required": "العنوان مطلوب",
+        "phone_required": "الهاتف مطلوب",
+        "manager_name_required": "اسم المدير مطلوب"
+      }
+  },
+  "cities": {
+    "create_title": "إنشاء مدينة",
+    "create_subtitle": "مدينة جديدة",
+    "update_title": "تعديل المدينة",
+    "update_subtitle": "تحديث بيانات المدينة",
+    "label": {
+      "name": "اسم المدينة",
+      "code": "رمز المدينة",
+      "governorate": "المحافظة",
+      "status": "الحالة"
+    },
+    "placeholder": {
+      "name": "القاهرة",
+      "code": "CAI",
+      "governorate": "القاهرة"
+    },
+    "option": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "create": "إنشاء المدينة",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ…"
+    }
+  },
+  "customers": {
+    "create_title": "إنشاء عميل",
+    "create_subtitle": "عميل جديد",
+    "label": {
+      "full_name": "الاسم الكامل",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "city": "المدينة"
+    },
+    "placeholder": {
+      "full_name": "اسم العميل الكامل",
+      "phone": "01000000000",
+      "email": "name@example.com",
+      "address": "عنوان العميل",
+      "city": "المدينة"
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ العميل",
+      "saving": "جارٍ الحفظ…"
+    }
+      ,
+      "errors": {
+        "full_name_required": "الاسم الكامل مطلوب",
+        "phone_required": "الهاتف مطلوب",
+        "email_invalid": "البريد الإلكتروني غير صالح",
+        "address_required": "العنوان مطلوب",
+        "city_required": "المدينة مطلوبة"
+      }
+      ,
+      "title": "العملاء",
+      "manage": "إدارة العملاء",
+      "subtitle": "إنشاء وإدارة سجلات العملاء.",
+      "summary": {
+        "counts": "{{total}} عميل"
+      },
+      "button": {
+        "new_customer": "عميل جديد"
+      },
+      "created_success": "تم إنشاء العميل",
+      "create_failed": "تعذّر إنشاء العميل",
+      "loading": "جارٍ تحميل العملاء…",
+      "load_failed": "تعذر تحميل العملاء",
+      "list_title": "قائمة العملاء",
+      "no_customers": "لا يوجد عملاء بعد.",
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirm_delete": "حذف {{name}}؟",
+      "deleted_success": "تم حذف العميل",
+      "delete_failed": "تعذر حذف العميل",
+      "back_to_list": "عودة",
+      "table": {
+        "name": "الاسم",
+        "phone": "الهاتف",
+        "email": "البريد الإلكتروني",
+        "city": "المدينة",
+        "address": "العنوان",
+        "created_at": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      }
+  },
+  "cods": {
+    "create_title": "إنشاء COD",
+    "create_subtitle": "COD جديد",
+    "label": {
+      "shipment_id": "معرّف الشحنة",
+      "amount": "المبلغ",
+      "currency": "العملة",
+      "collected_by_driver_id": "معرّف السائق الذي استلم",
+      "collected": "تم التحصيل",
+      "transferred_to_customer": "تم التحويل للعميل",
+      "collected_at": "تاريخ التحصيل",
+      "transferred_at": "تاريخ التحويل",
+      "notes": "ملاحظات"
+    },
+    "placeholder": {
+      "shipment_id": "معرّف الشحنة",
+      "amount": "100.00",
+      "currency": "EGP",
+      "optional": "اختياري",
+      "notes": "ملاحظة اختيارية"
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ COD",
+      "saving": "جارٍ الحفظ…"
+    }
+  },
+  "deliveryZones": {
+    "create_title": "إنشاء منطقة توصيل",
+    "create_subtitle": "منطقة توصيل جديدة",
+    "update_title": "تحديث منطقة التوصيل",
+    "update_subtitle": "تعديل بيانات منطقة التوصيل",
+    "label": {
+      "city_id": "معرّف المدينة",
+      "zone_name": "اسم المنطقة",
+      "delivery_days": "أيام التوصيل",
+      "extra_cost": "تكلفة إضافية",
+      "status": "الحالة"
+    },
+    "placeholder": {
+      "city_id": "معرّف المدينة",
+      "zone_name": "اسم المنطقة",
+      "delivery_days": "الإثنين، الأربعاء",
+      "extra_cost": "10.00"
+    },
+    "option": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "create": "إنشاء المنطقة",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ…"
+    }
+  },
+  "payments": {
+    "create_title": "إنشاء دفعة",
+    "create_subtitle": "دفعة جديدة",
+    "label": {
+      "customer_id": "معرّف العميل",
+      "shipment_id": "معرّف الشحنة",
+      "cod_id": "معرّف COD",
+      "amount": "المبلغ",
+      "currency": "العملة",
+      "payment_method": "الطريقة",
+      "payment_status": "الحالة",
+      "transaction_reference": "مرجع العملية",
+      "paid_at": "تاريخ الدفع",
+      "notes": "ملاحظات"
+    },
+    "placeholder": {
+      "customer_id": "1",
+      "optional": "اختياري",
+      "amount": "100.00",
+      "currency": "EGP",
+      "transaction_reference": "TXN-001",
+      "notes": "ملاحظة اختيارية"
+    },
+    "option": {
+      "method": {
+        "cash": "نقدًا",
+        "bank_transfer": "تحويل بنكي",
+        "wallet": "محفظة",
+        "credit_card": "بطاقة ائتمان"
+      },
+      "status": {
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "failed": "فشل"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ الدفع",
+      "saving": "جارٍ الحفظ…"
+    }
+  },
+  "pickupRequests": {
+    "create_title": "إنشاء طلب استلام",
+    "create_subtitle": "طلب استلام جديد",
+    "label": {
+      "customer_id": "معرّف العميل",
+      "city_id": "معرّف المدينة",
+      "pickup_address": "عنوان الاستلام",
+      "contact_name": "اسم جهة الاتصال",
+      "contact_phone": "هاتف جهة الاتصال",
+      "preferred_pickup_date": "تاريخ الاستلام المفضل",
+      "preferred_time_window": "الفترة الزمنية المفضلة",
+      "assigned_branch_id": "معرّف الفرع المخصص",
+      "assigned_driver_id": "معرّف السائق المخصص",
+      "notes": "ملاحظات"
+    },
+    "placeholder": {
+      "customer_id": "1",
+      "city_id": "1",
+      "pickup_address": "عنوان الاستلام",
+      "contact_name": "اسم جهة الاتصال",
+      "contact_phone": "01000000000",
+      "preferred_time_window": "09:00 - 12:00",
+      "optional": "اختياري",
+      "notes": "ملاحظة اختيارية"
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "save": "حفظ طلب الاستلام",
+      "saving": "جارٍ الحفظ…"
+    }
+      ,
+      "errors": {
+        "customer_required": "مطلوب عميل",
+        "address_min": "يجب أن يكون العنوان 5 أحرف على الأقل",
+        "city_required": "المدينة مطلوبة",
+        "contact_name_required": "اسم جهة الاتصال مطلوب",
+        "contact_phone_required": "هاتف جهة الاتصال مطلوب",
+        "preferred_pickup_date_required": "تاريخ الاستلام المفضل مطلوب",
+        "preferred_time_window_required": "الفترة الزمنية المفضلة مطلوبة"
+      }
+  },
+  "pricingRules": {
+    "create_title": "إنشاء قاعدة تسعير",
+    "create_subtitle": "قاعدة جديدة",
+    "update_title": "تحديث قاعدة التسعير",
+    "update_subtitle": "تعديل القاعدة",
+    "label": {
+      "source_city_id": "معرّف المدينة المصدر",
+      "destination_city_id": "معرّف المدينة الوجهة",
+      "delivery_zone_id": "معرّف منطقة التوصيل",
+      "service_type": "نوع الخدمة",
+      "min_weight": "الوزن الأدنى (كجم)",
+      "max_weight": "الوزن الأقصى (كجم)",
+      "base_price": "السعر الأساسي",
+      "extra_cost": "التكلفة الإضافية",
+      "estimated_delivery_days": "أيام التوصيل المقدرة",
+      "status": "الحالة"
+    },
+    "placeholder": {
+      "source_city_id": "مثال: 1",
+      "destination_city_id": "مثال: 2",
+      "delivery_zone_id": "اختياري",
+      "service_type": "قياسي",
+      "min_weight": "0",
+      "max_weight": "5",
+      "base_price": "50",
+      "extra_cost": "0",
+      "estimated_delivery_days": "2"
+    },
+    "option": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "button": {
+      "cancel": "إلغاء",
+      "create": "إنشاء القاعدة",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ…"
+    }
+  }
+}

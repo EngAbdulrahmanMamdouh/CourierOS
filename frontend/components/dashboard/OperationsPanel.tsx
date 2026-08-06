@@ -1,3 +1,7 @@
+'use client'
+
+import { useTranslation } from 'react-i18next'
+
 type OperationMetric = {
   label: string
   value: string
@@ -9,12 +13,14 @@ type OperationsPanelProps = {
 }
 
 export default function OperationsPanel({ operations }: OperationsPanelProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="rounded-[16px] border border-white/[0.08] bg-[rgba(17,24,39,0.75)] p-6 backdrop-blur transition-all duration-150 hover:-translate-y-[1px] hover:border-white/[0.16] hover:shadow-lg">
       <div className="mb-5">
-        <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">Operations panel</p>
-        <h2 className="mt-2 text-[20px] font-semibold text-gray-50">Operational performance</h2>
-        <p className="mt-2 text-sm text-gray-400">A concise view of the current operation health and momentum.</p>
+        <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">{t('dashboard.operations_panel.title')}</p>
+        <h2 className="mt-2 text-[20px] font-semibold text-gray-50">{t('dashboard.operations_panel.heading')}</h2>
+        <p className="mt-2 text-sm text-gray-400">{t('dashboard.operations_panel.description')}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">

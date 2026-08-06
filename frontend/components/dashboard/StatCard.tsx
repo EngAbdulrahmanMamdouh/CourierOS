@@ -1,13 +1,22 @@
+'use client'
+
 import { Package } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { formatNumberValue, getLocaleFromLanguage } from '@/utils/locale'
 
 type StatCardProps = {
-  title: string
-  value: string
-  trend: string
-  subtitle: string
+  titleKey: string
+  value: string | number
+  trendKey: string
+  subtitleKey: string
 }
 
-export default function StatCard({ title, value, trend, subtitle }: StatCardProps) {
+export default function StatCard({ titleKey, value, trendKey, subtitleKey }: StatCardProps) {
+  const { t, i18n } = useTranslation()
+  const locale = getLocaleFromLanguage(i18n.language)
+  const title = t(titleKey)
+  const subtitle = t(subtitleKey)
+  const trend = t(trendKey)
   const normalizedTrend = trend.toLowerCase()
   const badgeClassName =
     normalizedTrend.includes('risk') || normalizedTrend.includes('cancel')
@@ -27,7 +36,7 @@ export default function StatCard({ title, value, trend, subtitle }: StatCardProp
         </div>
 
         <div>
-          <h2 className="text-4xl font-bold tracking-tight text-white">{value}</h2>
+          <h2 className="text-4xl font-bold tracking-tight text-white">{formatNumberValue(value, locale)}</h2>
         </div>
 
         <div className="flex items-center justify-between gap-3">

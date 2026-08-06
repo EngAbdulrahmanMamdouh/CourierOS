@@ -1,0 +1,799 @@
+{
+  "dashboard": {
+    "operations": "Operations",
+    "search_placeholder": "Search shipments, customers, branches",
+    "role_administrator": "Administrator",
+    "status_summary": "Status summary",
+    "shipment_status": "Shipment status",
+    "recent_shipments": "Recent shipments",
+    "live_list": "Live list",
+    "back_to_dashboard": "Back to dashboard",
+    "latest_movement": "Latest movement",
+    "view_all_shipments": "View all shipments",
+    "table": {
+      "tracking_number": "Tracking Number",
+      "receiver": "Receiver",
+      "city": "City",
+      "status": "Status",
+      "assigned_driver": "Assigned Driver",
+      "created_date": "Created Date",
+      "actions": "Actions",
+      "view_details": "View Details",
+      "cod": "COD",
+      "shipping_price": "Shipping Price",
+      "eta": "ETA"
+    },
+    "shipments": {
+      "status_updated": "Shipment status updated",
+      "unable_update_status": "Unable to update shipment status"
+    },
+    "loading_dashboard_statistics": "Loading dashboard statistics…",
+    "unable_load_dashboard_data": "Unable to load dashboard data.",
+    "greeting_morning": "Good morning, {{name}}.",
+    "cards": {
+      "total_shipments": { "title": "Total Shipments", "subtitle": "Active shipments in the network" },
+      "pending_shipments": { "title": "Pending Shipments", "subtitle": "Shipments awaiting dispatch" },
+      "in_transit": { "title": "In Transit", "subtitle": "Shipments currently on the road" },
+      "delivered": { "title": "Delivered Shipments", "subtitle": "Shipments completed successfully" },
+      "cancelled": { "title": "Cancelled Shipments", "subtitle": "Shipments that were cancelled" }
+    },
+    "trends": {
+      "stable": "Stable",
+      "tracking": "Tracking",
+      "moving": "Moving",
+      "delivered": "Delivered",
+      "risk": "Risk"
+    },
+    "sidebar": {
+      "overview": "Overview",
+      "operations": "Operations",
+      "finance": "Finance",
+      "system": "System",
+      "dashboard": "Dashboard",
+      "shipments": "Shipments",
+      "branches": "Branches",
+      "companies": "Companies",
+      "customers": "Customers",
+      "users": "Users",
+      "drivers": "Drivers",
+      "cities": "Cities",
+      "delivery_zones": "Delivery Zones",
+      "pickup_requests": "Pickup Requests",
+      "cod": "COD",
+      "payments": "Payments",
+      "pricing_rules": "Pricing Rules",
+      "notifications": "Notifications",
+      "company_settings": "Company Settings",
+      "tracking": "Tracking",
+      "enterprise_platform": "Enterprise Platform"
+    },
+    "operations_panel": {
+      "title": "Operations panel",
+      "heading": "Operational performance",
+      "description": "A concise view of the current operation health and momentum."
+    },
+    "shipment_chart": {
+      "title": "Shipment analytics",
+      "heading": "Daily shipment volume",
+      "description": "Performance trend across the most recent shipment activity."
+    },
+    "summary": {
+      "title": "Summary",
+      "top_performers": "Top performers",
+      "key_highlights": "Key highlights from the current operating footprint.",
+      "recent_activity": "Recent activity"
+    }
+    ,
+    "access_denied": {
+      "title": "Access denied",
+      "heading": "You do not have permission to view this page.",
+      "description": "Please contact an administrator if you believe this is an error."
+    }
+  }
+  ,
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  }
+
+  ,
+  "status": {
+    "shipments": {
+      "pending": "Pending",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    }
+  }
+
+  ,
+  "common": {
+    "button": {
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "processing": "Processing…"
+    },
+    "processing": "Processing…",
+    "deleting": "Deleting…",
+    "action": {
+      "confirm": "Confirm action"
+    }
+  },
+  "users": {
+    "delete_title": "Remove {{username}}?",
+    "delete_description": "This action cannot be undone. The user will be removed from the system and will no longer be able to sign in.",
+    "button": {
+      "delete_user": "Delete user"
+    }
+  },
+  "shipments": {
+    "delete_title": "Delete shipment",
+    "delete_description": "This action cannot be undone.",
+    "back_to_list": "Back to shipments",
+    "loading": "Loading shipment…",
+    "details": {
+      "title": "Shipment details"
+    },
+    "tracking": "Tracking: {{tracking}}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "updated_success": "Shipment updated successfully",
+    "update_failed": "Unable to update shipment.",
+    "deleted_success": "Shipment deleted successfully",
+    "delete_failed": "Unable to delete shipment.",
+    "load_failed": "Unable to load shipment details",
+    "info": {
+      "title": "Shipment info",
+      "sender": "Sender",
+      "receiver": "Receiver",
+      "phone": "Phone",
+      "city": "City",
+      "eta": "ETA",
+      "days": "{{count}} days",
+      "cod": "COD",
+      "shipping_price": "Shipping Price"
+    },
+    "delivery": {
+      "title": "Delivery details",
+      "address": "Address",
+      "status": "Status",
+      "notes": "Notes",
+      "created": "Created"
+    },
+    "delete_confirm_title": "Delete shipment",
+    "delete_confirm_description": "This will permanently remove shipment {{tracking}}. This action cannot be undone."
+    ,
+    "back_to_details": "Back to details",
+    "edit_title": "Edit shipment",
+    "create_title": "Create shipment",
+    "create_subtitle": "New shipment",
+    "label": {
+      "sender_name": "Sender name",
+      "receiver_name": "Receiver name",
+      "receiver_phone": "Receiver phone",
+      "address": "Address",
+      "city": "City",
+      "status": "Status",
+      "estimated_delivery_days": "ETA days",
+      "cod_amount": "COD amount",
+      "notes": "Notes"
+    },
+    "placeholder": {
+      "sender_name": "Sender name",
+      "receiver_name": "Receiver name",
+      "receiver_phone": "01000000000",
+      "address": "Full delivery address",
+      "city": "City",
+      "notes": "Optional notes"
+    },
+    "invalid_id": "Invalid shipment ID.",
+    "address_timing": "Address & timing",
+    "info": {
+      "id": "Shipment ID",
+      "sender": "Sender",
+      "receiver": "Receiver",
+      "phone": "Phone",
+      "city": "City",
+      "eta": "ETA",
+      "days": "{{count}} days",
+      "cod": "COD",
+      "shipping_price": "Shipping Price"
+    },
+    "delivery": {
+      "created_at": "Created at",
+      "updated_at": "Updated at",
+      "address": "Address",
+      "status": "Status",
+      "notes": "Notes",
+      "created": "Created"
+    },
+    "collect_confirm": "Confirm collection of EGP {{amount}} COD for {{tracking}}?",
+    "collecting": "Collecting…",
+    "collect_cod": "Collect COD",
+    "cod_collected_success": "COD collected successfully",
+    "cod_collect_failed": "Unable to collect COD.",
+    "cod_collected_message": "COD has been collected successfully.",
+    "confirm_collect_cod": "Confirm collection of EGP {{amount}} COD for {{tracking}}?",
+    "unable_collect_cod": "Unable to collect COD.",
+    "cod_collected": "COD has been collected",
+    "ops": {
+      "title": "Shipment Operations",
+      "manage": "Manage shipments",
+      "subtitle": "Track dispatches, monitor COD, and review delivery progress in one workspace."
+    },
+    "summary": {
+      "counts": "{{total}} shipments • {{pending}} pending"
+    },
+    "button": {
+      "import_excel": "Import Excel",
+      "new_shipment": "New shipment",
+      "create": "Create shipment",
+      "creating": "Creating…",
+      "save_changes": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "load_failed_list": "Unable to load shipments right now.",
+    "loading_list": "Loading shipments…",
+    "created_success": "Shipment created successfully. Shipping Price: {{price}}",
+    "import_success": "Shipments imported successfully",
+    "import": {
+      "title": "Import shipments",
+      "upload_heading": "Upload shipment Excel",
+      "preview_heading": "Review import preview",
+      "executing_heading": "Importing shipments",
+      "results_heading": "Import results",
+      "drag_drop_prompt": "Drag and drop an .xlsx file here",
+      "select_different_file": "Click to select a different file",
+      "or": "or",
+      "browse_files": "Browse files",
+      "file_selected": "File selected: {{fileName}}",
+      "required_columns": "Required columns",
+      "required_columns_list": "sender_name, receiver_name, receiver_phone, address, city",
+      "optional_columns": "Optional columns",
+      "optional_columns_list": "customer, cod_amount, notes",
+      "download_template_loading": "Downloading template…",
+      "download_template": "Download template",
+      "cancel": "Cancel",
+      "previewing": "Previewing…",
+      "preview": "Preview",
+      "total_rows": "Total rows",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "missing_required_columns": "Missing required columns: {{columns}}",
+      "validation_errors": "Validation errors",
+      "row": "Row {{row}}",
+      "back": "Back",
+      "importing": "Importing…",
+      "import": "Import",
+      "processing": "Processing import…",
+      "processing_hint": "Please wait while we process the import.",
+      "completed_success": "Import completed successfully",
+      "imported": "Imported",
+      "duplicates": "Duplicates",
+      "failed": "Failed",
+      "execution_time": "Execution time",
+      "validation_errors_heading": "Validation errors ({{count}})",
+      "error_row": "Error row {{row}}",
+      "close": "Close",
+      "import_more": "Import more shipments",
+      "errors": {
+        "invalid_file_type": "Only .xlsx files are supported.",
+        "failed_download_template": "Failed to download template.",
+        "failed_preview": "Failed to preview the import file.",
+        "failed_execute": "Failed to execute import."
+      }
+    },
+    "errors": {
+      "sender_name_required": "Sender name is required",
+      "receiver_name_required": "Receiver name is required",
+      "receiver_phone_invalid": "Receiver phone must be 11 digits",
+      "address_required": "Address is required",
+      "city_required": "City is required"
+    }
+  }
+
+  ,
+  "drivers": {
+    "create_title": "Create driver",
+    "create_subtitle": "New driver",
+    "label": {
+      "full_name": "Full name",
+      "phone": "Phone",
+      "national_id": "National ID",
+      "email": "Email",
+      "vehicle_type": "Vehicle type",
+      "vehicle_plate": "Vehicle plate",
+      "license_number": "License number",
+      "license_expiry": "License expiry",
+      "branch_id": "Branch ID",
+      "availability": "Availability",
+      "status": "Status",
+      "is_active": "Driver active"
+    },
+    "placeholder": {
+      "full_name": "Driver full name",
+      "phone": "01000000000",
+      "national_id": "12345678901234",
+      "email": "name@example.com",
+      "vehicle_type": "Motorbike",
+      "vehicle_plate": "ABC-1234",
+      "license_number": "LIC-001",
+      "branch_id": "Branch ID"
+    },
+    "option": {
+      "availability": {
+        "available": "Available",
+        "unavailable": "Unavailable",
+        "on_duty": "On Duty"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "is_active": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save driver",
+      "saving": "Saving…"
+    }
+    ,
+    "errors": {
+      "full_name_required": "Full name is required",
+      "national_id_required": "National ID is required",
+      "phone_required": "Phone is required",
+      "email_invalid": "Email must be valid",
+      "vehicle_type_required": "Vehicle type is required",
+      "vehicle_plate_required": "Vehicle plate is required",
+      "license_number_required": "License number is required",
+      "status_required": "Status is required",
+      "availability_required": "Availability is required"
+    }
+    ,
+    "created_success": "Driver created successfully",
+    "updated_success": "Driver updated successfully",
+    "save_failed": "Unable to save driver.",
+    "title": "Drivers",
+    "manage": "Manage drivers",
+    "subtitle": "Create and manage delivery drivers across branches.",
+    "summary": { "counts": "{{total}} drivers" },
+    "button": {
+      "new_driver": "New driver"
+    },
+    "loading": "Loading drivers…",
+    "load_failed": "Unable to load drivers",
+    "list_title": "Driver list",
+    "no_drivers": "No drivers yet.",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm_delete": "Delete {{name}}?",
+    "deleted_success": "Driver deleted",
+    "delete_failed": "Unable to delete driver",
+    "back_to_list": "Back",
+    "table": {
+      "phone": "Phone",
+      "email": "Email",
+      "national_id": "National ID",
+      "availability": "Availability",
+      "active": "Active"
+    },
+    "details": {
+      "title": "Driver details"
+    },
+    "unassigned_branch": "Unassigned branch",
+    "personal": { "title": "Personal info" },
+    "vehicle": {
+      "title": "Vehicle details",
+      "type": "Vehicle",
+      "plate": "Plate",
+      "license": "License",
+      "license_expiry": "License expiry"
+    },
+    "stats": {
+      "assigned_title": "Assigned",
+      "assigned_sub": "Shipments assigned",
+      "pending_title": "Pending",
+      "pending_sub": "Pending deliveries",
+      "delivered_title": "Delivered today",
+      "delivered_sub": "Completed deliveries"
+    },
+    "not_found": "Driver not found.",
+    "invalid_id": "Invalid driver ID.",
+    "confirm_delete_name": "Delete {{name}}?",
+    "invalid_selection": "Invalid driver selection"
+  },
+  "companies": {
+    "create_title": "Create company",
+    "create_subtitle": "New company",
+    "label": {
+      "name": "Company name",
+      "code": "Company code",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "tax_number": "Tax number",
+      "commercial_register": "Commercial register",
+      "logo_url": "Logo URL",
+      "subscription_plan": "Subscription plan",
+      "subscription_status": "Subscription status",
+      "is_active": "Company status"
+    },
+    "placeholder": {
+      "name": "Company name",
+      "code": "Company code",
+      "email": "name@example.com",
+      "phone": "01000000000",
+      "address": "Company address",
+      "city": "City",
+      "country": "Country",
+      "tax_number": "123456789",
+      "commercial_register": "123456789",
+      "logo_url": "https://example.com/logo.png",
+      "subscription_plan": "Gold",
+      "subscription_status": "Active"
+    },
+    "option": {
+      "is_active": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save company",
+      "saving": "Saving…"
+    }
+    ,
+    "errors": {
+      "name_required": "Company name is required",
+      "code_required": "Company code is required",
+      "email_invalid": "Email must be valid"
+    }
+    ,
+    "created_success": "Company created successfully",
+    "updated_success": "Company updated successfully",
+    "save_failed": "Unable to save company.",
+    "deleted_success": "Company deleted successfully",
+    "delete_failed": "Unable to delete company",
+    "confirm_delete": "Delete this company?",
+    "title": "Companies",
+    "manage": "Manage companies",
+    "subtitle": "Create and manage tenant companies.",
+    "summary": { "counts": "{{total}} companies" },
+    "button": { "new_company": "New company" },
+    "loading": "Loading companies…",
+    "load_failed": "Unable to load companies",
+    "list_title": "Company list",
+    "no_companies": "No companies yet.",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "page": "Page {{page}}",
+    "pagination": { "previous": "Previous", "next": "Next" },
+    "table": { "name": "Name", "email": "Email", "phone": "Phone", "status": "Status", "created_at": "Created At", "actions": "Actions" }
+  },
+  "branches": {
+    "create_title": "Create branch",
+    "create_subtitle": "New branch",
+    "label": {
+      "name": "Branch name",
+      "code": "Branch code",
+      "city": "City",
+      "address": "Address",
+      "phone": "Phone",
+      "manager_name": "Manager name",
+      "status": "Branch status"
+    },
+    "placeholder": {
+      "name": "Branch name",
+      "code": "Branch code",
+      "city": "Branch city",
+      "address": "Branch address",
+      "phone": "01000000000",
+      "manager_name": "Manager name"
+    },
+    "option": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save branch",
+      "saving": "Saving…"
+    }
+      ,
+      "errors": {
+        "name_required": "Branch name is required",
+        "code_required": "Branch code is required",
+        "city_required": "City is required",
+        "address_required": "Address is required",
+        "phone_required": "Phone is required",
+        "manager_name_required": "Manager name is required"
+      }
+  },
+  "cities": {
+    "create_title": "Create city",
+    "create_subtitle": "New city",
+    "update_title": "Edit city",
+    "update_subtitle": "Update city details",
+    "label": {
+      "name": "City name",
+      "code": "City code",
+      "governorate": "Governorate",
+      "status": "Status"
+    },
+    "placeholder": {
+      "name": "Cairo",
+      "code": "CAI",
+      "governorate": "Cairo"
+    },
+    "option": {
+      "status": {
+        "active": "Active",
+ "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "create": "Create city",
+      "save_changes": "Save changes",
+      "saving": "Saving…"
+    }
+  },
+  "customers": {
+    "create_title": "Create customer",
+    "create_subtitle": "New customer",
+    "label": {
+      "full_name": "Full name",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "city": "City"
+    },
+    "placeholder": {
+      "full_name": "Customer full name",
+      "phone": "01000000000",
+      "email": "name@example.com",
+      "address": "Customer address",
+      "city": "City"
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save customer",
+      "saving": "Saving…"
+    }
+    ,
+    "errors": {
+      "full_name_required": "Full name is required",
+      "phone_required": "Phone is required",
+      "email_invalid": "Email must be a valid address",
+      "address_required": "Address is required",
+      "city_required": "City is required"
+    }
+    ,
+    "title": "Customers",
+    "manage": "Manage customers",
+    "subtitle": "Create and manage customer records.",
+    "summary": {
+      "counts": "{{total}} customers"
+    },
+    "button": {
+      "new_customer": "New customer"
+    },
+    "created_success": "Customer created",
+    "create_failed": "Unable to create customer",
+    "loading": "Loading customers…",
+    "load_failed": "Unable to load customers",
+    "list_title": "Customer list",
+    "no_customers": "No customers yet.",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm_delete": "Delete {{name}}?",
+    "deleted_success": "Customer deleted",
+    "delete_failed": "Unable to delete customer",
+    "back_to_list": "Back",
+    "table": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "city": "City",
+      "address": "Address",
+      "created_at": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "cods": {
+    "create_title": "Create COD",
+    "create_subtitle": "New COD",
+    "label": {
+      "shipment_id": "Shipment ID",
+      "amount": "Amount",
+      "currency": "Currency",
+      "collected_by_driver_id": "Collected by driver ID",
+      "collected": "Collected",
+      "transferred_to_customer": "Transferred to customer",
+      "collected_at": "Collected at",
+      "transferred_at": "Transferred at",
+      "notes": "Notes"
+    },
+    "placeholder": {
+      "shipment_id": "Shipment ID",
+      "amount": "100.00",
+      "currency": "EGP",
+      "optional": "Optional",
+      "notes": "Optional note"
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save COD",
+      "saving": "Saving…"
+    }
+  },
+  "deliveryZones": {
+    "create_title": "Create delivery zone",
+    "create_subtitle": "New delivery zone",
+    "update_title": "Update delivery zone",
+    "update_subtitle": "Edit delivery zone",
+    "label": {
+      "city_id": "City ID",
+      "zone_name": "Zone name",
+      "delivery_days": "Delivery days",
+      "extra_cost": "Extra cost",
+      "status": "Status"
+    },
+    "placeholder": {
+      "city_id": "City ID",
+      "zone_name": "Zone name",
+      "delivery_days": "Monday, Wednesday",
+      "extra_cost": "10.00"
+    },
+    "option": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "create": "Create zone",
+      "save_changes": "Save changes",
+      "saving": "Saving…"
+    }
+  },
+  "payments": {
+    "create_title": "Create payment",
+    "create_subtitle": "New payment",
+    "label": {
+      "customer_id": "Customer ID",
+      "shipment_id": "Shipment ID",
+      "cod_id": "COD ID",
+      "amount": "Amount",
+      "currency": "Currency",
+      "payment_method": "Method",
+      "payment_status": "Status",
+      "transaction_reference": "Transaction reference",
+      "paid_at": "Paid at",
+      "notes": "Notes"
+    },
+    "placeholder": {
+      "customer_id": "1",
+      "optional": "Optional",
+      "amount": "100.00",
+      "currency": "EGP",
+      "transaction_reference": "TXN-001",
+      "notes": "Optional note"
+    },
+    "option": {
+      "method": {
+        "cash": "Cash",
+        "bank_transfer": "Bank Transfer",
+        "wallet": "Wallet",
+        "credit_card": "Credit Card"
+      },
+      "status": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save payment",
+      "saving": "Saving…"
+    }
+  },
+  "pickupRequests": {
+    "create_title": "Create pickup request",
+    "create_subtitle": "New pickup request",
+    "label": {
+      "customer_id": "Customer ID",
+      "city_id": "City ID",
+      "pickup_address": "Pickup address",
+      "contact_name": "Contact name",
+      "contact_phone": "Contact phone",
+      "preferred_pickup_date": "Preferred pickup date",
+      "preferred_time_window": "Preferred time window",
+      "assigned_branch_id": "Assigned branch ID",
+      "assigned_driver_id": "Assigned driver ID",
+      "notes": "Notes"
+    },
+    "placeholder": {
+      "customer_id": "1",
+      "city_id": "1",
+      "pickup_address": "Pickup address",
+      "contact_name": "Contact name",
+      "contact_phone": "01000000000",
+      "preferred_time_window": "09:00 - 12:00",
+      "optional": "Optional",
+      "notes": "Optional note"
+    },
+    "button": {
+      "cancel": "Cancel",
+      "save": "Save pickup request",
+      "saving": "Saving…"
+    }
+    ,
+    "errors": {
+      "customer_required": "Customer is required",
+      "address_min": "Address must be at least 5 characters",
+      "city_required": "City is required",
+      "contact_name_required": "Contact name is required",
+      "contact_phone_required": "Contact phone is required",
+      "preferred_pickup_date_required": "Preferred pickup date is required",
+      "preferred_time_window_required": "Preferred time window is required"
+    }
+  },
+  "pricingRules": {
+    "create_title": "Create pricing rule",
+    "create_subtitle": "New rule",
+    "update_title": "Update pricing rule",
+    "update_subtitle": "Edit rule",
+    "label": {
+      "source_city_id": "Source City ID",
+      "destination_city_id": "Destination City ID",
+      "delivery_zone_id": "Delivery Zone ID",
+      "service_type": "Service Type",
+      "min_weight": "Min Weight (kg)",
+      "max_weight": "Max Weight (kg)",
+      "base_price": "Base Price",
+      "extra_cost": "Extra Cost",
+      "estimated_delivery_days": "Estimated Delivery Days",
+      "status": "Status"
+    },
+    "placeholder": {
+      "source_city_id": "Example: 1",
+      "destination_city_id": "Example: 2",
+      "delivery_zone_id": "Optional",
+      "service_type": "Standard",
+      "min_weight": "0",
+      "max_weight": "5",
+      "base_price": "50",
+      "extra_cost": "0",
+      "estimated_delivery_days": "2"
+    },
+    "option": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "create": "Create rule",
+      "save_changes": "Save changes",
+      "saving": "Saving…"
+    }
+  }
+}
