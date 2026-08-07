@@ -486,7 +486,13 @@
       "summary": "{{total}} companies",
       "new_company": "New company",
       "loading": "Loading companies…",
-      "load_failed": "Unable to load companies"
+      "load_failed": "Unable to load companies",
+      "search_placeholder": "Search companies",
+      "search": "Search",
+      "clear": "Clear",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}}"
     },
     "toast": {
       "created": "Company created successfully",
@@ -525,6 +531,10 @@
       "subscription_status": "Active"
     },
     "option": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
       "is_active": {
         "active": "Active",
         "inactive": "Inactive"
@@ -1023,7 +1033,13 @@
       "summary": "{{total}} rules • {{active}} active",
       "new_rule": "New rule",
       "loading": "Loading pricing rules…",
-      "load_failed": "Unable to load pricing rules"
+      "load_failed": "Unable to load pricing rules",
+      "search_placeholder": "Search pricing rules",
+      "search": "Search",
+      "clear": "Clear",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{page}}"
     },
     "toast": {
       "created": "Pricing rule created successfully",

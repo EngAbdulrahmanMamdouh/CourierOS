@@ -484,7 +484,13 @@
       "summary": "{{total}} شركة",
       "new_company": "شركة جديدة",
       "loading": "جارٍ تحميل الشركات…",
-      "load_failed": "تعذر تحميل الشركات"
+      "load_failed": "تعذر تحميل الشركات",
+      "search_placeholder": "ابحث في الشركات",
+      "search": "بحث",
+      "clear": "مسح",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {{page}}"
     },
     "toast": {
       "created": "تم إنشاء الشركة بنجاح",
@@ -523,6 +529,10 @@
       "subscription_status": "نشط"
     },
     "option": {
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
       "is_active": {
         "active": "نشط",
         "inactive": "غير نشط"
@@ -1021,7 +1031,13 @@
       "summary": "{{total}} قاعدة • {{active}} نشط",
       "new_rule": "قاعدة جديدة",
       "loading": "جارٍ تحميل قواعد التسعير…",
-      "load_failed": "تعذر تحميل قواعد التسعير"
+      "load_failed": "تعذر تحميل قواعد التسعير",
+      "search_placeholder": "ابحث في قواعد التسعير",
+      "search": "بحث",
+      "clear": "مسح",
+      "previous": "السابق",
+      "next": "التالي",
+      "page": "الصفحة {{page}}"
     },
     "toast": {
       "created": "تم إنشاء قاعدة التسعير بنجاح",
