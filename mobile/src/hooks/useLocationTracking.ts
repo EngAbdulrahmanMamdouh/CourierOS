@@ -6,7 +6,7 @@ import { locationTrackingService } from '../services/locationTracking'
 export function useLocationTracking(shipmentId?: number) {
   const { token, user } = useAuth()
   const appStateRef = useRef(AppState.currentState)
-  const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const trackingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const startTracking = useCallback(async () => {
     if (!token || user?.role !== 'employee') {

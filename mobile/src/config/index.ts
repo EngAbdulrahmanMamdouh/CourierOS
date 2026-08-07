@@ -1,1 +1,1 @@
-export const API_BASE = 'http://10.242.180.191:8000'
+export const API_BASE = 'https://courieros-production.up.railway.app'

@@ -1,9 +1,10 @@
 import axios, { AxiosError, AxiosInstance } from 'axios'
 import { clearToken, getToken, isJwtExpired } from '../utils/storage'
 import { emitAuthEvent } from '../utils/authEvents'
+import { API_BASE } from '../config'
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://10.242.180.191:8000',
+  baseURL: API_BASE,
   timeout: 15000,
 })
 
