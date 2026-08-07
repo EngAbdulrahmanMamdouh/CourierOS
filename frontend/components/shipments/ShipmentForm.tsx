@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -45,33 +45,47 @@ export default function ShipmentForm({
 }: ShipmentFormProps) {
   const { t } = useTranslation()
   const firstInputRef = useRef<HTMLInputElement | null>(null)
-  const schema = useMemo(() => shipmentFormSchema(t), [t])
-  const resolver = useMemo(() => zodResolver(schema), [schema])
+  const schema = shipmentFormSchema(t)
   const resolvedSubmitLabel = submitLabel ?? (mode === 'edit' ? t('shipments.button.save_changes') : t('shipments.button.create'))
-
-  const formDefaultValues = useMemo<ShipmentFormValues>(() => ({
-    sender_name: '',
-    receiver_name: '',
-    receiver_phone: '',
-    address: '',
-    city: '',
-    status: 'Pending',
-    estimated_delivery_days: 1,
-    notes: '',
-    cod_amount: 0,
-    ...defaultValues,
-  }), [defaultValues])
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitted, touchedFields },
     setFocus,
   } = useForm<ShipmentFormValues>({
-    resolver,
-    defaultValues: formDefaultValues,
+    resolver: zodResolver(schema),
+    defaultValues: {
+      sender_name: '',
+      receiver_name: '',
+      receiver_phone: '',
+      address: '',
+      city: '',
+      status: 'Pending',
+      estimated_delivery_days: 1,
+      notes: '',
+      cod_amount: 0,
+      ...defaultValues,
+    },
     mode: 'onBlur',
   })
+
+  useEffect(() => {
+    if (!defaultValues) {
+      reset({
+        sender_name: '',
+        receiver_name: '',
+        receiver_phone: '',
+        address: '',
+        city: '',
+        status: 'Pending',
+        estimated_delivery_days: 1,
+        notes: '',
+        cod_amount: 0,
+      })
+    }
+  }, [defaultValues, reset])
 
   useEffect(() => {
     if (initialFocusRef?.current) {
